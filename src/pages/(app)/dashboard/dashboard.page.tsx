@@ -33,18 +33,18 @@ export default function DashboardPage() {
 
   const { listings } = useAppSelector(state => state.listing);
 
-  const chii = async () => {
-    try {
-      const response = await apiClient.post("/listing", { tx_hash: "0x0655ee38395dbc433d83981c72a1ea42637f94ae72fb0389b9d758f0f7c34a0c" });
-      console.log(response);
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  // const chii = async () => {
+  //   try {
+  //     const response = await apiClient.post("/listing", { tx_hash: "0x0655ee38395dbc433d83981c72a1ea42637f94ae72fb0389b9d758f0f7c34a0c" });
+  //     console.log(response);
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
 
   return (
     <div className="flex flex-col gap-4 py-4">
-      <button onClick={chii}>click</button>
+      {/* <button onClick={chii}>click</button> */}
       <div className="h-[200px] w-full rounded-2xl bg-gradient-to-l from-[#0D857C] to-[#0EB9AC] p-[1px] sm:h-[240px] md:rounded-3xl">
         <div className="flex size-full overflow-hidden rounded-[inherit] bg-gradient-to-r from-[#056F67] to-[#0AADA1] text-white">
           <div className="lg:px-12">
