@@ -8,8 +8,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ONBOARDING_SCHEMA, onboardingSchema } from "@/utils/validators";
 import Management from "./steps/management";
-import Dao from "./steps/dao";
-import Trading from "./steps/trading";
 import AccountType from "./steps/account-type";
 
 export default function OnboardingPage() {

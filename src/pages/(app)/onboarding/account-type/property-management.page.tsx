@@ -43,7 +43,6 @@ import { PhoneInput } from "@/components/extension/phone-input";
 import {
   cn,
   CountryData,
-  generateAvatarFromAddress,
   getCountries,
   getStatesByCountry,
   StateData,
@@ -54,7 +53,7 @@ import { stringToByteArray } from "@/lib/starknet/utils";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 
 //! React and Router
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useWalletHook } from "@/hooks/useWallet.hook";
 import { CairoCustomEnum } from "starknet";
@@ -195,7 +194,7 @@ export default function PropertyManagementPage() {
       if (isLoading) return;
       setIsLoading(true)
       const formData = form.getValues();
-      const { region, email, name, phone, isDao } = formData;
+      const { region, email, name, phone } = formData;
 
       // Validate top-level fields
       if (!email || !name || !phone?.national || !phone?.national) {

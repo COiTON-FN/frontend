@@ -1,11 +1,4 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+
 import { cn, copyToClipboard, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { lorelei } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
@@ -63,7 +56,7 @@ export default function ProfilePage() {
   const [credentialStore, setCredential] = useState<User | null>(null);
   const location = useLocation();
   const { getContractInstance, getRPCProviderContract } = useContractInstance()
-  const [loading, setLoading] = useState<boolean>(false);
+  const [_, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   useEffect(() => {
     const state = location?.state;
@@ -435,12 +428,13 @@ const ListingsSection = ({ listings }: UserListingsProps) => {
 
       </div>
       {listings.length > 2 ? <div className="mt-5 flex justify-center">
-        <p
+        <button
+          onClick={() => set_limited(!limited)}
           role="button"
           className="text-sm font-medium text-[#15948A] md:text-base"
         >
           {limited ? " View More..." : " View Less..."}
-        </p>
+        </button>
       </div> : null}
     </div>
   );

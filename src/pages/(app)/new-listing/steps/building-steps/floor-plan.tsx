@@ -29,7 +29,7 @@ import {
 } from "@/components/extension/file-uploader";
 import { DropzoneOptions } from "react-dropzone";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.hook";
 import { byteArrayToString, stringToByteArray } from "@/lib/starknet/utils";
@@ -41,7 +41,7 @@ import { addListing, Listing } from "@/store/slice/listing.slice";
 
 
 export default function FloorPlanForm() {
-  const { onUpload, isUploading } = useUploadFileToPinataHook();
+  const { onUpload } = useUploadFileToPinataHook();
 
   const dispatch = useDispatch<AppDispatch>();
   const formData = useSelector((state: RootState) => state.newListing.formData);
@@ -60,8 +60,8 @@ export default function FloorPlanForm() {
 
   const {
     setValue,
-    getValues,
-    formState: { errors, isSubmitting },
+
+    formState: { errors },
   } = form;
 
   const navigate = useNavigate();

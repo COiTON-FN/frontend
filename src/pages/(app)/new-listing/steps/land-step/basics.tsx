@@ -64,7 +64,7 @@ export default function BasicsForm() {
 
   const {
     setValue,
-    getValues,
+
     formState: { errors },
   } = form;
   const { onUpload } = useUploadFileToPinataHook();

@@ -3,7 +3,6 @@ import {
   useLocation,
   useNavigate,
   useParams,
-  useSearchParams,
 } from "react-router-dom";
 import {
   FacebookIcon,
@@ -31,21 +30,18 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PiFolderOpenDuotone } from "react-icons/pi";
 import { RxOpenInNewWindow } from "react-icons/rx";
-import { MapView } from "@/components/shared/map-view";
-import { contract } from "@/utils/contract";
 
 import { byteArrayToString } from "@/lib/starknet/utils";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { cn, truncateAddr } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
-import { Loader, Share2, Verified } from "lucide-react";
+import { Share2, Verified } from "lucide-react";
 import { BiLeaf } from "react-icons/bi";
-import { cairo, CairoOption, CairoOptionVariant } from "starknet";
+import { CairoOption, CairoOptionVariant } from "starknet";
 import { toast } from "sonner";
 import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -999,7 +995,7 @@ export default function PropertyDetailsPage() {
 
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:p-10 2xl:flex-row">
         <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-          {listing?.details?.licenseCid.map((license: any, _index: number) => (
+          {listing?.details?.licenseCid.map((_: any, _index: number) => (
             <div
               key={_index}
               className="flex items-center gap-4 rounded-2xl bg-secondary p-4"

@@ -4,15 +4,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TiArrowRightOutline } from "react-icons/ti";
 import { Check, ChevronsUpDown, Loader, Paperclip } from "lucide-react";
-import { toast } from "sonner";
 import { z } from "zod";
 import { formatPhoneNumber } from "react-phone-number-input";
 
 
 
-//! Redux
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
 
 //! Components
 import { Button } from "@/components/ui/button";
@@ -50,18 +46,15 @@ import {
 import {
   cn,
   CountryData,
-  generateAvatarFromAddress,
   getCountries,
   getStatesByCountry,
   StateData,
 } from "@/lib/utils";
 import { assets } from "@/assets";
 import { registrationSchema } from "@/utils/validators";
-import { stringToByteArray } from "@/lib/starknet/utils";
-import { useContractInstance } from "@/hooks/useContractInstance.hook";
 
 //! React and Router
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DropzoneOptions } from "react-dropzone";
 
@@ -109,9 +102,7 @@ export default function GetVerifiedPage() {
   const [countries, setCountries] = useState<CountryData[]>([]);
   const [states, setStates] = useState<StateData[]>([]);
 
-  const { getContractInstance } = useContractInstance();
 
-  const walletStore = useSelector((state: RootState) => state.wallet);
 
   const form = useForm<DAO_MANAGEMENT_SCHEMA>({
     resolver: zodResolver(daoManagementSchema),
@@ -122,29 +113,15 @@ export default function GetVerifiedPage() {
 
   const {
     control,
-    handleSubmit,
     formState: { errors },
   } = form;
-
-  const formData = useMemo(() => {
-    const values = form.getValues();
-
-    const data = {
-      ...values,
-      avatar: generateAvatarFromAddress(
-        ""
-      ),
-    };
-
-    return data;
-  }, [form.getValues, form.watch()]);
 
 
 
 
 
   // const isLoading = receipt?.isLoading || transaction?.isPending;
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, _] = useState(false);
 
 
 

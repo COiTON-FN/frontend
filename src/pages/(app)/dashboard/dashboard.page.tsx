@@ -11,10 +11,8 @@ import { BsInbox } from "react-icons/bs";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import ListingCard from "@/components/shared/listing-card";
-import axios from "axios";
 import { useAppSelector } from "@/store";
 import { Listing } from "@/store/slice/listing.slice";
-import { Trophy } from "lucide-react";
 
 const updates = [
   {

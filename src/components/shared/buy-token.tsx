@@ -50,9 +50,7 @@ const BuyToken = ({ children }: { children: ReactNode }) => {
   const dispatch = useDispatch<AppDispatch>();
   const walletState = useSelector((state: RootState) => state.wallet);
   const modalState = useSelector((state: RootState) => state.modal);
-  const credentialStore = useSelector(
-    (state: RootState) => state.credential.credential,
-  );
+
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({

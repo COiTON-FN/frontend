@@ -1,10 +1,8 @@
 import ListingBoard from "@/components/shared/listing-board";
 import ListingCard from "@/components/shared/listing-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { byteArrayToString, toHex } from "@/lib/starknet/utils";
 import { useAppSelector } from "@/store";
 import { Listing } from "@/store/slice/listing.slice";
-import { contract } from "@/utils/contract";
 import { BsInbox } from "react-icons/bs";
 
 export default function BuyOrRentPage() {

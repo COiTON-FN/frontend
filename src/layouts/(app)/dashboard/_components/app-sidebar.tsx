@@ -8,8 +8,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import {
@@ -19,11 +17,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Link, useLocation } from "react-router-dom";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+
 import { cn } from "@/lib/utils";
 import { ChevronDown, Eye, EyeOff } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -472,7 +466,6 @@ export default memo(AppSidebar);
 export function NavMain() {
   const location = useLocation();
   const walletState = useSelector((state: RootState) => state.wallet);
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const isActive = (path?: string) => path && location.pathname.includes(path);
 
@@ -484,7 +477,7 @@ export function NavMain() {
           //   (link) =>
           //     credentialStore?.accountType === "dao" || !link.dao_members,
           // )
-          .map(({ label, path, icon }, index) =>
+          .map(({ label, path, icon }, _) =>
 
             <SidebarMenuItem key={label}>
               <SidebarMenuButton
