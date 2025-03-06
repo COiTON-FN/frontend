@@ -271,7 +271,9 @@ export default function PropertyDetailsPage() {
       const erc20 = getErc20Instance();
       const allowance = await erc20!.allowance(walletAddress, variables.daoAddress);
       const account = window.Wallet.Account!;
-      if (Number(allowance) < listing.price) {
+      console.log({ allowance })
+      if (Number(allowance) < (bidPrice || listing.price)) {
+        console.log("should approve")
         const approval_call = erc20!.populate("approve", [
           variables.daoAddress,
           bidPrice || listing.price
@@ -279,14 +281,17 @@ export default function PropertyDetailsPage() {
 
         const approval_tx = await account.execute(approval_call);
         await account.waitForTransaction(approval_tx.transaction_hash);
+        console.log("Approved")
       }
 
 
+      console.log("Process")
 
       const call = contract!.populate("create_purchase_request", [
         listing.id,
         new CairoOption(CairoOptionVariant.Some, bidPrice || listing.price),
       ])
+      console.log(call)
       const tx = await account?.execute(call);
       await account?.waitForTransaction(tx!.transaction_hash);
       setCreatingPurchaseAgreement(false);
