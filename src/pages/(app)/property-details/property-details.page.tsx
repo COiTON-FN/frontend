@@ -272,6 +272,7 @@ export default function PropertyDetailsPage() {
       const allowance = await erc20!.allowance(walletAddress, variables.daoAddress);
       const account = window.Wallet.Account!;
       console.log({ allowance })
+      console.log(walletAddress, variables.daoAddress)
       if (Number(allowance) < (bidPrice || listing.price)) {
         console.log("should approve")
         const approval_call = erc20!.populate("approve", [
