@@ -274,11 +274,11 @@ export default function PropertyDetailsPage() {
       if (Number(allowance) < listing.price) {
         const approval_call = erc20!.populate("approve", [
           variables.daoAddress,
-          listing.price
+          bidPrice || listing.price
         ]);
 
         const approval_tx = await account.execute(approval_call);
-        await account.waitForTransaction(approval_tx.transaction_hash)
+        await account.waitForTransaction(approval_tx.transaction_hash);
       }
 
 
