@@ -31,7 +31,22 @@ export const useContractInstance = () => {
   };
 
   const getErc20Instance = useCallback(() => {
+    if (!window.Wallet?.Account || !window.Wallet?.IsConnected) {
+      toast.error("Wallet not connected!");
 
+      return;
+    }
+
+
+    const contract = new Contract(
+      erc20ABI,
+      erc20Address,
+      window.Wallet.Account as unknown as AccountInterface
+    );
+
+
+
+    return contract;
   }, [erc20ABI, erc20Address]);
 
   return { getContractInstance, getErc20Instance, getRPCProviderContract };

@@ -1,7 +1,7 @@
 import { assets } from "@/assets";
 import ListingBoard from "@/components/shared/listing-board";
 import { Button } from "@/components/ui/button";
-import { apiClient, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { variants } from "@/utils/constants";
 import { motion } from "framer-motion";
 import { FiCheckCircle, FiClock } from "react-icons/fi";

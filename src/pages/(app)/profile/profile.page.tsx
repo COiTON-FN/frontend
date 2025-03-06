@@ -171,11 +171,11 @@ export default function ProfilePage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <p className="mb-2 text-2xl font-medium md:text-3xl capitalize">
+                <div className="mb-2 flex items-center gap-1">
+                  <p className="text-2xl font-medium md:text-3xl capitalize">
                     {credentialStore?.details?.name}
                   </p>
-                  {credentialStore?.user_type === "Entity" ? credentialStore.verified ? <Verified color="#3b82f6" /> : <div className="border border-red-500 rounded-full py-1 px-3 text-sm text-red-500 font-bold">Not verified</div> : null}
+                  {credentialStore?.user_type === "Entity" ? credentialStore.verified ? <Verified color="#166534" /> : <div className="border border-red-500 rounded-full py-1 px-3 text-sm text-red-500 font-bold">Not verified</div> : null}
                 </div>
 
                 {credentialStore?.user_type === "Entity" ? <div className="flex items-center gap-2">

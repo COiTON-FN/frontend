@@ -50,12 +50,15 @@ export type Listing = {
      owner_details:User|undefined
 }
 
+
+
+
 export type PurchaseRequest =  {
      listing_id: number,
      request_id: number,
      price: number,
      initiator: string,
-     user: User|undefined
+     user?: User
 }
 
 export interface I_LISTING_SLICE {

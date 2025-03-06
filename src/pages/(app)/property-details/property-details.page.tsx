@@ -35,106 +35,23 @@ import { PiFolderOpenDuotone } from "react-icons/pi";
 import { RxOpenInNewWindow } from "react-icons/rx";
 
 import { byteArrayToString } from "@/lib/starknet/utils";
-import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
+import { useEffect, useRef, useState } from "react";
+import { cn, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
-import { Share2, Verified } from "lucide-react";
+import { Loader, Share2, Verified, X } from "lucide-react";
 import { BiLeaf } from "react-icons/bi";
-import { CairoOption, CairoOptionVariant } from "starknet";
 import { toast } from "sonner";
 import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User } from "@/store/slice/credential.slice";
 import { useWalletHook } from "@/hooks/useWallet.hook";
 import { useAppSelector } from "@/store";
-
-// const images = Array.from(
-//   { length: 5 },
-//   (_, i) =>
-//     `https://freshcart.codescandy.com/tailwindcss/assets/images/products/product-single-img-${(i % 4) + 1}.jpg`,
-// );
-
-// const listingFormData = {
-//   // 1. Property Basics
-//   title: "Luxury Apartment",
-//   images: [
-//     new File(["image1"], "image1.jpg", { type: "image/jpeg" }),
-//     new File(["image2"], "image2.jpg", { type: "image/jpeg" }),
-//   ],
-//   imagesCid: images, // Optional
-//   videos: [new File(["video1"], "video1.mp4", { type: "video/mp4" })], // Optional
-//   videosCid: ["bafybeih8..."], // Optional
-//   description: "A beautiful luxury apartment in the heart of the city.",
-//   propertyType: "building",
-
-//   // 2. Address
-//   region: {
-//     country: {
-//       countryName: "United States",
-//       countryCode: "US",
-//       countryFlag: "🇺🇸", // Optional
-//       countryLat: 37.0902,
-//       countryLong: -95.7129,
-//     },
-//     state: {
-//       stateName: "California", // Optional
-//       stateCode: "CA", // Optional
-//       countryCode: "US", // Optional
-//       stateLat: 36.7783, // Optional
-//       stateLong: -119.4179, // Optional
-//     }, // Optional
-//     city: {
-//       cityName: "Los Angeles", // Optional
-//       stateCode: "CA", // Optional
-//       countryCode: "US", // Optional
-//       cityLat: 34.0522, // Optional
-//       cityLong: -118.2437, // Optional
-//     }, // Optional
-//   },
-//   zip: 90001,
-//   landmark: "Near Central Park",
-//   area: "Downtown LA",
-
-//   // 3. Details
-//   rangeFrom: 500000,
-//   rangeTo: 1000000,
-//   rooms: 5,
-//   bathrooms: 2,
-//   bedrooms: 3,
-//   yearBuilt: "2010-05-15", // Valid ISO date format
-//   structureType: "Apartment",
-//   propertySize: 1500,
-
-//   // 4. Amenities and Features
-//   interior: [
-//     { id: "1", text: "Fully Furnished" },
-//     { id: "2", text: "Modern Kitchen" },
-//   ],
-//   exterior: [
-//     { id: "3", text: "Balcony with view" },
-//     { id: "4", text: "Private Parking" },
-//   ],
-//   utilities: [
-//     { id: "5", text: "Central Heating" },
-//     { id: "6", text: "High-speed Internet" },
-//   ],
-//   others: [
-//     { id: "7", text: "Pet Friendly" },
-//     { id: "8", text: "Swimming Pool" },
-//   ], // Optional
-
-//   // 5. Floor Plan
-//   floorPlan: [
-//     new File(["floorplan1"], "floorplan1.pdf", { type: "application/pdf" }),
-//     new File(["floorplan2"], "floorplan2.pdf", { type: "application/pdf" }),
-//   ],
-//   floorPlanCid: images, // Optional
-//   license: [
-//     new File(["license1"], "license1.pdf", { type: "application/pdf" }),
-//   ],
-//   licenseCid: images, // Optional
-// };
+import BID from "../../../assets/images/bid.png";
+import BID_LG from "../../../assets/images/bid_lg.png";
+import { Input } from "@/components/ui/input";
+import { CairoOption, CairoOptionVariant } from "starknet";
+import { variables } from "@/utils/variables";
 
 export default function PropertyDetailsPage() {
   const [showMore, setShowMore] = useState(false);
@@ -151,7 +68,7 @@ export default function PropertyDetailsPage() {
   const { id } = useParams();
   const [addresses, setAddresses] = useState<any>([]);
   const [details, setDetails] = useState<any>([]);
-  const { getContractInstance, getRPCProviderContract } = useContractInstance()
+  const { getContractInstance, getRPCProviderContract, getErc20Instance } = useContractInstance()
 
   const [content, setContent] = useState({ url: window.location.href, message: "" });
 
@@ -186,7 +103,7 @@ export default function PropertyDetailsPage() {
     setDetails([
       {
         label: "Property ID",
-        value: _listing?.details.id,
+        value: _listing?.id,
       },
       {
         label: "Price",
@@ -276,7 +193,7 @@ export default function PropertyDetailsPage() {
         if (loadingPurchaseRequests) return;
         setLoadingPurchaseRequests(true);
         const contract = window.Wallet?.IsConnected ? getContractInstance() : getRPCProviderContract();
-        const purchase_requests = await contract!.get_listing_purchase_requests();
+        const purchase_requests = await contract!.get_listing_purchase_requests(id);
 
         const structured = purchase_requests.map((request: any) => {
           const user = request.user.Some;
@@ -299,6 +216,8 @@ export default function PropertyDetailsPage() {
           return request_construct
         })
 
+
+        console.log(structured)
         setPurchaseRequests(structured)
         setLoadingPurchaseRequests(false);
       } catch (error) {
@@ -316,13 +235,16 @@ export default function PropertyDetailsPage() {
 
   const { hasRegistered } = useAppSelector(state => state.wallet);
   const { credential } = useAppSelector(state => state.credential);
-
+  const { walletAddress } = useAppSelector(state => state.wallet)
 
   const [creatingPurchaseAgreement, setCreatingPurchaseAgreement] = useState<boolean>(false);
   const { handleConnectWallet } = useWalletHook();
-  async function createPurchaseAgreement() {
+  async function createPurchaseAgreement(bidPrice?: number) {
     try {
       if (creatingPurchaseAgreement) return;
+      if (!window.Wallet?.IsConnected) {
+        await handleConnectWallet();
+      }
       if (!hasRegistered) {
         toast.error("NOT_REGISTERED");
         return;
@@ -345,18 +267,38 @@ export default function PropertyDetailsPage() {
       }
       setCreatingPurchaseAgreement(true);
       const contract = getContractInstance();
-      if (!contract) {
-        await handleConnectWallet();
+
+      const erc20 = getErc20Instance();
+      const allowance = await erc20!.allowance(walletAddress, variables.daoAddress);
+      const account = window.Wallet.Account!;
+      if (Number(allowance) < listing.price) {
+        const approval_call = erc20!.populate("approve", [
+          variables.daoAddress,
+          listing.price
+        ]);
+
+        const approval_tx = await account.execute(approval_call);
+        await account.waitForTransaction(approval_tx.transaction_hash)
       }
+
+
 
       const call = contract!.populate("create_purchase_request", [
         listing.id,
-        new CairoOption(CairoOptionVariant.Some, listing.price),
+        new CairoOption(CairoOptionVariant.Some, bidPrice || listing.price),
       ])
-      const account = window.Wallet.Account;
       const tx = await account?.execute(call);
       await account?.waitForTransaction(tx!.transaction_hash);
       setCreatingPurchaseAgreement(false);
+      const new_purchase_request_construct: PurchaseRequest = {
+        initiator: credential.address,
+        listing_id: listing.id,
+        price: bidPrice || listing.price,
+        request_id: 0,
+        user: credential
+      }
+
+      setPurchaseRequests([...purchaseRequests, new_purchase_request_construct])
       toast.success("Purchase Request created")
 
 
@@ -366,6 +308,9 @@ export default function PropertyDetailsPage() {
       toast.error(error.message || "Somethong went wrong");
     }
   }
+
+
+  const [showDialog, setShowDialog] = useState(false);
 
 
   if (loading)
@@ -397,7 +342,13 @@ export default function PropertyDetailsPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="flex flex-1 flex-col gap-5 rounded-md sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:p-10">
+
+
+      <Modal loading={creatingPurchaseAgreement} onSubmit={createPurchaseAgreement} purchaseRequests={purchaseRequests} details={details} onClose={() => setShowDialog(false)} isOpen={showDialog}
+
+        listing={listing ?? undefined}
+      />
+      <div className="flex flex-1 flex-col gap-5 rounded-md sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:justify-between md:flex-col lg:flex-row lg:gap-[54px]">
           <div className="flex flex-col gap-4">
             <p className="flex flex-col gap-2">
@@ -589,7 +540,7 @@ export default function PropertyDetailsPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Button onClick={createPurchaseAgreement}>
+            <Button onClick={() => setShowDialog(true)}>
               <BiLeaf className="size-5" />
               <span>Purchase/Rent</span>
             </Button>
@@ -781,8 +732,57 @@ export default function PropertyDetailsPage() {
       </div>
 
       <Separator className="my-2 h-px w-full" />
+      <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
+        <div className="">
+          <div className="grid xl:grid-cols-2 grid-cols-1">
+            <p className="mb-2 border-b pb-2 text-base font-semibold uppercase tracking-wide">
+              Bidding Info
+            </p>
+          </div>
+          <div className="grid xl:grid-cols-2 grid-cols-1 lg:gap-0 gap-5 items-start">
+            <div className="lg:max-h-[65vh] max-h-[50vh] overflow-y-auto">
+              <table className="w-full text-left mt-4">
+                <thead>
+                  <tr>
+                    <th className="pb-2 text-[#C1C1C1]">Username</th>
+                    <th className="pb-2 text-[#C1C1C1]">Position</th>
+                    <th className="pb-2 text-[#C1C1C1]">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {purchaseRequests.sort((a, b) => b.price - a.price).map((request, index) => {
+                    return <tr key={index}>
+                      <td className="py-2">
+                        <div className="flex items-center gap-2">
+                          <div className="bg-[#C0D9BF] w-10 h-10 rounded-full flex items-center justify-center">
 
-      <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:p-10 2xl:flex-row">
+                            <img src={generateAvatarFromAddress(`0x${request.initiator}`)} className="w-7 h-7" alt="" />
+                          </div>
+                          <p className="text-[#475467] text-sm">{truncateAddr(`0x${request.initiator}`)}</p>
+                        </div>
+                      </td>
+                      <td className="py-2 text-sm">{String(index + 1).padStart(2, '0')}</td>
+                      <td className="py-2 text-sm">${request.price.toLocaleString()}</td>
+                    </tr>
+                  })}
+
+
+                </tbody>
+              </table>
+              {purchaseRequests.length === 0 ? <p className="text-muted-foreground mt-5 text-center text-sm">No biddings yet</p> : null}
+            </div>
+
+            <div className="space-y-7">
+              <img src={BID_LG} alt="" />
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <Separator className="my-2 h-px w-full" />
+
+
+      <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="grid w-full grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-20 lg:p-10">
           <div className="flex flex-col gap-6">
             <p className="text-lg text-muted-foreground">Interior Details</p>
@@ -822,7 +822,7 @@ export default function PropertyDetailsPage() {
 
       <Separator className="my-2 h-px w-full" />
 
-      <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:p-10 2xl:flex-row">
+      <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="flex w-full flex-col gap-10 xl:flex-row">
           <div className="flex flex-1 flex-col gap-3">
             <p className="text-base text-muted-foreground">FLOOR PLANS</p>
@@ -864,7 +864,7 @@ export default function PropertyDetailsPage() {
 
       {
         listing?.details?.videosCid?.length && (
-          <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:p-10 2xl:flex-row">
+          <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
             <h1>Video</h1>
             <video
               src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
@@ -880,7 +880,7 @@ export default function PropertyDetailsPage() {
 
       <Separator className="my-2 h-px w-full" />
 
-      <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:p-10 2xl:flex-row">
+      <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="flex w-full flex-col gap-6 sm:max-w-full xl:max-w-full xl:flex-row 2xl:max-w-lg 2xl:flex-col">
           <div className="space-y-2">
             <div className="flex flex-1 flex-col gap-7 rounded-md border p-6 sm:rounded-xl sm:p-8">
@@ -888,9 +888,9 @@ export default function PropertyDetailsPage() {
                 <p className="text-xl font-medium">Agent details</p>
 
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <p className="font-medium capitalize">{listing?.owner_details?.details.name}</p>
-                    {listing?.owner_details?.user_type === "Entity" ? listing?.owner_details.verified ? <Verified color="#3b82f6" /> : <div className="border border-red-500 rounded-full py-0.5 px-3 text-sm text-red-500 font-bold">Not verified</div> : null}
+                    {listing?.owner_details?.user_type === "Entity" ? listing?.owner_details.verified ? <Verified size={19} color="#166534" /> : <div className="border border-red-500 rounded-full py-0.5 px-3 text-sm text-red-500 font-bold">Not verified</div> : null}
                   </div>
                   <p className="text-muted-foreground">
                     {listing?.owner_details?.details?.email}
@@ -993,7 +993,7 @@ export default function PropertyDetailsPage() {
 
       <Separator className="my-2 h-px w-full" />
 
-      <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:p-10 2xl:flex-row">
+      <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
           {listing?.details?.licenseCid.map((_: any, _index: number) => (
             <div
@@ -1030,3 +1030,204 @@ export default function PropertyDetailsPage() {
   );
 }
 
+
+
+
+
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  listing?: Listing;
+  details: any[];
+  purchaseRequests: PurchaseRequest[];
+  onSubmit: (bidPrice?: number) => void;
+  loading?: boolean
+}
+
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, listing, details, purchaseRequests, onSubmit, loading }) => {
+  if (!isOpen) return null;
+
+  const handleOutsideClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      onClose();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+
+  const bidInputRef = useRef<HTMLInputElement>(null);
+
+
+  const submit = () => {
+    if (!bidInputRef.current) {
+      toast.error("INVALID_BID");
+      return;
+    }
+    const value = (bidInputRef.current.value)
+    if (value.trim().length > 0) {
+      if (isNaN(Number(value))) {
+        toast.error("INVALID_BID");
+        return;
+      }
+
+      if (Number(value) < (listing?.price ?? 0)) {
+        toast.error("BID_TOO_LOW");
+        return;
+      }
+      onSubmit(Number(value.trim()));
+      return;
+    }
+    onSubmit();
+  }
+
+  return (
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 overflow-auto"
+      onClick={handleOutsideClick}
+    >
+      <div className="bg-white rounded-lg shadow-lg lg:p-6 p-3 w-full lg:max-w-[70vw] max-w-screen-sm transform transition-all scale-100 max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center border-b pb-2 mb-4">
+          <h2 className="text-xl font-satoshi font-semibold">Agreement Info</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700"><X /></button>
+        </div>
+        <div>  <div className="flex w-full flex-col gap-10 xl:flex-row xl:items-start">
+          <div className="flex w-full flex-col gap-6">
+            <div className="w-full overflow-hidden rounded-2xl border bg-secondary">
+              <img
+                src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+                alt={`Product image`}
+                className=" object-cover lg:h-[30rem] h-72 w-full"
+              />
+            </div>
+
+
+          </div>
+
+          <div className="flex w-full flex-col gap-12 lg:max-w-[685px]">
+            <div className="flex flex-col gap-2">
+              <p className="text-xl font-bold text-primary">Snapshot</p>
+              <pre className="flex flex-col whitespace-pre-wrap text-left font-satoshi text-base md:text-base">
+                <span
+                  className={"line-clamp-4 md:font-normal"}
+                >
+                  {listing?.details?.description}
+                </span>
+
+              </pre>
+            </div>
+
+
+
+            <div className="flex flex-col gap-2">
+              <p className="mb-2 border-b pb-2 text-base font-semibold uppercase tracking-wide">
+                Building Info
+              </p>
+
+              <div className="grid grid-cols-2 gap-2">
+                {details.map((dtls: any) => (
+                  <div key={dtls.label} className="flex flex-col">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {dtls.label}
+                    </span>
+                    <span className="text font-medium">{dtls.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+
+          <div className="mt-20">
+            <div className="grid lg:grid-cols-2 grid-cols-1">
+              <p className="mb-2 border-b pb-2 text-base font-semibold uppercase tracking-wide">
+                Bidding Info
+              </p>
+            </div>
+            <div className="grid lg:grid-cols-2 grid-cols-1 lg:gap-0 gap-5 items-start">
+              <div className="max-h-[50vh] overflow-y-auto">
+                <table className="w-full text-left mt-4">
+                  <thead>
+                    <tr>
+                      <th className="pb-2 text-[#C1C1C1]">Username</th>
+                      <th className="pb-2 text-[#C1C1C1]">Position</th>
+                      <th className="pb-2 text-[#C1C1C1]">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {purchaseRequests.sort((a, b) => b.price - a.price).map((request, index) => {
+                      return <tr key={index}>
+                        <td className="py-2">
+                          <div className="flex items-center gap-2">
+                            <div className="bg-[#C0D9BF] w-10 h-10 rounded-full flex items-center justify-center">
+
+                              <img src={generateAvatarFromAddress(`0x${request.initiator}`)} className="w-7 h-7" alt="" />
+                            </div>
+                            <p className="text-[#475467] text-sm">{truncateAddr(`0x${request.initiator}`)}</p>
+                          </div>
+                        </td>
+                        <td className="py-2 text-sm">{String(index + 1).padStart(2, '0')}</td>
+                        <td className="py-2 text-sm">${request.price.toLocaleString()}</td>
+                      </tr>
+                    })}
+
+
+
+
+                  </tbody>
+                </table>
+                {purchaseRequests.length === 0 ? <p className="text-muted-foreground mt-5 text-center text-sm">No biddings yet</p> : null}
+              </div>
+
+              <div className="space-y-7">
+                <img src={BID} alt="" />
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Current Bid Price
+                  </span>
+                  {purchaseRequests.length > 0 ? <span className="font-medium">${purchaseRequests.sort((a, b) => b.price - a.price)[0].price.toLocaleString()}</span> : null}
+                </div>
+
+                <div className="">
+                  <label htmlFor="bid" className="text-sm text-muted-foreground">Input Your Bid Price</label>
+                  <Input ref={bidInputRef} type="number" id="bid" className="mt-1 text-sm" placeholder={`$${purchaseRequests.length > 0 ? purchaseRequests.sort((a, b) => b.price - a.price)[0].price.toLocaleString() : listing?.price.toLocaleString()}`} />
+                </div>
+
+                <div className="flex items-center justify-end">
+                  <Button disabled={loading} onClick={submit}>
+                    {loading ? (
+                      <>
+                        <Loader className="size-5 animate-spin" />
+                        <span className="">Please wait</span>
+                      </>
+                    ) : (
+                      <>
+                        <BiLeaf className="size-5" />
+                        <span>Initiate Agreement</span>
+                      </>
+                    )}
+
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+};

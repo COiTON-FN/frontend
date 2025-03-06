@@ -5,7 +5,7 @@ import { routes } from "./routes";
 import { Fragment } from "react/jsx-runtime";
 import { WalletAccount } from "starknet";
 import { useWalletHook } from "./hooks/useWallet.hook";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "./store";
 import { useContractInstance } from "./hooks/useContractInstance.hook";
 import { setHasRegistered, setWalletAddress } from "./store/slice/wallet.slice";
@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { byteArrayToString } from "./lib/starknet/utils";
 import { setCredential, User } from "./store/slice/credential.slice";
 import { Listing, setListing } from "./store/slice/listing.slice";
+import { generateAvatarFromAddress } from "./lib/utils";
 
 interface Wallet {
   IsConnected: boolean;
@@ -77,46 +78,90 @@ export default function App() {
   ]);
 
 
+  // useEffect(() => {
+  //   let interval: any;
+  //   const handle_wallet_change = () => {
+  //     if (!window.Wallet?.IsConnected) {
+  //       dispatch(setWalletAddress(null));
+  //       return;
+  //     }
+  //     interval = setInterval(() => {
+  //       if (walletAddress) {
+  //         clearInterval(interval);
+  //       }
+  //       if (window.Wallet) {
+  //         if ((window.Wallet.Account as any)?.address) {
+  //           if (!walletAddress) {
+  //             dispatch(
+  //               setWalletAddress(
+  //                 (window.Wallet?.Account as any)?.address ?? null
+  //               )
+  //             );
+  //             console.log
+  //             dispatch(setCredential({ avatar: generateAvatarFromAddress(window.Wallet?.Account?.address ?? "") }))
+
+  //           }
+
+  //           clearInterval(interval);
+  //         }
+  //       } else {
+  //         clearInterval(interval);
+  //       }
+  //     }, 500);
+  //   };
+
+  //   handle_wallet_change();
+
+  //   window.addEventListener("windowWalletClassChange", handle_wallet_change);
+  //   return () => {
+  //     clearInterval(interval);
+  //     window.removeEventListener(
+  //       "windowWalletClassChange",
+  //       handle_wallet_change
+  //     );
+  //   };
+  // }, []);
+
+
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    let interval: any;
-    const handle_wallet_change = () => {
+    const updateWalletAddress = () => {
       if (!window.Wallet?.IsConnected) {
         dispatch(setWalletAddress(null));
         return;
       }
-      interval = setInterval(() => {
-        if (walletAddress) {
-          clearInterval(interval);
-        }
-        if (window.Wallet) {
-          if ((window.Wallet.Account as any)?.address) {
-            if (!walletAddress) {
-              dispatch(
-                setWalletAddress(
-                  (window.Wallet?.Account as any)?.address ?? null
-                )
-              );
-            }
 
-            clearInterval(interval);
-          }
-        } else {
-          clearInterval(interval);
-        }
-      }, 500);
+      if (window.Wallet?.Account?.address && !walletAddress) {
+        dispatch(setWalletAddress(window.Wallet.Account.address));
+        dispatch(setCredential({ avatar: generateAvatarFromAddress(window.Wallet.Account.address) }));
+        console.log("Wallet connected:", window.Wallet.Account.address);
+      }
     };
 
-    handle_wallet_change();
+    updateWalletAddress();
 
-    window.addEventListener("windowWalletClassChange", handle_wallet_change);
+    // Start polling only if walletAddress is not set
+    if (!walletAddress) {
+      intervalRef.current = setInterval(updateWalletAddress, 500);
+    }
+
+    const handleWalletChange = () => {
+      updateWalletAddress();
+    };
+
+    window.addEventListener("windowWalletClassChange", handleWalletChange);
+
     return () => {
-      clearInterval(interval);
-      window.removeEventListener(
-        "windowWalletClassChange",
-        handle_wallet_change
-      );
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      window.removeEventListener("windowWalletClassChange", handleWalletChange);
     };
-  }, []);
+  }, [walletAddress, dispatch]);
+
+
 
 
   useEffect(() => {

@@ -1,4 +1,3 @@
-import { generateAvatarFromAddress } from "@/lib/utils";
 import { AppDispatch } from "@/store";
 import { setCredential } from "@/store/slice/credential.slice";
 import {
@@ -69,7 +68,6 @@ export const useWalletHook = () => {
       );
       dispatch(setIsWalletConnected(true));
       dispatch(setWalletAddress(myWalletAccount.address))
-      dispatch(setCredential({ avatar: generateAvatarFromAddress(myWalletAccount.address) }))
       const event = new Event("windowWalletClassChange");
       window.dispatchEvent(event);
     } catch (error: any) {
