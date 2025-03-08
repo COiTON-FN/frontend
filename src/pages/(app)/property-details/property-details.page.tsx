@@ -39,7 +39,7 @@ import { RxOpenInNewWindow } from "react-icons/rx";
 
 import { byteArrayToString } from "@/lib/starknet/utils";
 import { useEffect, useRef, useState } from "react";
-import { cn, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
+import { cn, formatDate, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { Link as LinkIcon, Loader, Share2, Verified, X } from "lucide-react";
@@ -126,7 +126,7 @@ export default function PropertyDetailsPage() {
       },
       {
         label: "Year built",
-        value: new Date(_listing?.details?.yearBuilt).toDateString(),
+        value: formatDate(_listing?.details?.yearBuilt),
       },
       {
         label: "Structure type",
@@ -343,10 +343,19 @@ export default function PropertyDetailsPage() {
       <Helmet>
         <title>{listing?.details?.title || "Loading..."}</title>
         <meta name="description" content={listing?.details?.description || "Loading..."} />
-        {/* <meta name="keywords" content={metaData.keywords} /> */}
+        <meta name="keywords" content={`${listing?.details?.title?.split(" ").join(", ")}, real estate, listing, property`} />
+
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={content.url} />
+
+
         <meta property="og:title" content={listing?.details?.title || "Loading..."} />
         <meta property="og:description" content={listing?.details?.description || "Loading..."} />
         <meta property="og:image" content={listing ? `${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}` : ""} />
+
+
+
       </Helmet>
       <Breadcrumb>
         <BreadcrumbList>
@@ -621,7 +630,7 @@ export default function PropertyDetailsPage() {
             <div className="aspect-[1.4] w-full overflow-hidden rounded-2xl border bg-secondary lg:aspect-[1.3]">
               <img
                 src={`${import.meta.env.VITE_PINATA_GATEWAY}/${selectedImage || listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-                alt={`Product image ${selectedImage}`}
+                alt={`${listing?.details?.title}`}
                 className="size-full object-cover"
               />
             </div>
@@ -641,7 +650,7 @@ export default function PropertyDetailsPage() {
                   <img
                     src={`${import.meta.env.VITE_PINATA_GATEWAY}/${image}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
 
-                    alt={`Thumbnail ${image}`}
+                    alt={listing?.details?.title}
                     className="object-cover"
                   />
                 </button>
