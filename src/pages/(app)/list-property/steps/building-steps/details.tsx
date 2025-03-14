@@ -1,120 +1,88 @@
 import { AppDispatch, RootState } from "@/store";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { landFormSchema, LandFormSchemaTypes } from "../../new-listing.page";
+import {
+  buildingFormSchema,
+  BuildingFormSchemaTypes,
+} from "../../list-property.page";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   setCurrentStep,
   updateFormData,
 } from "@/store/slice/new-listing.slice";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, UploadIcon, Paperclip } from "lucide-react";
 import {
-  FileInput,
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-} from "@/components/extension/file-uploader";
-import { DropzoneOptions } from "react-dropzone";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ArrowDown, CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
-
-export default function SurveyPlanForm() {
+export default function DetailsForm() {
   const dispatch = useDispatch<AppDispatch>();
   const formData = useSelector((state: RootState) => state.newListing.formData);
 
-  const form = useForm<LandFormSchemaTypes>({
+  const form = useForm<BuildingFormSchemaTypes>({
     resolver: zodResolver(
-      landFormSchema.pick({
-        landSize: true,
-        // boundariesFrom: true,
-        // boundariesTo: true,
-        surveyDescription: true,
-        surveyPlan: true,
-        // propertySize: true,
-        // yearBuilt: true,
-        // plotSize: true,
+      buildingFormSchema.pick({
+        // rangeFrom: true,
+        // rangeTo: true,
+        price: true,
+        rooms: true,
+        bathrooms: true,
+        bedrooms: true,
+        yearBuilt: true,
+        structureType: true,
+        propertySize: true,
       }),
     ),
-    defaultValues: formData,
+    defaultValues: {
+      ...formData,
+    },
   });
 
   const {
     formState: { errors },
   } = form;
 
-  const onSubmit = async (data: Partial<LandFormSchemaTypes>) => {
+  const onSubmit = (data: Partial<BuildingFormSchemaTypes>) => {
     dispatch(updateFormData(data));
-    dispatch(setCurrentStep(3));
+    dispatch(setCurrentStep(4));
   };
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
       <div className="flex flex-col gap-3">
-        <FormField
-          control={form.control}
-          name="landSize"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormControl>
-                <Input
-                  placeholder="Land size(sqm)"
-                  type="number"
-                  className={cn("text-foreground", {
-                    "border-red-500 focus-visible:ring-red-500":
-                      errors.landSize?.message,
-                  })}
-                  {...field}
-                />
-              </FormControl>
-              {errors.landSize && (
-                <p
-                  className={cn(
-                    "text-sm font-medium text-red-500 dark:text-red-900",
-                  )}
-                >
-                  {errors.landSize?.message}
-                </p>
-              )}
-            </FormItem>
-          )}
-        />
-
         {/* <div className="flex flex-col items-center gap-4 md:flex-row">
           <FormField
             control={form.control}
-            name="boundariesFrom"
+            name="rangeFrom"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl>
                   <Input
-                    placeholder="Boundaries (from)"
+                    placeholder="Price Range (from)"
                     type="number"
                     className={cn("text-foreground", {
                       "border-red-500 focus-visible:ring-red-500":
-                        errors.boundariesFrom?.message,
+                        errors.rangeFrom?.message,
                     })}
                     {...field}
                   />
                 </FormControl>
-                {errors.boundariesFrom && (
+                {errors.rangeFrom && (
                   <p
                     className={cn(
                       "text-sm font-medium text-red-500 dark:text-red-900",
                     )}
                   >
-                    {errors.boundariesFrom?.message}
+                    {errors.rangeFrom?.message}
                   </p>
                 )}
               </FormItem>
@@ -122,152 +90,140 @@ export default function SurveyPlanForm() {
           />
           <FormField
             control={form.control}
-            name="boundariesTo"
+            name="rangeTo"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl>
                   <Input
-                    placeholder="Boundaries (to)"
+                    placeholder="Price Range (to)"
                     type="number"
                     className={cn("text-foreground", {
                       "border-red-500 focus-visible:ring-red-500":
-                        errors.boundariesTo?.message,
+                        errors.rangeTo?.message,
                     })}
                     {...field}
                   />
                 </FormControl>
-                {errors.boundariesTo && (
+                {errors.rangeTo && (
                   <p
                     className={cn(
                       "text-sm font-medium text-red-500 dark:text-red-900",
                     )}
                   >
-                    {errors.boundariesTo?.message}
+                    {errors.rangeTo?.message}
                   </p>
                 )}
               </FormItem>
             )}
           />
         </div> */}
-
         <FormField
           control={form.control}
-          name="surveyDescription"
+          name="price"
           render={({ field }) => (
             <FormItem className="w-full">
               <FormControl>
-                <Textarea
-                  placeholder="Floor Plan Descriptions"
-                  {...field}
-                  className={cn("h-[144px] resize-none py-4 text-foreground", {
+                <Input
+                  placeholder="Price"
+                  type="number"
+                  className={cn("text-foreground", {
                     "border-red-500 focus-visible:ring-red-500":
-                      errors.surveyDescription?.message,
+                      errors.price?.message,
                   })}
+                  {...field}
                 />
               </FormControl>
-              {errors.surveyDescription && (
+              {errors.rooms && (
                 <p
                   className={cn(
                     "text-sm font-medium text-red-500 dark:text-red-900",
                   )}
                 >
-                  {errors.surveyDescription.message}
+                  {errors.price?.message}
                 </p>
               )}
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
-          name="surveyPlan"
-          render={({ field }) => (
-            <FormItem>
-              <FileUploader
-                value={field.value}
-                onValueChange={field.onChange}
-                dropzoneOptions={
-                  {
-                    accept: {
-                      "image/*": [".jpg", ".jpeg", ".png", ".webp"],
-                    },
-                    maxFiles: 10,
-                    maxSize: 1024 * 1024 * 5,
-                    multiple: true,
-                  } satisfies DropzoneOptions
-                }
-                className="relative"
-              >
-                <FileInput
-                  className={cn(
-                    "overflow-hidden rounded-md border border-neutral-200 sm:rounded-xl",
-                    {
-                      "border-red-500": errors.surveyPlan,
-                    },
-                  )}
-                >
-                  <div className="flex flex-col gap-4 bg-background p-6">
-                    <FormLabel className="text-base font-normal text-muted-foreground">
-                      Image of survey Plan
-                    </FormLabel>
-
-                    <div className="flex aspect-video w-full flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-primary/50 bg-[#F8FAFA]">
-                      <UploadIcon className="size-10 text-primary/80" />
-                      <p className="text-primary">
-                        Drag and Drop file here or{" "}
-                        <span className="underline">Choose file</span>
-                      </p>
-                    </div>
-                  </div>
-                </FileInput>
-                <FileUploaderContent>
-                  {field.value && field.value.length > 0 && (
-                    <ScrollArea className="mt-2 max-h-36 rounded-xl border bg-background px-1 py-2">
-                      {field.value.map((file, i) => (
-                        <FileUploaderItem
-                          key={i}
-                          index={i}
-                          className="!rounded-md"
-                          type="document"
-                        >
-                          <Paperclip className="size-5" />
-                          <span className="text-sm font-medium text-foreground">
-                            {file.name}
-                          </span>
-                        </FileUploaderItem>
-                      ))}
-                    </ScrollArea>
-                  )}
-                </FileUploaderContent>
-              </FileUploader>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* <FormField
-          control={form.control}
-          name="propertySize"
+          name="rooms"
           render={({ field }) => (
             <FormItem className="w-full">
               <FormControl>
                 <Input
-                  placeholder="Property Sizes (Square meters)"
+                  placeholder="Room(s)"
                   type="number"
                   className={cn("text-foreground", {
                     "border-red-500 focus-visible:ring-red-500":
-                      errors.propertySize?.message,
+                      errors.rooms?.message,
                   })}
                   {...field}
                 />
               </FormControl>
-              {errors.propertySize && (
+              {errors.rooms && (
                 <p
                   className={cn(
                     "text-sm font-medium text-red-500 dark:text-red-900",
                   )}
                 >
-                  {errors.propertySize?.message}
+                  {errors.rooms?.message}
+                </p>
+              )}
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="bedrooms"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormControl>
+                <Input
+                  placeholder="Bedroom(s)"
+                  type="number"
+                  className={cn("text-foreground", {
+                    "border-red-500 focus-visible:ring-red-500":
+                      errors.bedrooms?.message,
+                  })}
+                  {...field}
+                />
+              </FormControl>
+              {errors.bedrooms && (
+                <p
+                  className={cn(
+                    "text-sm font-medium text-red-500 dark:text-red-900",
+                  )}
+                >
+                  {errors.bedrooms?.message}
+                </p>
+              )}
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="bathrooms"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormControl>
+                <Input
+                  placeholder="Bathroom(s)"
+                  type="number"
+                  className={cn("text-foreground", {
+                    "border-red-500 focus-visible:ring-red-500":
+                      errors.bathrooms?.message,
+                  })}
+                  {...field}
+                />
+              </FormControl>
+              {errors.bathrooms && (
+                <p
+                  className={cn(
+                    "text-sm font-medium text-red-500 dark:text-red-900",
+                  )}
+                >
+                  {errors.bathrooms?.message}
                 </p>
               )}
             </FormItem>
@@ -331,32 +287,60 @@ export default function SurveyPlanForm() {
 
         <FormField
           control={form.control}
-          name="plotSize"
+          name="propertySize"
           render={({ field }) => (
             <FormItem className="w-full">
               <FormControl>
                 <Input
-                  placeholder="Property plot size"
+                  placeholder="Property Sizes (Square meters)"
                   type="number"
                   className={cn("text-foreground", {
                     "border-red-500 focus-visible:ring-red-500":
-                      errors.plotSize?.message,
+                      errors.propertySize?.message,
                   })}
                   {...field}
                 />
               </FormControl>
-              {errors.plotSize && (
+              {errors.propertySize && (
                 <p
                   className={cn(
                     "text-sm font-medium text-red-500 dark:text-red-900",
                   )}
                 >
-                  {errors.plotSize?.message}
+                  {errors.propertySize?.message}
                 </p>
               )}
             </FormItem>
           )}
-        /> */}
+        />
+        <FormField
+          control={form.control}
+          name="structureType"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormControl>
+                <Input
+                  placeholder="Structure Type"
+                  type="text"
+                  className={cn("text-foreground", {
+                    "border-red-500 focus-visible:ring-red-500":
+                      errors.structureType?.message,
+                  })}
+                  {...field}
+                />
+              </FormControl>
+              {errors.structureType && (
+                <p
+                  className={cn(
+                    "text-sm font-medium text-red-500 dark:text-red-900",
+                  )}
+                >
+                  {errors.structureType?.message}
+                </p>
+              )}
+            </FormItem>
+          )}
+        />
       </div>
 
       <Separator className="my-6 h-px w-full" />
@@ -367,7 +351,7 @@ export default function SurveyPlanForm() {
           size={"lg"}
           variant={"outline"}
           className="w-[100px] rounded-full"
-          onClick={() => dispatch(setCurrentStep(1))}
+          onClick={() => dispatch(setCurrentStep(2))}
         >
           Back
         </Button>

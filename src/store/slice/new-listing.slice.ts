@@ -2,7 +2,7 @@ import { lcStorage } from "@/lib/utils";
 import {
   BuildingFormSchemaTypes,
   LandFormSchemaTypes,
-} from "@/pages/(app)/new-listing/new-listing.page";
+} from "@/pages/(app)/list-property/list-property.page";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface FormState {

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   buildingFormSchema,
   BuildingFormSchemaTypes,
-} from "../../new-listing.page";
+} from "../../list-property.page";
 import {
   setCurrentStep,
   updateFormData,

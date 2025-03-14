@@ -617,12 +617,9 @@ export default function PropertyDetailsPage() {
                     <LinkIcon size={20} />
                   </button>
                 </div>
-
               </DropdownMenuContent>
             </DropdownMenu>
-
           </div>
-
         </div>
 
         <div className="flex w-full flex-col gap-10 xl:flex-row xl:items-start">
@@ -904,7 +901,7 @@ export default function PropertyDetailsPage() {
       {
         listing?.details?.videosCid?.length && (
           <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] 2xl:flex-row">
-            <video controls muted autoPlay loop className="size-full rounded-lg">
+            <video controls muted autoPlay loop className="aspect-video w-full rounded-lg">
                 <source src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`} />
             </video>
           </div>
