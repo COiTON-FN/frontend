@@ -13,6 +13,26 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const formatDate = (isoString: string): string => {
+  const date = new Date(isoString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+export const shuffleArray = <T>(array: T[]): T[] => {
+  const shuffledArray = [...array]; // Create a copy to avoid mutating the original array
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]]; // Swap elements
+  }
+  return shuffledArray;
+};
+
+
+
 export function truncateAddr(str: string | undefined, n: number = 6): string {
   if (!str) return "";
   return str?.length > n

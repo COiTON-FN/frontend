@@ -1,11 +1,8 @@
 import { assets } from "@/assets";
 import ListingBoard from "@/components/shared/listing-board";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { variants } from "@/utils/constants";
 import { motion } from "framer-motion";
-import { FiCheckCircle, FiClock } from "react-icons/fi";
-import { LuMailWarning } from "react-icons/lu";
 import { Link } from "react-router-dom";
 import { BsInbox } from "react-icons/bs";
 import { Separator } from "@/components/ui/separator";
@@ -13,19 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ListingCard from "@/components/shared/listing-card";
 import { useAppSelector } from "@/store";
 import { Listing } from "@/store/slice/listing.slice";
-
-const updates = [
-  {
-    status: "pending",
-  },
-  {
-    status: "approved",
-  },
-  {
-    status: "denied",
-  },
-];
-
+import { IoMdCopy } from "react-icons/io";
 
 
 export default function DashboardPage() {
@@ -44,7 +29,6 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-4 py-4">
-      {/* <button onClick={chii}>click</button> */}
       <div className="h-[200px] w-full rounded-2xl bg-gradient-to-l from-[#0D857C] to-[#0EB9AC] p-[1px] sm:h-[240px] md:rounded-3xl">
         <div className="flex size-full overflow-hidden rounded-[inherit] bg-gradient-to-r from-[#056F67] to-[#0AADA1] text-white">
           <div className="lg:px-12">
@@ -100,188 +84,59 @@ export default function DashboardPage() {
       <Separator className="my-2 h-px w-full" />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-        <div className="relative flex h-max w-full flex-col justify-between overflow-hidden rounded-3xl border border-[#E8E3F7] bg-[#F9F7FF] md:h-[422px]">
-          <div className="my-4 flex h-[55px] items-center justify-between px-6 md:px-8">
-            <p className="text-lg font-medium text-[#3001BF]">
-              Market Snapshot
-            </p>
-          </div>
+        <div className="h-max relative w-full overflow-hidden rounded-2xl border bg-[rgb(251,255,255)] md:h-[422px] md:rounded-3xl">
+            <div className="my-6 flex h-[55px] flex-col px-8 md:px-10">
+                <p className="text-2xl font-medium text-primary">Bidding</p>
+                <p className="text-base font-normal text-primary">
+                    Place bids on the property you eamt
+                </p>
+            </div>
 
-          <div className="mt-10 px-6 py-5 md:mt-0 md:px-8 md:py-10">
-            <h4 className="text-3xl font-medium -tracking-[6%] text-[#3001BF] md:text-4xl">
-              Coiton Token
-            </h4>
-            <p className="text-base font-medium text-[#BAAEE0]">
-              Launching Soon
-            </p>
-          </div>
-
-          <div className="absolute -bottom-4 -right-24 h-[200px] w-[250px] rotate-[17deg] md:h-[300px] md:w-[350px]">
-            <img
-              src={assets.images.tokenBlue}
-              width={442}
-              height={442}
-              className="absolute z-[3]"
-            />
-            <img
-              src={assets.images.tokenGreen}
-              width={442}
-              height={442}
-              className="absolute z-[2] ml-4 mt-4"
-            />
-            <img
-              src={assets.images.tokenPink}
-              width={442}
-              height={442}
-              className="absolute z-[1] ml-8 mt-8"
-            />
-          </div>
+            <img src={assets.images.bidLg} className="size-full" />
         </div>
 
-        <div className="h-max w-full overflow-hidden rounded-2xl border border-[#F6F1DE] bg-[#FFFDF7] md:h-[422px] md:rounded-3xl">
-          <div className="my-4 flex h-[55px] items-center justify-between px-6 md:px-8">
-            <p className="text-lg font-medium text-[#AE8600]">DAO Updates</p>
+        <div className="h-max w-full relative overflow-hidden rounded-2xl border border-[#056F67] bg-primary md:h-[422px] md:rounded-3xl">
+            <div className="my-4 flex h-[55px] items-center justify-between px-8 md:px-10 relative z-[5]">
+                <div className="flex items-center gap-3">
+                    <span className="size-[7px] rounded-full bg-[#3A9992]" />
+                    <p className="text-2xl font-medium text-background">Trading</p>
+                </div>
+                <p className="text-sm text-[#0EC0B2]">Coming Soon</p>
+            </div>
 
-            <Button className="w-max border border-[#F6F1DE] !bg-[#FBF5DF] px-5 text-[#AE8600] hover:!bg-[#FBF5DF]/90">
-              <span className="text-sm font-medium">View More</span>
-              <svg
-                width="12"
-                height="11"
-                viewBox="0 0 12 11"
-                xmlns="http://www.w3.org/2000/svg"
-                className="ml-1 fill-none"
-              >
-                <path
-                  d="M11.8538 5.85354L7.35375 10.3535C7.25993 10.4474 7.13268 10.5001 7 10.5001C6.86732 10.5001 6.74007 10.4474 6.64625 10.3535C6.55243 10.2597 6.49972 10.1325 6.49972 9.99979C6.49972 9.86711 6.55243 9.73986 6.64625 9.64604L10.2931 5.99979H0.5C0.367392 5.99979 0.240215 5.94711 0.146447 5.85334C0.0526785 5.75958 0 5.6324 0 5.49979C0 5.36718 0.0526785 5.24 0.146447 5.14624C0.240215 5.05247 0.367392 4.99979 0.5 4.99979H10.2931L6.64625 1.35354C6.55243 1.25972 6.49972 1.13247 6.49972 0.99979C6.49972 0.867108 6.55243 0.73986 6.64625 0.64604C6.74007 0.552219 6.86732 0.499512 7 0.499512C7.13268 0.499512 7.25993 0.552219 7.35375 0.64604L11.8538 5.14604C11.9002 5.19248 11.9371 5.24762 11.9623 5.30832C11.9874 5.36902 12.0004 5.43408 12.0004 5.49979C12.0004 5.5655 11.9874 5.63056 11.9623 5.69126C11.9371 5.75196 11.9002 5.8071 11.8538 5.85354Z"
-                  className="fill-[#AE8600]"
-                />
-              </svg>
-            </Button>
-          </div>
+            <img src={assets.svgs.propertyManagement} className="size-full object-cover h-[632px] w-[409px] z-[1] absolute right-0 -mt-16 pointer-events-none" />
+        </div>
 
-          <div className="h-[300px] overflow-hidden rounded-b-[inherit] md:h-[342px]">
-            <div className="size-full px-6 md:px-8">
-              {updates.map(({ status }) => (
+        <div className="aspect-[1.3] h-max w-full rounded-2xl bg-gradient-to-bl from-[#FFE692] to-[#B69C46] p-px text-[#9C7800] md:aspect-[1.8] md:rounded-[24px] lg:aspect-auto md:h-[422px] md:flex-1">
+            <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-[inherit] bg-[#FFFCF2] p-6 md:px-10 md:py-12">
+                <h2 className="text-[40px] font-normal leading-[50px] md:text-5xl lg:text-6xl lg:leading-[1.2]">
+                    Dive Deeper into Coiton
+                </h2>
+
                 <Link
-                  to="/dashboard"
-                  key={status}
-                  className={cn(
-                    "mb-3 flex h-[75px] items-center justify-between rounded-[10px] border px-6 last:mb-8",
-                    {
-                      "border-[#EAE1C2] bg-[#FFFEE9]/80 text-[#D4A300]":
-                        status === "pending",
-                      "border-[#C2EADB] bg-[#E9FAF0]/80 text-[#00914B]":
-                        status === "approved",
-                      "border-[#EAC2C2] bg-[#FAE9E9]/80 text-[#FF3E3E]":
-                        status === "denied",
-                    },
-                  )}
+                to="https://hooopesteams-organization.gitbook.io/hooopes-team"
+                target="_blank"
+                className="w-max"
                 >
-                  <p className="w-[176px] truncate text-base font-medium">
-                    2 Bedroom, Air conditoned Bungalow with furnished
-                  </p>
-
-                  <p className="font-sans_regular flex items-center gap-2 text-sm capitalize">
-                    <span>{status}</span>
-                    {status === "pending" ? (
-                      <FiClock className="size-4" />
-                    ) : status === "approved" ? (
-                      <FiCheckCircle className="size-4" />
-                    ) : (
-                      <LuMailWarning className="size-4" />
-                    )}
-                  </p>
+                <Button
+                    size={"lg"}
+                    className="w-max rounded-full !bg-[#9C7800] hover:!bg-[#9C7800]/90"
+                >
+                    <span>View Whitepaper</span>{" "}
+                    <IoMdCopy size={22} className="ml-3" />
+                </Button>
                 </Link>
-              ))}
+
+                <div className="absolute -right-[170px] top-10 z-0 md:-right-[210px] md:-top-[20px] md:size-[424px] lg:-top-[50px] lg:size-[324px]">
+                    <div className="rotate-[35deg]">
+                        <img
+                        src={assets.shapes.octYellowShape}
+                        alt="OCTERGON SHAPE"
+                        className="size-80 brightness-90 md:size-auto"
+                        />
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-
-        <div className="h-max w-full overflow-hidden rounded-2xl border border-[#DCF7F5] bg-[#F5FFFE] md:h-[422px] md:rounded-3xl">
-          <div className="my-4 flex h-[55px] items-center justify-between px-6 md:px-8">
-            <p className="text-lg font-medium text-primary">Your Properties</p>
-
-            <Button className="w-max border border-[#DCF7F5] !bg-[#E8FDFC] px-5 text-primary hover:!bg-[#E8FDFC]/90">
-              <span className="text-sm font-medium">View More</span>
-              <svg
-                width="12"
-                height="11"
-                viewBox="0 0 12 11"
-                xmlns="http://www.w3.org/2000/svg"
-                className="ml-1 fill-none"
-              >
-                <path
-                  d="M11.8538 5.85354L7.35375 10.3535C7.25993 10.4474 7.13268 10.5001 7 10.5001C6.86732 10.5001 6.74007 10.4474 6.64625 10.3535C6.55243 10.2597 6.49972 10.1325 6.49972 9.99979C6.49972 9.86711 6.55243 9.73986 6.64625 9.64604L10.2931 5.99979H0.5C0.367392 5.99979 0.240215 5.94711 0.146447 5.85334C0.0526785 5.75958 0 5.6324 0 5.49979C0 5.36718 0.0526785 5.24 0.146447 5.14624C0.240215 5.05247 0.367392 4.99979 0.5 4.99979H10.2931L6.64625 1.35354C6.55243 1.25972 6.49972 1.13247 6.49972 0.99979C6.49972 0.867108 6.55243 0.73986 6.64625 0.64604C6.74007 0.552219 6.86732 0.499512 7 0.499512C7.13268 0.499512 7.25993 0.552219 7.35375 0.64604L11.8538 5.14604C11.9002 5.19248 11.9371 5.24762 11.9623 5.30832C11.9874 5.36902 12.0004 5.43408 12.0004 5.49979C12.0004 5.5655 11.9874 5.63056 11.9623 5.69126C11.9371 5.75196 11.9002 5.8071 11.8538 5.85354Z"
-                  className="fill-primary"
-                />
-              </svg>
-            </Button>
-          </div>
-
-          <div className="h-[300px] overflow-hidden px-6 md:h-[342px] md:px-8">
-            <div className="grid size-full grid-cols-2 rounded-t-2xl border border-b-0 border-[#DBEEED] bg-white">
-              <div className="flex flex-col justify-center gap-2 border-r border-[#EFF9F8] p-6">
-                <div className="flex w-max items-center gap-2 rounded-2xl border border-[#DBEEED] bg-[#F2FFFE] px-4 py-2 text-primary">
-                  <img
-                    src={assets.svgs.logoIcon}
-                    className="size-[26px]"
-                    width={26}
-                    height={26}
-                    alt=""
-                  />
-                  <p className="text-base font-bold md:text-xl">$15.67</p>
-                </div>
-                <p className="text-sm font-light text-muted-foreground md:text-lg">
-                  Token
-                </p>
-              </div>
-              <div className="flex flex-col justify-center gap-2 border-b border-[#EFF9F8] p-6">
-                <div className="flex w-max items-center gap-2 rounded-2xl border border-[#DBEEED] bg-[#F2FFFE] px-4 py-2 text-primary">
-                  <img
-                    src={assets.svgs.bookmarkIcon}
-                    className="size-[26px]"
-                    width={26}
-                    height={26}
-                    alt=""
-                  />
-                  <p className="text-base font-bold md:text-xl">300</p>
-                </div>
-                <p className="text-sm font-light text-muted-foreground md:text-lg">
-                  Saved Properties
-                </p>
-              </div>
-              <div className="flex flex-col justify-center gap-2 border-t border-[#EFF9F8] p-6">
-                <div className="flex w-max items-center gap-2 rounded-2xl border border-[#DBEEED] bg-[#F2FFFE] px-4 py-2 text-primary">
-                  <img
-                    src={assets.svgs.homeIcon}
-                    className="size-[26px]"
-                    width={26}
-                    height={26}
-                    alt=""
-                  />
-                  <p className="text-base font-bold md:text-xl">3</p>
-                </div>
-                <p className="text-sm font-light text-muted-foreground md:text-lg">
-                  Properties Owned
-                </p>
-              </div>
-              <div className="flex flex-col justify-center gap-2 border-l border-[#EFF9F8] p-6">
-                <div className="flex w-max items-center gap-2 rounded-2xl border border-[#DBEEED] bg-[#F2FFFE] px-4 py-2 text-primary">
-                  <img
-                    src={assets.svgs.moneyIcon}
-                    className="size-[26px]"
-                    width={26}
-                    height={26}
-                    alt=""
-                  />
-                  <p className="text-base font-bold md:text-xl">10</p>
-                </div>
-                <p className="text-sm font-light text-muted-foreground md:text-lg">
-                  Properties Rented
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 

@@ -6,13 +6,15 @@ import { PiBuildingOfficeLight } from "react-icons/pi";
 import { LiaEthereum } from "react-icons/lia";
 
 import MaxWrapper from "@/components/shared/max-wrapper";
-import { dummy_properties, variants } from "@/utils/constants";
+import { variants } from "@/utils/constants";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
+import { useAppSelector } from "@/store";
+import { useNavigate } from "react-router-dom";
 
 const Latest: FC = () => {
   const { fadeIn } = variants;
-
+  const navigate = useNavigate();
   const fadInAnimate = {
     initial: {
       opacity: 0,
@@ -30,6 +32,8 @@ const Latest: FC = () => {
   };
 
   const [activeCard, setActiveCard] = useState(1);
+  const { listings } = useAppSelector(state => state.listing)
+
 
   return (
     <MaxWrapper>
@@ -62,7 +66,9 @@ const Latest: FC = () => {
               amount: 0.7,
             }}
           >
-            <Button variant={"black"} className="hidden px-6 md:flex">
+            <Button onClick={() => {
+              navigate("/listings")
+            }} variant={"black"} className="hidden px-6 md:flex">
               <span>See More</span>{" "}
               <IoMdArrowForward size={22} className="ml-3" />
             </Button>
@@ -70,7 +76,7 @@ const Latest: FC = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {dummy_properties.map((property, _index) => (
+          {listings.slice(-3).map((property, _index) => (
             <motion.div
               variants={fadInAnimate}
               initial="initial"
@@ -80,7 +86,7 @@ const Latest: FC = () => {
                 amount: 0.3,
               }}
               onMouseOver={() => setActiveCard(_index + 1)}
-              key={property.image[0]}
+              key={_index}
               custom={_index}
               className="flex flex-col"
             >
@@ -94,8 +100,8 @@ const Latest: FC = () => {
                   )}
                 >
                   <img
-                    src={property?.image[0]}
-                    alt={property?.title}
+                    src={`${import.meta.env.VITE_PINATA_GATEWAY}/${property?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+                    alt={property?.details?.title}
                     className={cn(
                       "size-full object-cover delay-200 duration-300",
                       {
@@ -120,18 +126,18 @@ const Latest: FC = () => {
 
                   <p className="flex items-center text-base font-medium">
                     <span className="line-clamp-1 flex-1">
-                      {property?.address}
+                      {property?.details?.area} - {property?.details?.region?.state?.stateName}, {property?.details?.region?.country?.countryName}
                     </span>
                   </p>
 
                   <div className="mt-4 flex items-center gap-4">
                     <p className="flex items-center text-sm text-muted-foreground sm:text-base">
                       <RxClock size={18} className="mr-2" />
-                      {property?.createdAt}
+                      {formatDate(property?.details?.yearBuilt)}
                     </p>
                     <p className="flex items-center text-sm text-muted-foreground sm:text-base">
                       <PiBuildingOfficeLight size={18} className="mr-2" />
-                      {property?.price.toLocaleString()}
+                      {property?.details?.propertySize}sqm
                     </p>
                   </div>
                 </div>

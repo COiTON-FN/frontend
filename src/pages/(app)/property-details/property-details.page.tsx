@@ -12,8 +12,11 @@ import {
   TelegramIcon,
   TelegramShareButton,
   TwitterShareButton,
+  WhatsappIcon,
+  WhatsappShareButton,
   XIcon,
 } from "react-share";
+import { Helmet } from "react-helmet-async"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,10 +39,10 @@ import { RxOpenInNewWindow } from "react-icons/rx";
 
 import { byteArrayToString } from "@/lib/starknet/utils";
 import { useEffect, useRef, useState } from "react";
-import { cn, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
+import { cn, formatDate, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
-import { Loader, Share2, Verified, X } from "lucide-react";
+import { Link as LinkIcon, Loader, Share2, Verified, X } from "lucide-react";
 import { BiLeaf } from "react-icons/bi";
 import { toast } from "sonner";
 import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
@@ -123,7 +126,7 @@ export default function PropertyDetailsPage() {
       },
       {
         label: "Year built",
-        value: new Date(_listing?.details?.yearBuilt).toDateString(),
+        value: formatDate(_listing?.details?.yearBuilt),
       },
       {
         label: "Structure type",
@@ -257,6 +260,11 @@ export default function PropertyDetailsPage() {
         toast.error("LOADING_PURCHASE_REQUESTS");
         return;
       }
+      if (parseInt(walletAddress!, 16) === parseInt(listing!.owner, 16)) {
+        toast.error("OWNER_CANNOT_PERFORM_ACTION");
+        return;
+      }
+
       if (purchaseRequests.length > 0 && purchaseRequests.filter(ft => parseInt(ft.initiator, 16) === parseInt(credential.address, 16)).length > 0) {
         toast.error("ALREADY_CREATED");
         return;
@@ -271,10 +279,7 @@ export default function PropertyDetailsPage() {
       const erc20 = getErc20Instance();
       const allowance = await erc20!.allowance(walletAddress, variables.daoAddress);
       const account = window.Wallet.Account!;
-      console.log({ allowance })
-      console.log(walletAddress, variables.daoAddress)
-      if (Number(allowance) < (bidPrice || listing.price)) {
-        console.log("should approve")
+      if ((bidPrice || listing.price) > Number(allowance)) {
         const approval_call = erc20!.populate("approve", [
           variables.daoAddress,
           bidPrice || listing.price
@@ -282,19 +287,19 @@ export default function PropertyDetailsPage() {
 
         const approval_tx = await account.execute(approval_call);
         await account.waitForTransaction(approval_tx.transaction_hash);
-        console.log("Approved")
       }
 
 
-      console.log("Process")
 
       const call = contract!.populate("create_purchase_request", [
         listing.id,
         new CairoOption(CairoOptionVariant.Some, bidPrice || listing.price),
       ])
-      console.log(call)
+
+
       const tx = await account?.execute(call);
       await account?.waitForTransaction(tx!.transaction_hash);
+
       setCreatingPurchaseAgreement(false);
       const new_purchase_request_construct: PurchaseRequest = {
         initiator: credential.address,
@@ -335,6 +340,23 @@ export default function PropertyDetailsPage() {
   // }
   return (
     <div className="flex flex-col gap-4 py-4">
+      <Helmet>
+        <title>{listing?.details?.title || "Loading..."}</title>
+        <meta name="description" content={listing?.details?.description || "Loading..."} />
+        <meta name="keywords" content={`${listing?.details?.title?.split(" ").join(", ")}, real estate, listing, property`} />
+
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={content.url} />
+
+
+        <meta property="og:title" content={listing?.details?.title || "Loading..."} />
+        <meta property="og:description" content={listing?.details?.description || "Loading..."} />
+        <meta property="og:image" content={listing ? `${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}` : ""} />
+
+
+
+      </Helmet>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -559,37 +581,45 @@ export default function PropertyDetailsPage() {
               <DropdownMenuContent
                 side="bottom"
                 sideOffset={0}
-                className="mr-5 w-60 md:mr-6"
+                className="mr-5 md:mr-6"
               >
                 <div className="flex items-center justify-center gap-5 p-4">
                   <TwitterShareButton
+                    htmlTitle="X"
                     title={content.message}
                     url={content.url}
                     children={<XIcon round size={30} />}
                   />
                   <FacebookShareButton
+                    htmlTitle="Facebook"
                     url={content.url}
                     title={content.message}
                     children={<FacebookIcon round size={30} />}
                   />
                   <LinkedinShareButton
+                    htmlTitle="Linkedin"
                     title={content.message}
                     url={content.url}
                     children={<LinkedinIcon round size={30} />}
                   />
 
                   <TelegramShareButton
+                    htmlTitle="Telegram"
                     url={content.url}
                     title={content.message}
                     children={<TelegramIcon round size={30} />}
                   />
+                  <WhatsappShareButton htmlTitle="Whatsapp" url={content.url} title={content.message} children={<WhatsappIcon round size={30} />} />
+                  <button title="Copy Link" onClick={async () => {
+                    await navigator.clipboard.writeText(content.url);
+                    toast.success("Link copied")
+                  }}>
+                    <LinkIcon size={20} />
+                  </button>
                 </div>
-
               </DropdownMenuContent>
             </DropdownMenu>
-
           </div>
-
         </div>
 
         <div className="flex w-full flex-col gap-10 xl:flex-row xl:items-start">
@@ -597,7 +627,7 @@ export default function PropertyDetailsPage() {
             <div className="aspect-[1.4] w-full overflow-hidden rounded-2xl border bg-secondary lg:aspect-[1.3]">
               <img
                 src={`${import.meta.env.VITE_PINATA_GATEWAY}/${selectedImage || listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-                alt={`Product image ${selectedImage}`}
+                alt={`${listing?.details?.title}`}
                 className="size-full object-cover"
               />
             </div>
@@ -617,7 +647,7 @@ export default function PropertyDetailsPage() {
                   <img
                     src={`${import.meta.env.VITE_PINATA_GATEWAY}/${image}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
 
-                    alt={`Thumbnail ${image}`}
+                    alt={listing?.details?.title}
                     className="object-cover"
                   />
                 </button>
@@ -870,16 +900,10 @@ export default function PropertyDetailsPage() {
 
       {
         listing?.details?.videosCid?.length && (
-          <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
-            <h1>Video</h1>
-            <video
-              src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-              className="size-full  rounded-lg object-cover h-96"
-              controls
-              muted
-              autoPlay
-              loop
-            ></video>
+          <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] 2xl:flex-row">
+            <video controls muted autoPlay loop className="aspect-video w-full rounded-lg">
+                <source src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`} />
+            </video>
           </div>
         )
       }
@@ -983,6 +1007,8 @@ export default function PropertyDetailsPage() {
               </Button>
             </div>
           </div>
+        </div>
+
           <div dangerouslySetInnerHTML={{ __html: listing?.details?.map }} className="-z-0 aspect-[1.4] flex-1 w-full overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl 2xl:aspect-auto">
             {/* <MapView
             location={listingFormData?.region?.country?.countryName}
@@ -992,9 +1018,6 @@ export default function PropertyDetailsPage() {
             ]}
           /> */}
           </div>
-        </div>
-
-
       </div>
 
       <Separator className="my-2 h-px w-full" />

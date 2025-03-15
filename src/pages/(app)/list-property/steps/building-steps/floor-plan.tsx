@@ -2,20 +2,21 @@ import { AppDispatch, RootState } from "@/store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { landFormSchema, LandFormSchemaTypes } from "../../new-listing.page";
+import {
+  buildingFormSchema,
+  BuildingFormSchemaTypes,
+} from "../../list-property.page";
 import {
   resetForm,
   setCurrentStep,
   updateFormData,
 } from "@/store/slice/new-listing.slice";
 import {
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { apiClient, cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -28,38 +29,33 @@ import {
 } from "@/components/extension/file-uploader";
 import { DropzoneOptions } from "react-dropzone";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
-import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.hook";
-import { toast } from "sonner";
 import { useState } from "react";
-import { CairoCustomEnum } from "starknet";
+import { toast } from "sonner";
+import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.hook";
 import { byteArrayToString, stringToByteArray } from "@/lib/starknet/utils";
 import { useNavigate } from "react-router-dom";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
+import { CairoCustomEnum } from "starknet";
 import { User } from "@/store/slice/credential.slice";
 import { addListing, Listing } from "@/store/slice/listing.slice";
 
 
-export default function BasicsForm() {
+export default function FloorPlanForm() {
+  const { onUpload } = useUploadFileToPinataHook();
 
   const dispatch = useDispatch<AppDispatch>();
   const formData = useSelector((state: RootState) => state.newListing.formData);
 
 
-
-  const form = useForm<LandFormSchemaTypes>({
+  const [loading, setLoading] = useState(false);
+  const form = useForm<BuildingFormSchemaTypes>({
     resolver: zodResolver(
-      landFormSchema.pick({
-        title: true,
-        images: true,
-        videos: true,
-        price: true,
-        description: true,
+      buildingFormSchema.pick({
+        floorPlan: true,
+        license: true,
       }),
     ),
-    defaultValues: {
-      ...formData,
-    },
+    defaultValues: formData,
   });
 
   const {
@@ -67,27 +63,30 @@ export default function BasicsForm() {
 
     formState: { errors },
   } = form;
-  const { onUpload } = useUploadFileToPinataHook();
 
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { getContractInstance } = useContractInstance()
 
-  const onSubmit = async (data: Partial<LandFormSchemaTypes>) => {
-    if (loading) return;
+  const onSubmit = async (data: Partial<BuildingFormSchemaTypes>) => {
     const formFields = {
       ...formData,
       ...data,
     };
+
+    if (loading) return;
+
+    // console.log(formFields)
     dispatch(updateFormData(formFields));
 
     try {
       setLoading(true);
       const toastId = toast.loading("Uploading files...");
+
       // Upload files only if they exist
       let imagesCid: string[] | null = null;
       let videosCid: string[] | null = null;
-      let surveyPlanCid: string[] | null = null;
+      let floorPlanCid: string[] | null = null;
+      let licenseCid: string[] | null = null;
 
       if (formFields.images && formFields.images.length > 0) {
         imagesCid = await onUpload(formFields.images);
@@ -107,29 +106,44 @@ export default function BasicsForm() {
         setValue("videosCid", videosCid);
       }
 
-      if (formFields.surveyPlan && formFields.surveyPlan.length > 0) {
-        surveyPlanCid = await onUpload(formFields.surveyPlan);
-        if (!surveyPlanCid || surveyPlanCid.length === 0) {
+      if (formFields.floorPlan && formFields.floorPlan.length > 0) {
+        floorPlanCid = await onUpload(formFields.floorPlan);
+        if (!floorPlanCid || floorPlanCid.length === 0) {
           toast.error("Failed to upload floor plans. Please try again.");
           throw new Error("Floor plan upload failed");
         }
-        setValue("surveyPlanCid", surveyPlanCid);
+        setValue("floorPlanCid", floorPlanCid);
+      }
+
+      if (formFields.license && formFields.license.length > 0) {
+        licenseCid = await onUpload(formFields.license);
+        if (!licenseCid || licenseCid.length === 0) {
+          toast.error("Failed to upload licenses. Please try again.");
+          throw new Error("License upload failed");
+        }
+        setValue("licenseCid", licenseCid);
       }
 
       toast.dismiss(toastId)
 
 
+
+
       // Prepare the result object with the uploaded CIDs
       const result = {
         ...formFields,
+
         imagesCid: imagesCid || undefined,
         videosCid: videosCid || undefined,
-        surveyPlanCid: surveyPlanCid || undefined,
+        floorPlanCid: floorPlanCid || undefined,
+        licenseCid: licenseCid || undefined,
         images: undefined,
         videos: undefined,
-        surveyPlan: undefined
+        floorPlan: undefined,
+        license: undefined
       };
-      if (!result.imagesCid || !result.videosCid || !result.surveyPlanCid) {
+
+      if (!result.imagesCid || !result.videosCid || !result.floorPlanCid || !result.licenseCid) {
         toast.error("UPLOAD_FAILED");
         setLoading(false);
         return;
@@ -137,6 +151,7 @@ export default function BasicsForm() {
 
       toast.success("Files uploaded successfully");
 
+      console.log(result)
 
       dispatch(updateFormData(result));
 
@@ -145,7 +160,7 @@ export default function BasicsForm() {
         // await listingTx.sendAsync();
         const contract = getContractInstance();
         const detailsBytes = stringToByteArray(JSON.stringify(result));
-        const type = new CairoCustomEnum({ Land: {} })
+        const type = new CairoCustomEnum({ Building: {} })
         const call = contract!.populate("create_listing", [
           type,
           formFields.price!,
@@ -154,17 +169,14 @@ export default function BasicsForm() {
 
 
         const tx = await window.Wallet.Account!.execute([call]);
-        const receipt = await window.Wallet.Account?.waitForTransaction(tx.transaction_hash);
+        const receipt = await window.Wallet.Account?.waitForTransaction(tx.transaction_hash)
         apiClient.post("/listing", { tx_hash: tx.transaction_hash });
-        console.log("Receipt:", receipt);
-
-
-
-
         if (receipt?.isSuccess()) {
           toast.success("Listing created successfully!");
           dispatch(resetForm());
           navigate("/dashboard");
+
+
           const events = contract?.parseEvents(receipt!);
           const id = events![0][Object.keys(events![0])[0]].id;
           const new_listing = await contract!.get_listing(id);
@@ -186,6 +198,7 @@ export default function BasicsForm() {
             owner_details: user_construct
           };
           dispatch(addListing(structured));
+
         } else {
           toast.error("Failed to create listing. Please try again.");
         }
@@ -212,73 +225,12 @@ export default function BasicsForm() {
   };
 
 
-
-
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
       <div className="flex flex-col gap-3">
         <FormField
           control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormControl>
-                <Input
-                  placeholder="Title"
-                  type="text"
-                  className={cn("text-foreground", {
-                    "border-red-500 focus-visible:ring-red-500":
-                      errors.title?.message,
-                  })}
-                  {...field}
-                />
-              </FormControl>
-              {errors.title && (
-                <p
-                  className={cn(
-                    "text-sm font-medium text-red-500 dark:text-red-900",
-                  )}
-                >
-                  {errors.title?.message}
-                </p>
-              )}
-            </FormItem>
-          )}
-        />
-
-
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormControl>
-                <Input
-                  placeholder="Price"
-                  type="number"
-                  className={cn("text-foreground", {
-                    "border-red-500 focus-visible:ring-red-500":
-                      errors.price?.message,
-                  })}
-                  {...field}
-                />
-              </FormControl>
-              {errors.price && (
-                <p
-                  className={cn(
-                    "text-sm font-medium text-red-500 dark:text-red-900",
-                  )}
-                >
-                  {errors.price?.message}
-                </p>
-              )}
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="images"
+          name="floorPlan"
           render={({ field }) => (
             <FormItem>
               <FileUploader
@@ -300,13 +252,13 @@ export default function BasicsForm() {
                   className={cn(
                     "overflow-hidden rounded-md border border-neutral-200 sm:rounded-xl",
                     {
-                      "border-red-500": errors.images,
+                      "border-red-500": errors.floorPlan,
                     },
                   )}
                 >
                   <div className="flex flex-col gap-4 bg-background p-6">
                     <FormLabel className="text-base font-normal text-muted-foreground">
-                      Upload Images
+                      Ground Floor plans
                     </FormLabel>
 
                     <div className="flex aspect-video w-full flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-primary/50 bg-[#F8FAFA]">
@@ -345,7 +297,7 @@ export default function BasicsForm() {
 
         <FormField
           control={form.control}
-          name="videos"
+          name="license"
           render={({ field }) => (
             <FormItem>
               <FileUploader
@@ -354,10 +306,17 @@ export default function BasicsForm() {
                 dropzoneOptions={
                   {
                     accept: {
-                      "video/*": [".mp4", ".mov", ".avi"],
+                      "application/pdf": [".pdf"],
+                      "text/csv": [".csv"],
+                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                        [".docx"],
+                      "application/msword": [".doc"],
+                      "application/vnd.ms-excel": [".xls"],
+                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                        [".xlsx"],
                     },
                     maxFiles: 3,
-                    maxSize: 1024 * 1024 * 40,
+                    maxSize: 1024 * 1024 * 20,
                     multiple: true,
                   } satisfies DropzoneOptions
                 }
@@ -367,13 +326,13 @@ export default function BasicsForm() {
                   className={cn(
                     "overflow-hidden rounded-md border border-neutral-200 sm:rounded-xl",
                     {
-                      "border-red-500": errors.videos,
+                      "border-red-500": errors.license,
                     },
                   )}
                 >
                   <div className="flex flex-col gap-4 bg-background p-6">
                     <FormLabel className="text-base font-normal text-muted-foreground">
-                      Upload Video
+                      Property Licenses
                     </FormLabel>
 
                     <div className="flex aspect-video w-full flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-primary/50 bg-[#F8FAFA]">
@@ -406,34 +365,6 @@ export default function BasicsForm() {
                 </FileUploaderContent>
               </FileUploader>
               <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormControl>
-                <Textarea
-                  placeholder="Property Description"
-                  {...field}
-                  className={cn("h-[144px] resize-none py-4 text-foreground", {
-                    "border-red-500 focus-visible:ring-red-500":
-                      errors.description?.message,
-                  })}
-                />
-              </FormControl>
-              {errors.description && (
-                <p
-                  className={cn(
-                    "text-sm font-medium text-red-500 dark:text-red-900",
-                  )}
-                >
-                  {errors.description.message}
-                </p>
-              )}
             </FormItem>
           )}
         />
@@ -447,7 +378,7 @@ export default function BasicsForm() {
           size={"lg"}
           variant={"outline"}
           className="w-[100px] rounded-full"
-          onClick={() => dispatch(setCurrentStep(2))}
+          onClick={() => dispatch(setCurrentStep(4))}
           disabled={loading}
         >
           Back
