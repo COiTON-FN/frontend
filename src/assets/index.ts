@@ -37,6 +37,8 @@ import tokenBlue from "./images/token-blue.png";
 import tokenGreen from "./images/token-green.png";
 import tokenPink from "./images/token-pink.png";
 
+import bidLg from './images/bid_lg.png'
+
 // shapes
 import flatShape from "./images/flat.png";
 import flatPurpleShape from "./images/flat-purple.png";
@@ -58,6 +60,8 @@ export const assets = {
     tokenBlue,
     tokenGreen,
     tokenPink,
+
+    bidLg
   },
   svgs: {
     logoIcon,

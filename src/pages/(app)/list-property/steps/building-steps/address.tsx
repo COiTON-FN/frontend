@@ -1,7 +1,10 @@
 import { AppDispatch, RootState } from "@/store";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { landFormSchema, LandFormSchemaTypes } from "../../new-listing.page";
+import {
+  buildingFormSchema,
+  BuildingFormSchemaTypes,
+} from "../../list-property.page";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   setCurrentStep,
@@ -48,9 +51,9 @@ export default function AddressForm() {
   const [states, setStates] = useState<StateData[]>([]);
   const [cities, setCities] = useState<CityData[]>([]);
 
-  const form = useForm<LandFormSchemaTypes>({
+  const form = useForm<BuildingFormSchemaTypes>({
     resolver: zodResolver(
-      landFormSchema.pick({
+      buildingFormSchema.pick({
         region: true,
         zip: true,
         landmark: true,
@@ -67,9 +70,9 @@ export default function AddressForm() {
     formState: { errors },
   } = form;
 
-  const onSubmit = (data: Partial<LandFormSchemaTypes>) => {
+  const onSubmit = (data: Partial<BuildingFormSchemaTypes>) => {
     dispatch(updateFormData(data));
-    dispatch(setCurrentStep(2));
+    dispatch(setCurrentStep(3));
   };
 
   const handleCountryChange = (countryCode: string) => {
@@ -351,6 +354,7 @@ export default function AddressForm() {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="map"
@@ -443,6 +447,15 @@ export default function AddressForm() {
       <Separator className="my-6 h-px w-full" />
 
       <div className="flex w-full items-center gap-4">
+        <Button
+          type="button"
+          size={"lg"}
+          variant={"outline"}
+          className="w-[100px] rounded-full"
+          onClick={() => dispatch(setCurrentStep(1))}
+        >
+          Back
+        </Button>
         <Button type="submit" size={"lg"} className="flex-1 rounded-full">
           <span>Next</span>
           <ArrowDown className="size-5" />
