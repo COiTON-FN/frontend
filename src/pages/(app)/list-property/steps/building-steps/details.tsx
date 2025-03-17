@@ -12,7 +12,7 @@ import {
 } from "@/store/slice/new-listing.slice";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { cn, formatDate } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/popover";
 import { ArrowDown, CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 export default function DetailsForm() {
   const dispatch = useDispatch<AppDispatch>();
@@ -246,7 +247,7 @@ export default function DetailsForm() {
                       )}
                     >
                       {field.value ? (
-                        formatDate(new Date(field.value).toISOString()) // Convert stored ISO string to Date for display
+                        format(new Date(field.value), "PPP") // Convert stored ISO string to Date for display
                       ) : (
                         <span className="text-muted-foreground">
                           Year built
