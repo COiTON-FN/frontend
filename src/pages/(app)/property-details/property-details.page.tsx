@@ -617,12 +617,9 @@ export default function PropertyDetailsPage() {
                     <LinkIcon size={20} />
                   </button>
                 </div>
-
               </DropdownMenuContent>
             </DropdownMenu>
-
           </div>
-
         </div>
 
         <div className="flex w-full flex-col gap-10 xl:flex-row xl:items-start">
@@ -903,16 +900,10 @@ export default function PropertyDetailsPage() {
 
       {
         listing?.details?.videosCid?.length && (
-          <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
-            <h1>Video</h1>
-            <video
-              src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-              className="size-full  rounded-lg object-cover h-96"
-              controls
-              muted
-              autoPlay
-              loop
-            ></video>
+          <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] 2xl:flex-row">
+            <video controls muted autoPlay loop className="aspect-video w-full rounded-lg">
+                <source src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`} />
+            </video>
           </div>
         )
       }
@@ -1016,6 +1007,8 @@ export default function PropertyDetailsPage() {
               </Button>
             </div>
           </div>
+        </div>
+
           <div dangerouslySetInnerHTML={{ __html: listing?.details?.map }} className="-z-0 aspect-[1.4] flex-1 w-full overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl 2xl:aspect-auto">
             {/* <MapView
             location={listingFormData?.region?.country?.countryName}
@@ -1025,9 +1018,6 @@ export default function PropertyDetailsPage() {
             ]}
           /> */}
           </div>
-        </div>
-
-
       </div>
 
       <Separator className="my-2 h-px w-full" />

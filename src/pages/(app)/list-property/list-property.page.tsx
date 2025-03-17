@@ -7,7 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import Indicator from "@/pages/(app)/new-listing/_components/indicator";
+import Indicator from "@/pages/(app)/list-property/_components/indicator";
 import { Form } from "@/components/ui/form";
 import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -263,7 +263,7 @@ export const landFormSchema = z.object({
 export type BuildingFormSchemaTypes = z.infer<typeof buildingFormSchema>;
 export type LandFormSchemaTypes = z.infer<typeof landFormSchema>;
 
-export default function NewListingPage() {
+export default function ListPropertyPage() {
   const dispatch = useDispatch<AppDispatch>();
   const newListingState = useSelector((state: RootState) => state.newListing);
   const [selectedType, setSelectedType] = useState<"building" | "land" | null>(

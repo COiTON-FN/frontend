@@ -35,7 +35,7 @@ const Navbar = () => {
 
   useEffect(() => {
     if (walletStore.isWalletConnected) {
-      generateAvatarFromAddress(window.Wallet.Account?.address!);
+      generateAvatarFromAddress(window.Wallet.Account?.address as string);
     }
   }, [walletStore.isWalletConnected])
 
@@ -142,13 +142,15 @@ const Navbar = () => {
                         <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
                       </DropdownMenuItem>
                     </Link>
-                    {credentialStore?.user_type === "Entity" ? <Link to="/new-listing">
-                      <DropdownMenuItem>
-                        <Plus className="size-4" />
-                        <span>New Listing</span>
-                        <DropdownMenuShortcut>⌘+L</DropdownMenuShortcut>
-                      </DropdownMenuItem>
-                    </Link> : null}
+                    {credentialStore?.user_type === "Entity" &&
+                        <Link to="/list-property">
+                            <DropdownMenuItem>
+                                <Plus className="size-4" />
+                                <span>List Property</span>
+                                <DropdownMenuShortcut>⌘+L</DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                        </Link>
+                    }
                   </DropdownMenuGroup> : <DropdownMenuItem onClick={async () => navigate("/onboarding")}>
                     {/* <LogOut className="size-4" /> */}
                     <span>Sign Up</span>

@@ -24,7 +24,15 @@ export const routes = createBrowserRouter([
         element: pages.profilePage,
       },
       {
-        path: "/new-listing",
+        path: "/approve/:address",
+        element: pages.approveBidPage,
+      },
+      {
+        path: "/new-listings",
+        element: pages.newListingsPage,
+      },
+      {
+        path: "/list-property",
         element: pages.listPropertyPage,
       },
       {
@@ -35,27 +43,10 @@ export const routes = createBrowserRouter([
         path: "/listings",
         element: pages.buyOrRentPage,
       },
-      // {
-      //   path: "/governance",
-      //   element: pages.governancePage,
-      // },
       {
         path: "/trading",
         element: pages.tradingPage,
       },
-      // {
-      //   element: layouts.proposalsLayout,
-      //   children: [
-      //     {
-      //       path: "/proposals",
-      //       element: pages.proposalsPage,
-      //     },
-      //     {
-      //       path: "/proposals/new",
-      //       element: pages.newProposalPage,
-      //     },
-      //   ],
-      // },
     ],
   },
   {
