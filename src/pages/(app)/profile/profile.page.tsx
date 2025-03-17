@@ -1,7 +1,6 @@
 
-import { cn, copyToClipboard, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { TbCopy } from "react-icons/tb";
+import { cn, } from "@/lib/utils";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { IoBedOutline } from "react-icons/io5";
 import { PiBathtub } from "react-icons/pi";
@@ -11,21 +10,11 @@ import { Separator } from "@/components/ui/separator";
 import { useSelector } from "react-redux";
 import { RootState, useAppSelector } from "@/store";
 import DoughnutChart from "./_components/doughnut-chart";
-import { SOCIAL } from "../onboarding/_components/social-input";
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedin,
-  FaXTwitter,
-} from "react-icons/fa6";
-import { PiTelegramLogoDuotone } from "react-icons/pi";
-import { HiOutlineLink } from "react-icons/hi2";
 import { useEffect, useState } from "react";
 import { User } from "@/store/slice/credential.slice";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { byteArrayToString } from "@/lib/starknet/utils";
 import { toast } from "sonner";
-import { Verified } from "lucide-react";
 import { Listing } from "@/store/slice/listing.slice";
 import ProfileCard from "@/components/shared/profile-card";
 
@@ -56,7 +45,7 @@ export default function ProfilePage() {
   const location = useLocation();
   const { getContractInstance, getRPCProviderContract } = useContractInstance()
   const [_, setLoading] = useState<boolean>(false);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const state = location?.state;
@@ -108,7 +97,7 @@ export default function ProfilePage() {
             const listings = await contract!.get_user_listings(address);
 
             const structured: Listing[] = listings.map((listing: Listing) => {
-              const user = listing.owner_details.Some;
+              const user = (listing?.owner_details as any).Some;
 
               const user_construct: User = {
                 ...user,
@@ -121,7 +110,7 @@ export default function ProfilePage() {
                 id: Number(listing.id),
                 owner: BigInt(listing.owner).toString(16),
                 price: Number(listing.price),
-                tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
+                tag: (listing?.tag as any)?.variant?.Sold ? "Sold" : "ForSale",
                 details: byteArrayToString(listing.details),
                 owner_details: user_construct
               }
@@ -166,8 +155,8 @@ export default function ProfilePage() {
       </div>
 
       <Separator className="my-2 h-px w-full" />
-        <ListingsSection listings={agent_listings} />
-        <SoldListingsSection />
+      <ListingsSection listings={agent_listings} />
+      <SoldListingsSection />
     </div>
   );
 }
@@ -176,10 +165,10 @@ interface UserListingsProps {
   listings: Listing[]
 }
 const ListingsSection = ({ listings }: UserListingsProps) => {
-    const navigate = useNavigate();
-    const [limited, set_limited] = useState(true);
+  const navigate = useNavigate();
+  const [limited, set_limited] = useState(true);
 
-    if (!listings.length) return null;
+  if (!listings.length) return null;
 
   return (
     <div className="flex flex-1 flex-col gap-5 py-6 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:p-10">
