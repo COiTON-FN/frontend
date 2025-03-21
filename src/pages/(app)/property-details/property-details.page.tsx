@@ -316,7 +316,7 @@ export default function PropertyDetailsPage() {
     } catch (error: any) {
       console.log(error);
       setCreatingPurchaseAgreement(false)
-      toast.error(error.message || "Somethong went wrong");
+      toast.error(error.message || "Something went wrong");
     }
   }
 

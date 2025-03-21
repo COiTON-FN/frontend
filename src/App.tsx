@@ -67,7 +67,6 @@ export default function App() {
           })
 
           dispatch(setListing(structured));
-          console.log(structured)
         } catch (error) {
           console.log(error)
         }

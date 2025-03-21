@@ -1,63 +1,83 @@
 import ListingBoard from "@/components/shared/listing-board";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import { useContractInstance } from "@/hooks/useContractInstance.hook";
+import { byteArrayToString } from "@/lib/starknet/utils";
+import { cn, generateAvatarFromAddress } from "@/lib/utils";
+import { RootState, useAppSelector } from "@/store";
+import { User } from "@/store/slice/credential.slice";
+import { useEffect, useState } from "react";
 import { CgArrowTopRight } from "react-icons/cg";
 import { useNavigate, createSearchParams } from 'react-router-dom';
 
 export default function NewListingsPage() {
     const navigate = useNavigate();
+    const { getContractInstance, getRPCProviderContract } = useContractInstance()
+    const { walletAddress } = useAppSelector((state: RootState) => state.wallet);
 
-    const goToProfile = (address: string, propsery: string) => {
+    const [merchants, setMerchants] = useState<any[] | []>([])
+
+    const goToProfile = (address: string, requestId: string) => {
         navigate({
             pathname: `/approve/${address}`,
-            search: `?${createSearchParams({ propsery })}`,
+            search: `?${createSearchParams({ requestId })}`,
         });
     };
 
-    const merchants = [
-        {
-            name: "David Odinegun",
-            address: "Business",
-            bid: "$28,000",
-            status: "pending",
-            account: "0x565c68e8f2492b1c7542c35ed48b066d32f23ad6896a3f6499d35331469f18f",
-        },
-        {
-            name: "David Odinegun",
-            address: "Business",
-            bid: "$28,000",
-            status: "approved",
-            account: "0x565c68e8f2492b1c7542c35ed48b066d32f23ad6896a3f6499d35331469f18f",
-        },
-        {
-            name: "David Odinegun",
-            address: "Business",
-            bid: "$28,000",
-            status: "denied",
-            account: "0x565c68e8f2492b1c7542c35ed48b066d32f23ad6896a3f6499d35331469f18f",
-        },
-        {
-            name: "David Odinegun",
-            address: "Business",
-            bid: "$28,000",
-            status: "pending",
-            account: "0x565c68e8f2492b1c7542c35ed48b066d32f23ad6896a3f6499d35331469f18f",
-        },
-        {
-            name: "David Odinegun",
-            address: "Business",
-            bid: "$28,000",
-            status: "approved",
-            account: "0x565c68e8f2492b1c7542c35ed48b066d32f23ad6896a3f6499d35331469f18f",
-        },
-        {
-            name: "David Odinegun",
-            address: "Business",
-            bid: "$28,000",
-            status: "denied",
-            account: "0x565c68e8f2492b1c7542c35ed48b066d32f23ad6896a3f6499d35331469f18f",
-        },
-    ]
+
+    useEffect(() => {
+    (async function () {
+        try {
+        const contract = window.Wallet?.IsConnected
+            ? getContractInstance()
+            : getRPCProviderContract();
+        if (!contract) return;
+
+        const listings = await contract.get_listings_with_purchase_requests(walletAddress);
+
+        const uniqueListings = Array.from(
+            new Map(listings.map((l: any) => [l.id, l])).values()
+        );
+
+        const allRequests: any[] = [];
+
+        for (const listing of uniqueListings) {
+            const listingId = listing?.id;
+            if (!listingId) continue;
+
+            const requests = await contract.get_listing_purchase_requests(listingId);
+
+            const structuredRequests = requests.map((request: any) => {
+            const user = request?.user?.Some;
+            const user_construct: User | undefined = user
+                ? {
+                    ...user,
+                    address: user.address ? BigInt(user.address).toString(16) : "0x0",
+                    id: Number(user.id ?? 0),
+                    details: byteArrayToString(user.details ?? []),
+                    user_type: user?.user_type?.variant?.Entity ? "Entity" : "Individual"
+                }
+                : undefined;
+
+            return {
+                listingId: Number(request?.listing_id ?? 0),
+                requestId: Number(request?.request_id ?? 0),
+                price: Number(request?.price ?? 0),
+                owner: request?.initiator ? BigInt(request.initiator).toString(16) : "0x0",
+                user: user_construct
+            };
+            });
+
+            allRequests.push(...structuredRequests);
+        }
+
+        // console.log(allRequests);
+        setMerchants(allRequests);
+        } catch (error) {
+        console.error("Failed to load listings:", error);
+        }
+    })();
+    }, [getContractInstance, getRPCProviderContract, walletAddress]);
+
 
   return (
     <div className="flex flex-col gap-4 py-4">
@@ -89,30 +109,35 @@ export default function NewListingsPage() {
                     </div>
                   </div>
 
-                  {merchants.map((merchant, _key) => {
-                      const statusColor = merchant.status === "pending" ? "text-[#725900] bg-[#FFFCE4]" : merchant.status === "denied" ? "text-[#720000] bg-[#FFE4E4]" : "text-[#1E7200]  bg-[#EBFFE4]";
+                  {merchants.length > 0 ? merchants.map((merchant, _key) => {
+                    //   const statusColor = merchant.status === "pending" ? "text-[#725900] bg-[#FFFCE4]" : merchant.status === "denied" ? "text-[#720000] bg-[#FFE4E4]" : "text-[#1E7200]  bg-[#EBFFE4]";
+                    const statusColor = "text-[#725900] bg-[#FFFCE4]"
 
                       return (
                     <div key={_key} className="flex items-center py-4 border-b last-of-type:border-b-0 last-of-type:pb-0">
                         <div className="max-w-[334px] w-full flex items-center gap-3">
-                            <div className="bg-secondary size-14 rounded-full"></div>
-                            <p className="text-base font-normal">{merchant.name}</p>
+                                  <div className="bg-secondary size-14 rounded-full overflow-hidden">
+                                      <img src={generateAvatarFromAddress(merchant?.owner)} alt={merchant?.user?.details?.name} className="size-full rounded-full" />
+                            </div>
+                            <p className="text-base font-normal">{merchant?.user?.details?.name}</p>
                         </div>
                         <div className="max-w-[334px] w-full flex items-center gap-3">
-                            <p className="text-base font-normal">{merchant.address}</p>
+                            <p className="text-base font-normal">{merchant?.user?.user_type}</p>
                         </div>
                         <div className="max-w-[334px] w-full flex items-center gap-3">
-                            <p className="text-base font-normal">{merchant.bid}</p>
+                            <p className="text-base font-normal">{merchant.price}</p>
                         </div>
                         <div className="max-w-[334px] w-full flex items-center gap-3">
-                            <p className={cn("text-xs tracking-wide font-medium py-1.5 px-3 capitalize rounded-md", statusColor)}>{merchant.status}</p>
+                            <p className={cn("text-xs tracking-wide font-medium py-1.5 px-3 capitalize rounded-md", statusColor)}>Pending</p>
                         </div>
-                        <div role="button" onClick={() => goToProfile(merchant.account, (_key + 1).toString())}  className="max-w-[334px] w-full flex items-center gap-2">
+                        <div role="button" onClick={() => goToProfile(merchant?.owner, merchant?.requestId.toString())}  className="max-w-[334px] w-full flex items-center gap-2">
                             <p className="text-base font-normal">View Profile</p>
                             <CgArrowTopRight className="size-4" />
                         </div>
                     </div>
-                )})}
+                      )
+                  }) : <div className="bg-secondary flex items-center py-4 justify-center">
+                  <p>Nothing to display</p></div>}
               </div>
         </div>
     </div>

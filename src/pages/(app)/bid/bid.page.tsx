@@ -6,7 +6,7 @@ import { RootState, useAppSelector } from "@/store";
 import { User } from "@/store/slice/credential.slice";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import BID from "../../../assets/images/bid.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,8 +16,9 @@ export default function BidPage() {
     const location = useLocation();
     // const navigate = useNavigate();
     const { address } = useParams();
-    // const [searchParams] = useSearchParams();
-    // const propsery = searchParams.get('propsery');
+    const [searchParams] = useSearchParams();
+    const requestId = searchParams.get('requestId');
+
 
     const { getContractInstance, getRPCProviderContract } = useContractInstance()
 
@@ -67,6 +68,8 @@ export default function BidPage() {
             <div className="flex w-full flex-col gap-4 sm:gap-6 md:gap-10">
                 <div className="flex w-full flex-col gap-6 xl:flex-row">
                     <ProfileCard credentialStore={credentialStore} />
+
+                    {address?.toString()}
 
                     <div className="flex w-full flex-col gap-6 xl:w-[60%] rounded-2xl border bg-background py-6 sm:p-6 md:gap-10 md:p-10">
                          <div className="aspect-video w-full overflow-hidden rounded-2xl bg-secondary"></div>

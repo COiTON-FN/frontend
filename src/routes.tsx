@@ -24,7 +24,7 @@ export const routes = createBrowserRouter([
         element: pages.profilePage,
       },
       {
-        path: "/approve/:address",
+        path: "/approve/:id",
         element: pages.approveBidPage,
       },
       {
