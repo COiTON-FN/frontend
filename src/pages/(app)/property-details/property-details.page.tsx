@@ -46,7 +46,7 @@ import { Link as LinkIcon, Loader, Share2, Verified, X } from "lucide-react";
 import { BiLeaf } from "react-icons/bi";
 import { toast } from "sonner";
 import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User } from "@/store/slice/credential.slice";
 import { useWalletHook } from "@/hooks/useWallet.hook";
 import { useAppSelector } from "@/store";
@@ -55,13 +55,18 @@ import BID_LG from "../../../assets/images/bid_lg.png";
 import { Input } from "@/components/ui/input";
 import { CairoOption, CairoOptionVariant } from "starknet";
 import { variables } from "@/utils/variables";
+import { google, outlook, office365, yahoo, ics, CalendarEvent } from "calendar-link";
+import { SiGooglecalendar } from "react-icons/si";
+import { ImAppleinc } from "react-icons/im";
+import { FaYahoo } from "react-icons/fa";
+import { PiMicrosoftOutlookLogo } from "react-icons/pi";
+import { CgMicrosoft } from "react-icons/cg";
+
+
 
 export default function PropertyDetailsPage() {
   const [showMore, setShowMore] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<any>(
-    null
-
-  );
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   // const [property, setProperty] = useState<any>(null)
 
   const [listing, setListing] = useState<Listing | null>(null);
@@ -69,7 +74,7 @@ export default function PropertyDetailsPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
-  const [addresses, setAddresses] = useState<any>([]);
+  const [addresses, setAddresses] = useState<string[]>([]);
   const [details, setDetails] = useState<any>([]);
   const { getContractInstance, getRPCProviderContract, getErc20Instance } = useContractInstance()
 
@@ -333,11 +338,49 @@ export default function PropertyDetailsPage() {
       </div>
     );
 
+  const event: CalendarEvent = {
+    title: "Inspection times",
+    description: "Inspection and property viewing are still happening",
+    start: "2025-12-3 13:00:00 +0100",
+    end: "2025-12-3 13:40:00 +0100",
+    duration: [40, "minutes"],
+  };
 
-  // const content = {
-  //   url: window.location.href,
-  //   message: "oiiii"
-  // }
+      const googleUrl = google(event);
+      const outlookUrl = outlook(event);
+      const office365Url = office365(event);
+      const yahooUrl = yahoo(event);
+      const icsUrl = ics(event);
+
+  const calendarLinks = [
+    {
+      label: "Google Calendar",
+      url: googleUrl,
+      icon: SiGooglecalendar,
+    },
+    {
+      label: "Apple (ICS)",
+      url: icsUrl,
+      icon: ImAppleinc,
+    },
+    {
+      label: "Office365",
+      url: office365Url,
+      icon: CgMicrosoft,
+    },
+    {
+      label: "Outlook",
+      url: outlookUrl,
+      icon: PiMicrosoftOutlookLogo,
+    },
+    {
+      label: "Yahoo",
+      url: yahooUrl,
+      icon: FaYahoo,
+    },
+  ]
+
+
   return (
     <div className="flex flex-col gap-4 py-4">
       <Helmet>
@@ -633,7 +676,7 @@ export default function PropertyDetailsPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-              {listing?.details?.imagesCid?.filter((ft: any) => !listing?.details?.floorPlanCid?.includes(ft))?.map((image: any, index: number) => (
+              {listing?.details?.imagesCid?.filter((ft: string) => !listing?.details?.floorPlanCid?.includes(ft))?.map((image: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(image)}
@@ -975,6 +1018,8 @@ export default function PropertyDetailsPage() {
                 </div>
               </div>
 
+              <DropdownMenu>
+              <DropdownMenuTrigger asChild>
               <Button size={"lg"} className="rounded-full">
                 <svg
                   width="27"
@@ -1005,6 +1050,23 @@ export default function PropertyDetailsPage() {
 
                 <span>Add to calender</span>
               </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="bottom"
+                sideOffset={0}
+                className="w-[280px]"
+                >
+                  {calendarLinks.map((link) => (
+                    <Link to={link.url} target="_blank">
+                      <DropdownMenuItem className="gap-3">
+                        <link.icon className="!size-5" />
+                        <span>{link.label}</span>
+                      </DropdownMenuItem>
+                  </Link>
+                  ))}
+
+              </DropdownMenuContent>
+            </DropdownMenu>
             </div>
           </div>
         </div>

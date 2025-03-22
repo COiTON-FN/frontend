@@ -1,7 +1,6 @@
 
-import { cn, copyToClipboard, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { TbCopy } from "react-icons/tb";
+import { cn} from "@/lib/utils";
+import {  useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { IoBedOutline } from "react-icons/io5";
 import { PiBathtub } from "react-icons/pi";
@@ -11,21 +10,11 @@ import { Separator } from "@/components/ui/separator";
 import { useSelector } from "react-redux";
 import { RootState, useAppSelector } from "@/store";
 import DoughnutChart from "./_components/doughnut-chart";
-import { SOCIAL } from "../onboarding/_components/social-input";
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedin,
-  FaXTwitter,
-} from "react-icons/fa6";
-import { PiTelegramLogoDuotone } from "react-icons/pi";
-import { HiOutlineLink } from "react-icons/hi2";
 import { useEffect, useState } from "react";
 import { User } from "@/store/slice/credential.slice";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { byteArrayToString } from "@/lib/starknet/utils";
 import { toast } from "sonner";
-import { Verified } from "lucide-react";
 import { Listing } from "@/store/slice/listing.slice";
 import ProfileCard from "@/components/shared/profile-card";
 
@@ -55,7 +44,7 @@ export default function ProfilePage() {
   const [credentialStore, setCredential] = useState<User | null>(null);
   const location = useLocation();
   const { getContractInstance, getRPCProviderContract } = useContractInstance()
-  const [_, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
   useEffect(() => {
@@ -92,7 +81,7 @@ export default function ProfilePage() {
         }
       }())
     }
-  }, [address, connectedAddress, credential])
+  }, [address, connectedAddress, credential, getContractInstance, getRPCProviderContract, location?.state, navigate])
 
 
   useEffect(() => {
@@ -107,7 +96,7 @@ export default function ProfilePage() {
 
             const listings = await contract!.get_user_listings(address);
 
-            const structured: Listing[] = listings.map((listing: Listing) => {
+            const structured: Listing[] = listings.map((listing: any) => {
               const user = listing.owner_details.Some;
 
               const user_construct: User = {
@@ -137,7 +126,10 @@ export default function ProfilePage() {
         }())
       }
     }
-  }, [credentialStore])
+  }, [address, credentialStore, getContractInstance, getRPCProviderContract, listings])
+
+
+  if (loading) return null;
 
 
   return (
