@@ -74,8 +74,8 @@ export default function PropertyDetailsPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
-  const [addresses, setAddresses] = useState<string[]>([]);
-  const [details, setDetails] = useState<any>([]);
+  const [addresses, setAddresses] = useState<{label: string,value:string}[]>([]);
+  const [details, setDetails] = useState<{label: string,value:string}[]>([]);
   const { getContractInstance, getRPCProviderContract, getErc20Instance } = useContractInstance()
 
   const [content, setContent] = useState({ url: window.location.href, message: "" });
@@ -147,6 +147,7 @@ export default function PropertyDetailsPage() {
       },
     ])
   }
+
   useEffect(() => {
     if (location.state) {
       setListing(location.state);
@@ -214,7 +215,7 @@ export default function PropertyDetailsPage() {
             user_type: user.user_type.variant.Entity ? "Entity" : "Individual"
           }
 
-          let request_construct: PurchaseRequest = {
+          const request_construct: PurchaseRequest = {
             initiator: BigInt(request.initiator).toString(16),
             listing_id: Number(request.listing_id),
             price: Number(request.price),
@@ -294,8 +295,6 @@ export default function PropertyDetailsPage() {
         await account.waitForTransaction(approval_tx.transaction_hash);
       }
 
-
-
       const call = contract!.populate("create_purchase_request", [
         listing.id,
         new CairoOption(CairoOptionVariant.Some, bidPrice || listing.price),
@@ -339,7 +338,7 @@ export default function PropertyDetailsPage() {
     );
 
   const event: CalendarEvent = {
-    title: "Inspection times",
+    title: "COiTON Inspection times",
     description: "Inspection and property viewing are still happening",
     start: "2025-12-3 13:00:00 +0100",
     end: "2025-12-3 13:40:00 +0100",
