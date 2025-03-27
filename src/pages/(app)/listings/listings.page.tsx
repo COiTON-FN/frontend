@@ -1,4 +1,4 @@
-import ListingBoard from "@/components/shared/listing-board";
+// import ListingBoard from "@/components/shared/listing-board";
 import ListingCard from "@/components/shared/listing-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAppSelector } from "@/store";
