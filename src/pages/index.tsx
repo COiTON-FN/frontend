@@ -1,5 +1,5 @@
 import BidPage from "./(app)/bid/bid.page";
-import BuyOrRentPage from "./(app)/buy-or-rent/buy-or-rent.page";
+import ListingsPage from "./(app)/listings/listings.page";
 import DashboardPage from "./(app)/dashboard/dashboard.page";
 import ListPropertyPage from "./(app)/list-property/list-property.page";
 import RequestsPage from "./(app)/requests/requests.page";
@@ -16,7 +16,7 @@ export const pages = {
   profilePage: <ProfilePage />,
   listPropertyPage: <ListPropertyPage />,
   requestsPage: <RequestsPage />,
-  buyOrRentPage: <BuyOrRentPage />,
+  listingsPage: <ListingsPage />,
   tradingPage: <TradingPage />,
     propertyDetailsPage: <PropertyDetailsPage />,
   approveBidPage: <BidPage />,

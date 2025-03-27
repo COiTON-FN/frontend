@@ -111,8 +111,6 @@ export default function BidPage() {
       const erc721 = getErc721Instance();
       const approvedAddress = await erc721!.get_approved(listingId);
 
-      console.log({ approvedAddress });
-
       if (approvedAddress !== walletAddress) {
         const approval_call = erc721!.populate("approve", [
           variables.daoAddress,

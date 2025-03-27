@@ -14,7 +14,7 @@ import {
 import ListingBoard from "@/components/shared/listing-board";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { byteArrayToString } from "@/lib/starknet/utils";
-import { generateAvatarFromAddress } from "@/lib/utils";
+import { cn, generateAvatarFromAddress } from "@/lib/utils";
 import { RootState, useAppSelector } from "@/store";
 import { Loader } from "lucide-react";
 
@@ -23,8 +23,10 @@ export default function NewListingsPage() {
   const { getContractInstance } = useContractInstance()
   const { walletAddress } = useAppSelector((state: RootState) => state.wallet);
 
-  const [merchants, setMerchants] = useState<any[] | []>([])
   const [isLoadingMerchants, setIsLoadingMerchants] = useState(false);
+  const [merchants, setMerchants] = useState<any[] | []>([])
+  const [accountTypes, setAccountTypes] = useState<string[]>([]);
+  const [status, setStatus] = useState<string[]>([]);
 
   const goToProfile = (requestId: string, listingId: string) => {
     navigate({
@@ -80,25 +82,45 @@ export default function NewListingsPage() {
   }, [getContractInstance, walletAddress]);
 
 
+  useEffect(() => {
+    if (merchants.length > 0) {
+      const typeMap: any = {};
+
+      merchants.forEach(({ user }:any) => {
+        if (!typeMap[user?.user_type]) {
+          typeMap[user?.user_type] = user?.user_type;
+        }
+      });
+
+      setAccountTypes(Object.values(typeMap));
+      setStatus(["Pending", "Approved", "Denied"])
+    }
+  }, [merchants])
 
   return (
     <div className="flex flex-col gap-4 py-4">
-      {/* <div className="h-[200px] w-full rounded-2xl bg-foreground/20 p-[1px] sm:h-[364px] md:rounded-3xl">
-        <div className="flex size-full overflow-hidden rounded-[inherit] bg-[#FCFCFC]"></div>
-      </div>
-
-      <Separator className="my-2 h-px w-full" /> */}
-
       <div className="rounded-2xl md:rounded-3xl md:border md:bg-background">
-        <ListingBoard />
+        {accountTypes.length > 0 &&
+        <ListingBoard listingBoardValue={[
+            {
+              placeholder: "Account Type",
+              options: accountTypes
+            },
+            {
+              placeholder: "Status",
+              options: status as unknown as string[]
+            },
+          ]} />
+        }
 
         <Table className="py-6 md:p-6">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px] p-6 text-base font-normal">#ID</TableHead>
+              <TableHead className="w-[60px] p-6 text-base font-normal">#ID</TableHead>
               <TableHead className="p-6 text-base font-normal">Merchant Name</TableHead>
               <TableHead className="p-6 text-base font-normal">Account Type</TableHead>
               <TableHead className="p-6 text-base font-normal">Bid Price</TableHead>
+              <TableHead className="p-6 text-base font-normal">Status</TableHead>
               <TableHead className="p-6 text-base font-normal">Profile</TableHead>
             </TableRow>
           </TableHeader>
@@ -106,7 +128,7 @@ export default function NewListingsPage() {
             {isLoadingMerchants ? (
               <TableRow className="h-[300px]">
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="text-base font-normal h-24 text-center tracking-wide"
                 >
                   <div className="flex flex-col gap-2 w-full items-center justify-center">
@@ -115,10 +137,14 @@ export default function NewListingsPage() {
                   </div>
                 </TableCell>
               </TableRow>
-            ) : merchants.length > 0 ? merchants.map((merchant, _key) => {
+            ) : merchants ? merchants.map((merchant, _key) => {
+              const pending = "bg-[#FFFCE4] text-[#725900] border-[#725900]/10";
+              // const approved = "bg-[#EBFFE4] text-[#1E7200] border-[#1E7200]/10";
+              // const denied = "bg-[#FFE4E4] text-[#720000] border-[#720000]/10";
+
               return (
                 <TableRow key={_key}>
-                  <TableCell className="w-[100px] p-6 text-base font-normal">#{merchant?.requestId}</TableCell>
+                  <TableCell className="w-[60px] p-6 text-base font-normal">#{merchant?.requestId}</TableCell>
                   <TableCell className="p-6 text-base font-normal">
                     <div className="flex items-center gap-3">
                       <div className="bg-secondary size-14 rounded-full overflow-hidden">
@@ -128,7 +154,12 @@ export default function NewListingsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="p-6 text-base font-normal">{merchant?.user?.user_type}</TableCell>
-                  <TableCell className="p-6 text-base font-normal">{Number(merchant.price).toLocaleString()}</TableCell>
+                  <TableCell className="p-6 text-base font-normal">${Number(merchant.price).toLocaleString()}</TableCell>
+                  <TableCell className="p-6 text-base font-normal">
+                    <div className={cn("text-xs font-medium px-3 py-1 h-max rounded-md border bg-secondary w-max tracking-wide", pending)}>
+                      Pending
+                    </div>
+                  </TableCell>
                   <TableCell className="p-6 text-base font-normal">
                     <div role="button" onClick={() => goToProfile(merchant?.requestId.toString(), merchant?.listingId.toString())} className="flex items-center gap-2">
                       <p className="text-base font-normal">View Profile</p>
@@ -139,8 +170,8 @@ export default function NewListingsPage() {
               )
             }) : (
                <TableRow className="h-[300px]">
-                  <TableCell
-                    colSpan={5}
+                <TableCell
+                  colSpan={6}
                   className="text-base font-normal h-24 text-center tracking-wide"
                 >
                   No results.
