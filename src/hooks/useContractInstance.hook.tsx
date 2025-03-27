@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { AccountInterface, Contract, RpcProvider } from "starknet";
 
 export const useContractInstance = () => {
-  const { daoAddress, daoABI, erc20ABI, erc20Address } = contract;
+  const { daoAddress, daoABI, erc20ABI, erc20Address, erc721ABI, erc721Address } = contract;
   const getContractInstance = useCallback(() => {
 
     if (!window.Wallet?.Account || !window.Wallet?.IsConnected) {
@@ -49,5 +49,20 @@ export const useContractInstance = () => {
     return contract;
   }, [erc20ABI, erc20Address]);
 
-  return { getContractInstance, getErc20Instance, getRPCProviderContract };
+  const getErc721Instance = useCallback(() => {
+    if (!window.Wallet?.Account || !window.Wallet?.IsConnected) {
+      toast.error("Wallet not connected!");
+      return;
+    }
+
+    const contract = new Contract(
+      erc721ABI,
+      erc721Address,
+      window.Wallet.Account as unknown as AccountInterface
+    );
+
+    return contract;
+  }, [erc721ABI, erc721Address]);
+
+  return { getContractInstance, getErc20Instance, getErc721Instance, getRPCProviderContract };
 };
