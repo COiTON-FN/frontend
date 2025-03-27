@@ -41,7 +41,7 @@ export const routes = createBrowserRouter([
       },
       {
         path: "/listings",
-        element: pages.buyOrRentPage,
+        element: pages.listingsPage,
       },
       {
         path: "/trading",

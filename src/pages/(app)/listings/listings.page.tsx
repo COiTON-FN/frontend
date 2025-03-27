@@ -5,16 +5,14 @@ import { useAppSelector } from "@/store";
 import { Listing } from "@/store/slice/listing.slice";
 import { BsInbox } from "react-icons/bs";
 
-export default function BuyOrRentPage() {
+export default function ListingsPage() {
 
   const { listings } = useAppSelector(state => state.listing);
-
-
 
   return (
     <div className="flex flex-col gap-4 py-4">
       <div className="rounded-2xl md:rounded-3xl md:border md:bg-background">
-        <ListingBoard />
+        {/* <ListingBoard /> */}
 
         {listings.length === 0 ? (
           <div className="mx-auto grid grid-cols-1 gap-4 overflow-y-auto py-6 md:gap-6 md:p-6 lg:grid-cols-2 2xl:grid-cols-3">

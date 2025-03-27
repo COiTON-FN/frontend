@@ -97,7 +97,7 @@ const Navbar = () => {
                   >
                     <span className="size-12 rounded-full border bg-background">
                       <img
-                        src={credentialStore?.avatar}
+                        src={generateAvatarFromAddress(`0x${credentialStore?.address}`)}
                         alt={credentialStore?.avatar}
                         width={48}
                         height={48}
