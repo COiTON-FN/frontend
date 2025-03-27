@@ -3,3 +3,8 @@ declare module "country-region-data/dist/data-umd" {
 
   export default data;
 }
+
+interface ListingBoardProps {
+  placeholder: string,
+  options: string[]
+}

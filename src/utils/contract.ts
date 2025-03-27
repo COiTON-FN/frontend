@@ -4,6 +4,7 @@ import { variables } from "./variables";
 export const contract = {
   daoAddress: variables.daoAddress as `0x${string}`,
   erc20Address: variables.erc20Address as `0x${string}`,
+  erc721Address: variables.erc721Address as `0x${string}`,
   daoABI: [
     {
       "type": "impl",
@@ -1023,5 +1024,290 @@ export const contract = {
         },
       ],
     },
+  ] as const satisfies ABI,
+  erc721ABI: [
+    {
+      "type": "impl",
+      "name": "MyTokenImpl",
+      "interface_name": "coiton::mods::interfaces::ierc721::IERC721"
+    },
+    {
+      "type": "struct",
+      "name": "core::integer::u256",
+      "members": [
+        {
+          "name": "low",
+          "type": "core::integer::u128"
+        },
+        {
+          "name": "high",
+          "type": "core::integer::u128"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "coiton::mods::interfaces::ierc721::IERC721",
+      "items": [
+        {
+          "type": "function",
+          "name": "mint_coiton_nft",
+          "inputs": [
+            {
+              "name": "address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "get_last_minted_id",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u256"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_user_token_id",
+          "inputs": [
+            {
+              "name": "user",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::integer::u256"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_token_mint_timestamp",
+          "inputs": [
+            {
+              "name": "token_id",
+              "type": "core::integer::u256"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::integer::u64"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_approved",
+          "inputs": [
+            {
+              "name": "token_id",
+              "type": "core::integer::u256"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "approve",
+          "inputs": [
+            {
+              "name": "to",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "token_id",
+              "type": "core::integer::u256"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "transfer_from",
+          "inputs": [
+            {
+              "name": "from",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "to",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "token_id",
+              "type": "core::integer::u256"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "owner_of",
+          "inputs": [
+            {
+              "name": "token_id",
+              "type": "core::integer::u256"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "constructor",
+      "name": "constructor",
+      "inputs": [
+        {
+          "name": "admin",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_token::erc721::erc721::ERC721Component::Transfer",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "from",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "to",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "token_id",
+          "type": "core::integer::u256",
+          "kind": "key"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_token::erc721::erc721::ERC721Component::Approval",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "approved",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "token_id",
+          "type": "core::integer::u256",
+          "kind": "key"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "core::bool",
+      "variants": [
+        {
+          "name": "False",
+          "type": "()"
+        },
+        {
+          "name": "True",
+          "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_token::erc721::erc721::ERC721Component::ApprovalForAll",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "operator",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "approved",
+          "type": "core::bool",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_token::erc721::erc721::ERC721Component::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "Transfer",
+          "type": "openzeppelin_token::erc721::erc721::ERC721Component::Transfer",
+          "kind": "nested"
+        },
+        {
+          "name": "Approval",
+          "type": "openzeppelin_token::erc721::erc721::ERC721Component::Approval",
+          "kind": "nested"
+        },
+        {
+          "name": "ApprovalForAll",
+          "type": "openzeppelin_token::erc721::erc721::ERC721Component::ApprovalForAll",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_introspection::src5::SRC5Component::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "coiton::mods::tokens::erc721::MyToken::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "ERC721Event",
+          "type": "openzeppelin_token::erc721::erc721::ERC721Component::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "SRC5Event",
+          "type": "openzeppelin_introspection::src5::SRC5Component::Event",
+          "kind": "flat"
+        }
+      ]
+    }
   ] as const satisfies ABI,
 };

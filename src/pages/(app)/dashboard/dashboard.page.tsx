@@ -1,5 +1,5 @@
 import { assets } from "@/assets";
-import ListingBoard from "@/components/shared/listing-board";
+// import ListingBoard from "@/components/shared/listing-board";
 import { Button } from "@/components/ui/button";
 import { variants } from "@/utils/constants";
 import { motion } from "framer-motion";
@@ -15,17 +15,16 @@ import { IoMdCopy } from "react-icons/io";
 
 export default function DashboardPage() {
   const { fadeIn } = variants;
-
   const { listings } = useAppSelector(state => state.listing);
 
-  // const chii = async () => {
-  //   try {
-  //     const response = await apiClient.post("/listing", { tx_hash: "0x0655ee38395dbc433d83981c72a1ea42637f94ae72fb0389b9d758f0f7c34a0c" });
-  //     console.log(response);
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // }
+  // console.log(listings)
+
+  // const listingBoardValue = [
+  //   {
+  //     placeholder: "Tag",
+  //     options: ["ForSale", "Sold"],
+  //   },
+  // ]
 
   return (
     <div className="flex flex-col gap-4 py-4">
@@ -143,7 +142,9 @@ export default function DashboardPage() {
       <Separator className="my-2 h-px w-full" />
 
       <div className="rounded-2xl md:rounded-3xl md:border md:bg-background">
-        <ListingBoard />
+        {/* {listings.length > 0 &&
+          <ListingBoard listingBoardValue={listingBoardValue} />
+        } */}
 
         {listings.length === 0 ? (
           <div className="mx-auto grid grid-cols-1 gap-4 overflow-y-auto py-6 md:gap-6 md:p-6 lg:grid-cols-2 2xl:grid-cols-3">

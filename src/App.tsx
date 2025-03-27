@@ -46,7 +46,7 @@ export default function App() {
           if (!contract) return;
           const listings = await contract.get_all_listings();
 
-          let structured: Listing[] = listings.map((listing: any) => {
+          const structured: Listing[] = listings.map((listing: any) => {
             const user = listing.owner_details.Some;
 
             const user_construct: User = {
@@ -67,7 +67,6 @@ export default function App() {
           })
 
           dispatch(setListing(structured));
-          console.log(structured)
         } catch (error) {
           console.log(error)
         }
@@ -185,6 +184,7 @@ export default function App() {
       }
     }())
   }, [walletAddress])
+
   return (
     <Fragment>
       {/* {isLoading && (

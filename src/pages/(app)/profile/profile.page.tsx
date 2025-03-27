@@ -1,6 +1,6 @@
+import { cn} from "@/lib/utils";
+import {  useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { cn, } from "@/lib/utils";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { IoBedOutline } from "react-icons/io5";
 import { PiBathtub } from "react-icons/pi";
@@ -44,8 +44,8 @@ export default function ProfilePage() {
   const [credentialStore, setCredential] = useState<User | null>(null);
   const location = useLocation();
   const { getContractInstance, getRPCProviderContract } = useContractInstance()
-  const [_, setLoading] = useState<boolean>(false);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(false);
+    const navigate = useNavigate();
 
   useEffect(() => {
     const state = location?.state;
@@ -81,7 +81,7 @@ export default function ProfilePage() {
         }
       }())
     }
-  }, [address, connectedAddress, credential])
+  }, [address, connectedAddress, credential, getContractInstance, getRPCProviderContract, location?.state, navigate])
 
 
   useEffect(() => {
@@ -96,8 +96,8 @@ export default function ProfilePage() {
 
             const listings = await contract!.get_user_listings(address);
 
-            const structured: Listing[] = listings.map((listing: Listing) => {
-              const user = (listing?.owner_details as any).Some;
+            const structured: Listing[] = listings.map((listing: any) => {
+              const user = listing.owner_details.Some;
 
               const user_construct: User = {
                 ...user,
@@ -126,7 +126,10 @@ export default function ProfilePage() {
         }())
       }
     }
-  }, [credentialStore])
+  }, [address, credentialStore, getContractInstance, getRPCProviderContract, listings])
+
+
+  if (loading) return null;
 
 
   return (

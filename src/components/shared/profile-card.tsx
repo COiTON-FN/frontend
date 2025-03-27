@@ -1,9 +1,8 @@
 import { FC } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link} from "react-router-dom";
 import { Button } from "../ui/button";
 import { copyToClipboard, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { TbCopy } from "react-icons/tb";
-import { useAppSelector } from "@/store";
 import {
   FaFacebookF,
   FaInstagram,
@@ -21,16 +20,14 @@ interface ProfileCardProps {
 }
 
 const ProfileCard: FC<ProfileCardProps> = ({credentialStore}) => {
-    const { address } = useParams();
-    const connectedAddress = useAppSelector(state => state.wallet.walletAddress);
 
   return (
     <div className="flex w-full flex-col rounded-2xl sm:border sm:bg-background xl:w-[40%]">
         <div className="flex flex-col gap-4 border-b py-6 sm:p-6 md:gap-10 md:p-10">
             <div className="size-32 rounded-full bg-secondary md:size-48">
             <img
-                src={generateAvatarFromAddress(address?.toLowerCase().trim() === connectedAddress?.trim().toLowerCase() ? connectedAddress! : address!)}
-                alt={address as string}
+                src={generateAvatarFromAddress(`0x${credentialStore?.address}`)}
+                alt={credentialStore?.address as string}
                 width={192}
                 height={192}
                 className="size-full rounded-full object-cover"
@@ -74,44 +71,24 @@ const ProfileCard: FC<ProfileCardProps> = ({credentialStore}) => {
                     strokeLinejoin="round"
                 />
                 </svg>
-                <p className="text-base font-medium md:text-lg">Agent</p>
+                <p className="text-base font-medium md:text-lg">{credentialStore?.user_type}</p>
                 <div className="rounded-full border border-muted-foreground/60 px-3 py-1 text-xs font-medium text-muted-foreground">
                 Core
                 </div>
             </div> : null}
 
-            {address && (
+            {credentialStore?.address && (
                 <div className="flex items-center gap-3 md:gap-4">
                 <p className="text-sm font-medium md:text-base">
-                    {truncateAddr(address as string)}
+                    {truncateAddr(`0x${credentialStore?.address}`)}
                 </p>
                 <TbCopy
                     role="button"
-                    onClick={() => copyToClipboard(address as string)}
+                    onClick={() => copyToClipboard(`0x${credentialStore?.address}`)}
                     className="size-4 md:size-5"
                 />
                 </div>
             )}
-
-            {/* <div
-            className={cn(
-                "flex w-max items-center gap-2 rounded-full border px-4 py-2",
-                {
-                "border-[#00605A] bg-[#C8FFFB] text-[#004843]": isActive,
-                "border-[#D12E2E] bg-[#FFD3D3] text-[#D12E2E]": !isActive,
-                }
-            )}
-            >
-            <span
-                className={cn("size-2 rounded-full", {
-                "bg-[#004843]": isActive,
-                "bg-[#D12E2E]": !isActive,
-                })}
-            />
-            <span className="font-sans_medium text-sm">
-                {isActive ? "Active" : "Closed"}
-            </span>
-            </div> */}
             </div>
         </div>
 
