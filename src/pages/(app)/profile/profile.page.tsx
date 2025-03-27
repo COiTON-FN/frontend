@@ -1,6 +1,6 @@
-
 import { cn} from "@/lib/utils";
 import {  useLocation, useNavigate, useParams } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import { IoBedOutline } from "react-icons/io5";
 import { PiBathtub } from "react-icons/pi";
@@ -110,7 +110,7 @@ export default function ProfilePage() {
                 id: Number(listing.id),
                 owner: BigInt(listing.owner).toString(16),
                 price: Number(listing.price),
-                tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
+                tag: (listing?.tag as any)?.variant?.Sold ? "Sold" : "ForSale",
                 details: byteArrayToString(listing.details),
                 owner_details: user_construct
               }
@@ -158,8 +158,8 @@ export default function ProfilePage() {
       </div>
 
       <Separator className="my-2 h-px w-full" />
-        <ListingsSection listings={agent_listings} />
-        <SoldListingsSection />
+      <ListingsSection listings={agent_listings} />
+      <SoldListingsSection />
     </div>
   );
 }
@@ -168,10 +168,10 @@ interface UserListingsProps {
   listings: Listing[]
 }
 const ListingsSection = ({ listings }: UserListingsProps) => {
-    const navigate = useNavigate();
-    const [limited, set_limited] = useState(true);
+  const navigate = useNavigate();
+  const [limited, set_limited] = useState(true);
 
-    if (!listings.length) return null;
+  if (!listings.length) return null;
 
   return (
     <div className="flex flex-1 flex-col gap-5 py-6 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:p-10">
