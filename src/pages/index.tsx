@@ -2,7 +2,7 @@ import BidPage from "./(app)/bid/bid.page";
 import BuyOrRentPage from "./(app)/buy-or-rent/buy-or-rent.page";
 import DashboardPage from "./(app)/dashboard/dashboard.page";
 import ListPropertyPage from "./(app)/list-property/list-property.page";
-import NewListingsPage from "./(app)/new-listings/new-listings.page";
+import RequestsPage from "./(app)/requests/requests.page";
 import GetVerifiedPage from "./(app)/onboarding/account-type/get-verified.page";
 import PropertyManagementPage from "./(app)/onboarding/account-type/property-management.page";
 import OnboardingPage from "./(app)/onboarding/onboarding.page";
@@ -15,7 +15,7 @@ export const pages = {
   dashboardPage: <DashboardPage />,
   profilePage: <ProfilePage />,
   listPropertyPage: <ListPropertyPage />,
-  newListingsPage: <NewListingsPage />,
+  requestsPage: <RequestsPage />,
   buyOrRentPage: <BuyOrRentPage />,
   tradingPage: <TradingPage />,
     propertyDetailsPage: <PropertyDetailsPage />,

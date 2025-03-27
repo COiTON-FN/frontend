@@ -12,11 +12,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import ListingBoard from "@/components/shared/listing-board";
-import { Separator } from "@/components/ui/separator";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { byteArrayToString } from "@/lib/starknet/utils";
 import { generateAvatarFromAddress } from "@/lib/utils";
 import { RootState, useAppSelector } from "@/store";
+import { Loader } from "lucide-react";
 
 export default function NewListingsPage() {
   const navigate = useNavigate();
@@ -24,6 +24,7 @@ export default function NewListingsPage() {
   const { walletAddress } = useAppSelector((state: RootState) => state.wallet);
 
   const [merchants, setMerchants] = useState<any[] | []>([])
+  const [isLoadingMerchants, setIsLoadingMerchants] = useState(false);
 
   const goToProfile = (requestId: string, listingId: string) => {
     navigate({
@@ -34,12 +35,13 @@ export default function NewListingsPage() {
 
   useEffect(() => {
     (async () => {
+      if (!walletAddress) return;
+      const contract = getContractInstance();
+      if (!contract) return;
+
+      setIsLoadingMerchants(true)
+
       try {
-        if (!walletAddress) return;
-
-        const contract = getContractInstance();
-        if (!contract) return;
-
         const purchaseRequests = await contract.get_listings_with_purchase_requests(walletAddress);
 
         const data = await Promise.all(
@@ -69,8 +71,10 @@ export default function NewListingsPage() {
         );
 
         setMerchants(data[0]);
+        setIsLoadingMerchants(false);
       } catch (error) {
         console.error("Failed to load requests:", error);
+        setIsLoadingMerchants(false)
       }
     })();
   }, [getContractInstance, walletAddress]);
@@ -79,11 +83,11 @@ export default function NewListingsPage() {
 
   return (
     <div className="flex flex-col gap-4 py-4">
-      <div className="h-[200px] w-full rounded-2xl bg-foreground/20 p-[1px] sm:h-[364px] md:rounded-3xl">
+      {/* <div className="h-[200px] w-full rounded-2xl bg-foreground/20 p-[1px] sm:h-[364px] md:rounded-3xl">
         <div className="flex size-full overflow-hidden rounded-[inherit] bg-[#FCFCFC]"></div>
       </div>
 
-      <Separator className="my-2 h-px w-full" />
+      <Separator className="my-2 h-px w-full" /> */}
 
       <div className="rounded-2xl md:rounded-3xl md:border md:bg-background">
         <ListingBoard />
@@ -99,7 +103,19 @@ export default function NewListingsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {merchants.length > 0 ? merchants.map((merchant, _key) => {
+            {isLoadingMerchants ? (
+              <TableRow className="h-[300px]">
+                <TableCell
+                  colSpan={5}
+                  className="text-base font-normal h-24 text-center tracking-wide"
+                >
+                  <div className="flex flex-col gap-2 w-full items-center justify-center">
+                    <Loader className="size-6 animate-spin" />
+                    <p className="text-xs uppercase font-medium">Please wait...</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : merchants.length > 0 ? merchants.map((merchant, _key) => {
               return (
                 <TableRow key={_key}>
                   <TableCell className="w-[100px] p-6 text-base font-normal">#{merchant?.requestId}</TableCell>
@@ -122,8 +138,13 @@ export default function NewListingsPage() {
                 </TableRow>
               )
             }) : (
-              <TableRow className="bg-secondary py-4 h-[150px]">
-                <TableCell colSpan={1} className="text-base font-normal h-24 text-center">Nothing to display</TableCell>
+               <TableRow className="h-[300px]">
+                  <TableCell
+                    colSpan={5}
+                  className="text-base font-normal h-24 text-center tracking-wide"
+                >
+                  No results.
+                </TableCell>
               </TableRow>
             )}
           </TableBody>

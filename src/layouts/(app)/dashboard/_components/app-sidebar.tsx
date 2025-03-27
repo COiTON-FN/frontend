@@ -12,7 +12,7 @@ import {
 import { Link, useLocation } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
-import {  useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
 const sidebarLinks = [
@@ -133,8 +133,8 @@ const sidebarLinks = [
     path: "/trading",
     },
     {
-        label: "New Listings",
-        path: "/new-listings",
+        label: "Requests",
+        path: "/requests",
         icon: (className: string) => (
             <svg className={cn("!size-[26px]", className)} viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10 14.5H3V21.5H10V14.5Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -268,9 +268,9 @@ export function NavMain() {
           //   (link) =>
           //     credentialStore?.accountType === "dao" || !link.dao_members,
           // )
-          .map(({ label, path, icon }, _) =>
+          .map(({ label, path, icon }, _index: number) =>
 
-            <SidebarMenuItem key={label}>
+            <SidebarMenuItem key={_index}>
               <SidebarMenuButton
                 asChild
                 className={cn(

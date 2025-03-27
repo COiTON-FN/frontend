@@ -28,8 +28,8 @@ export const routes = createBrowserRouter([
         element: pages.approveBidPage,
       },
       {
-        path: "/new-listings",
-        element: pages.newListingsPage,
+        path: "/requests",
+        element: pages.requestsPage,
       },
       {
         path: "/list-property",

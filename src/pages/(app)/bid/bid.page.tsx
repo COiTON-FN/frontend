@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { variables } from "@/utils/variables";
 import { useAppSelector } from "@/store";
+import { Loader } from "lucide-react";
 
 export default function BidPage() {
   const [searchParams] = useSearchParams();
@@ -21,6 +22,7 @@ export default function BidPage() {
   const requestId = searchParams.get("requestId");
   const listingId = searchParams.get("listingId");
 
+  const [isLoadingDetails, setIsLoadingDetails] = useState(true);
   const [initiator, setInitiator] = useState<User | null>(null);
   const [listingDetails, setListingDetails] = useState<{
     banner: string,
@@ -36,7 +38,7 @@ export default function BidPage() {
   const [isApproving, setIsApproving] = useState(false);
   const { walletAddress } = useAppSelector(state => state.wallet)
 
-  const { getContractInstance, getErc721Instance,getErc20Instance } = useContractInstance()
+  const { getContractInstance, getErc721Instance } = useContractInstance()
 
   useEffect(() => {
     (async () => {
@@ -45,6 +47,7 @@ export default function BidPage() {
 
         const contract = getContractInstance();
         if (!contract) return;
+        setIsLoadingDetails(true)
 
         const listing = await contract.get_listing(Number(listingId));
 
@@ -89,9 +92,10 @@ export default function BidPage() {
         }
 
         setListingDetails(snapshotDetails)
-
+        setIsLoadingDetails(false)
       } catch (error) {
         console.error("Failed to load requests:", error);
+        setIsLoadingDetails(false);
       }
     })();
   }, [getContractInstance, listingId, requestId]);
@@ -99,27 +103,10 @@ export default function BidPage() {
   const handleApprovePurchaseRequest = async () => {
     if (!requestId || !listingId || !listingDetails || !initiator) return;
 
-    const { bidPrice, price } = listingDetails;
-
     try {
       const contract = getContractInstance();
       if (!contract) return;
       setIsApproving(true);
-
-      const erc20 = getErc20Instance();
-      const allowance = await erc20!.allowance(`0x${initiator?.address}`, variables.daoAddress);
-      const account = window.Wallet.Account!;
-      if ((bidPrice || price) > Number(allowance)) {
-        const approval_call = erc20!.populate("approve", [
-          variables.daoAddress,
-          bidPrice || price
-        ]);
-
-        console.log(approval_call);
-
-        const approval_tx = await account.execute(approval_call);
-        await account.waitForTransaction(approval_tx.transaction_hash);
-      }
 
       const erc721 = getErc721Instance();
       const approvedAddress = await erc721!.get_approved(listingId);
@@ -128,7 +115,7 @@ export default function BidPage() {
 
       if (approvedAddress !== walletAddress) {
         const approval_call = erc721!.populate("approve", [
-          variables.erc721Address,
+          variables.daoAddress,
           listingId
         ]);
 
@@ -148,6 +135,11 @@ export default function BidPage() {
       setIsApproving(false);
     }
   }
+
+  if (isLoadingDetails) return <div className="h-[calc(100dvh-80px)] flex-col flex items-center justify-center gap-2">
+    <Loader className="size-6 animate-spin" />
+    <p className="text-xs uppercase font-medium">Please wait...</p>
+  </div>;
 
   return (
     <div className="flex flex-col gap-4 py-4">
