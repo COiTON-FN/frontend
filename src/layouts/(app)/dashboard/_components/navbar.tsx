@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useWalletHook } from "@/hooks/useWallet.hook";
 import { copyToClipboard, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { RootState } from "@/store";
 import { ChevronDown, Search, Wallet2 } from "lucide-react";
@@ -23,6 +22,7 @@ import { Link, useNavigate } from "react-router-dom";
 import BuyToken from "@/components/shared/buy-token";
 import { RiShoppingCartLine } from "react-icons/ri";
 import { TbCopy } from "react-icons/tb";
+import useWalletHook from "@/hooks/useWallet.hook";
 
 const Navbar = () => {
   const { handleDisconnect, handleConnectWallet } = useWalletHook();
@@ -143,13 +143,13 @@ const Navbar = () => {
                       </DropdownMenuItem>
                     </Link>
                     {credentialStore?.user_type === "Entity" &&
-                        <Link to="/list-property">
-                            <DropdownMenuItem>
-                                <Plus className="size-4" />
-                                <span>List Property</span>
-                                <DropdownMenuShortcut>⌘+L</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                        </Link>
+                      <Link to="/list-property">
+                        <DropdownMenuItem>
+                          <Plus className="size-4" />
+                          <span>List Property</span>
+                          <DropdownMenuShortcut>⌘+L</DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                      </Link>
                     }
                   </DropdownMenuGroup> : <DropdownMenuItem onClick={async () => navigate("/onboarding")}>
                     {/* <LogOut className="size-4" /> */}
@@ -170,13 +170,17 @@ const Navbar = () => {
               <Button
                 variant={"black"}
                 onClick={async () => {
+                  try {
 
-                  if (window.Wallet?.IsConnected) {
-                    await handleDisconnect()
-                    return;
+                    if (window.Wallet?.IsConnected) {
+                      await handleDisconnect()
+                      return;
+                    }
+
+                    await handleConnectWallet();
+                  } catch (error) {
+                    console.log(error)
                   }
-
-                  await handleConnectWallet();
 
                 }
                 }

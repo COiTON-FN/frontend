@@ -3,21 +3,21 @@ import { Toaster as SonnerToast } from "./components/ui/sonner";
 import { Toaster as NoticeToast } from "./components/ui/toaster";
 import { routes } from "./routes";
 import { Fragment } from "react/jsx-runtime";
-import { WalletAccount } from "starknet";
-import { useWalletHook } from "./hooks/useWallet.hook";
 import { useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "./store";
 import { useContractInstance } from "./hooks/useContractInstance.hook";
-import { setHasRegistered, setWalletAddress } from "./store/slice/wallet.slice";
+import { setHasRegistered, setIsWalletConnected, setWalletAddress } from "./store/slice/wallet.slice";
 import { toast } from "sonner";
 import { byteArrayToString } from "./lib/starknet/utils";
 import { setCredential, User } from "./store/slice/credential.slice";
 import { Listing, setListing } from "./store/slice/listing.slice";
 import { generateAvatarFromAddress } from "./lib/utils";
+import { SessionAccountInterface } from "@argent/invisible-sdk";
+import useWalletHook from "./hooks/useWallet.hook";
 
 interface Wallet {
   IsConnected: boolean;
-  Account: WalletAccount | typeof undefined;
+  Account: SessionAccountInterface | undefined;
 }
 
 declare global {
@@ -29,12 +29,10 @@ declare global {
 export default function App() {
   const { walletAddress } = useAppSelector(state => state.wallet)
   const dispatch = useAppDispatch();
-  const { handleConnectWallet } = useWalletHook();
+  const { getArgentWallet } = useWalletHook();
   const { getContractInstance, getRPCProviderContract } = useContractInstance()
 
-  useEffect(() => {
-    handleConnectWallet(true);
-  }, [])
+
 
 
   useEffect(() => {
@@ -159,6 +157,48 @@ export default function App() {
       window.removeEventListener("windowWalletClassChange", handleWalletChange);
     };
   }, [walletAddress, dispatch]);
+
+
+  useEffect(() => {
+
+    const argentWebWallet = getArgentWallet();
+    argentWebWallet
+      .connect()
+      .then((res) => {
+
+        if (!res) {
+          console.log("Not connected");
+          return;
+        }
+
+        console.log("Connected to Argent Web Wallet", res);
+        const { account, callbackData, approvalTransactionHash } = res;
+
+        if (account.getSessionStatus() !== "VALID") {
+          console.log("Session is not valid");
+          return;
+        }
+
+        window.Wallet = {
+          Account: res.account,
+          IsConnected: true,
+        };
+
+        dispatch(setIsWalletConnected(true));
+        dispatch(setWalletAddress(res.account.address))
+
+
+        const event = new Event("windowWalletClassChange");
+        window.dispatchEvent(event);
+        console.log(res)
+        console.log("Callback data", callbackData); // -- custom_callback_string
+        console.log("Approval transaction hash", approvalTransactionHash); // -- custom_callback_string
+      })
+      .catch((err) => {
+        console.error("Failed to connect to Argent Web Wallet", err);
+      });
+  }, []);
+
 
 
 
