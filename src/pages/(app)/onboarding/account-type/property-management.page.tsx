@@ -55,7 +55,7 @@ import { useContractInstance } from "@/hooks/useContractInstance.hook";
 //! React and Router
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useWalletHook } from "@/hooks/useWallet.hook";
+import useWalletHook from "@/hooks/useWallet.hook";
 import { CairoCustomEnum } from "starknet";
 import { setCredential, User, UserType } from "@/store/slice/credential.slice";
 import { DropzoneOptions } from "react-dropzone";

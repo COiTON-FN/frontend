@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TiArrowRightOutline } from "react-icons/ti";
 import { RiShieldCheckFill } from "react-icons/ri";
 import { motion } from "framer-motion";
-import { useWalletHook } from "@/hooks/useWallet.hook";
+import useWalletHook from "@/hooks/useWallet.hook";
 
 const WalletConnect = () => {
   const dispatch = useDispatch<AppDispatch>();

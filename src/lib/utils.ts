@@ -31,15 +31,12 @@ export const shuffleArray = <T>(array: T[]): T[] => {
   return shuffledArray;
 };
 
-
-
 export function truncateAddr(str: string | undefined, n: number = 6): string {
   if (!str) return "";
   return str?.length > n
     ? str.slice(0, n) + "..." + str.slice(str.length - 4)
     : str;
 }
-
 
 export function formatBytes(
   bytes: number,
@@ -141,7 +138,6 @@ export function getCountryByCode(code: string) {
   return countryOptions.find((country) => country.code === code);
 }
 
-
 export const apiClient = axios.create({
   baseURL: variables.renderEndpoint,
   headers: {
@@ -227,3 +223,6 @@ export function generateAvatarFromAddress(address: string) {
 
   return svg;
 }
+
+// export const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS!;
+// export const TOKEN_ADDRESS = process.env.REACT_APP_TOKEN_ADDRESS!;

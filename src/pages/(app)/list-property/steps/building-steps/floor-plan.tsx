@@ -35,7 +35,7 @@ import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.
 import { byteArrayToString, stringToByteArray } from "@/lib/starknet/utils";
 import { useNavigate } from "react-router-dom";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
-import { CairoCustomEnum } from "starknet";
+import { CairoCustomEnum, GetTransactionReceiptResponse } from "starknet";
 import { User } from "@/store/slice/credential.slice";
 import { addListing, Listing } from "@/store/slice/listing.slice";
 
@@ -177,7 +177,7 @@ export default function FloorPlanForm() {
           navigate("/dashboard");
 
 
-          const events = contract?.parseEvents(receipt!);
+          const events = contract?.parseEvents(receipt as unknown as GetTransactionReceiptResponse);
           const id = events![0][Object.keys(events![0])[0]].id;
           const new_listing = await contract!.get_listing(id);
           const user = new_listing.owner_details.Some;

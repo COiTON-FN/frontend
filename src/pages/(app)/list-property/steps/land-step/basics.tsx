@@ -32,7 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.hook";
 import { toast } from "sonner";
 import { useState } from "react";
-import { CairoCustomEnum } from "starknet";
+import { CairoCustomEnum, GetTransactionReceiptResponse } from "starknet";
 import { byteArrayToString, stringToByteArray } from "@/lib/starknet/utils";
 import { useNavigate } from "react-router-dom";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
@@ -165,7 +165,7 @@ export default function BasicsForm() {
           toast.success("Listing created successfully!");
           dispatch(resetForm());
           navigate("/dashboard");
-          const events = contract?.parseEvents(receipt!);
+          const events = contract?.parseEvents(receipt as GetTransactionReceiptResponse);
           const id = events![0][Object.keys(events![0])[0]].id;
           const new_listing = await contract!.get_listing(id);
           const user = new_listing.owner_details.Some;
