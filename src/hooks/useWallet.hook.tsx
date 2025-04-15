@@ -19,6 +19,16 @@ const useWalletHook = () => {
             contract: contract.daoAddress,
             selector: "create_purchase_request",
           },
+          {
+            contract: contract.daoAddress,
+            selector: "register",
+          },
+          {
+            contract: contract.daoAddress,
+            selector: "approve_purchase_request",
+          },
+         
+        
           // {
           //   contract: CONTRACT_ADDRESS,
           //   selector: "make_prediction",
@@ -28,9 +38,9 @@ const useWalletHook = () => {
         validityDays: 30,
       },
 
-      // paymasterParams: {
-      //   apiKey: AVNU_API_KEY, // avnu paymasters API Key
-      // },
+      paymasterParams: {
+        apiKey: "", // avnu paymasters API Key
+      },
     });
 
     return argentWebWallet;
