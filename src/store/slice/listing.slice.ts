@@ -50,9 +50,6 @@ export type Listing = {
      owner_details:User|undefined
 }
 
-
-
-
 export type PurchaseRequest =  {
      listing_id: number,
      request_id: number,

@@ -1,9 +1,4 @@
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   FacebookIcon,
   FacebookShareButton,
@@ -16,7 +11,7 @@ import {
   WhatsappShareButton,
   XIcon,
 } from "react-share";
-import { Helmet } from "react-helmet-async"
+import { Helmet } from "react-helmet-async";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -39,14 +34,24 @@ import { RxOpenInNewWindow } from "react-icons/rx";
 
 import { byteArrayToString } from "@/lib/starknet/utils";
 import { useEffect, useRef, useState } from "react";
-import { cn, formatDate, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
+import {
+  cn,
+  formatDate,
+  generateAvatarFromAddress,
+  truncateAddr,
+} from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { Link as LinkIcon, Loader, Share2, Verified, X } from "lucide-react";
 import { BiLeaf } from "react-icons/bi";
 import { toast } from "sonner";
 import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { User } from "@/store/slice/credential.slice";
 import useWalletHook from "@/hooks/useWallet.hook";
 import { useAppSelector } from "@/store";
@@ -55,14 +60,21 @@ import BID_LG from "../../../assets/images/bid_lg.png";
 import { Input } from "@/components/ui/input";
 import { CairoOption, CairoOptionVariant } from "starknet";
 import { variables } from "@/utils/variables";
-import { google, outlook, office365, yahoo, ics, CalendarEvent } from "calendar-link";
+import {
+  google,
+  outlook,
+  office365,
+  yahoo,
+  ics,
+  CalendarEvent,
+} from "calendar-link";
 import { SiGooglecalendar } from "react-icons/si";
 import { ImAppleinc } from "react-icons/im";
 import { FaYahoo } from "react-icons/fa";
 import { PiMicrosoftOutlookLogo } from "react-icons/pi";
 import { CgMicrosoft } from "react-icons/cg";
-
-
+import { MapView } from "@/components/shared/map-view";
+import GoogleMapComp from "./google-map";
 
 export default function PropertyDetailsPage() {
   const [showMore, setShowMore] = useState(false);
@@ -74,12 +86,19 @@ export default function PropertyDetailsPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
-  const [addresses, setAddresses] = useState<{ label: string, value: string }[]>([]);
-  const [details, setDetails] = useState<{ label: string, value: string }[]>([]);
-  const { getContractInstance, getRPCProviderContract, getErc20Instance } = useContractInstance()
+  const [addresses, setAddresses] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [details, setDetails] = useState<{ label: string; value: string }[]>(
+    [],
+  );
+  const { getContractInstance, getRPCProviderContract, getErc20Instance } =
+    useContractInstance();
 
-  const [content, setContent] = useState({ url: window.location.href, message: "" });
-
+  const [content, setContent] = useState({
+    url: window.location.href,
+    message: "",
+  });
 
   function configureVars(_listing: Listing) {
     setAddresses([
@@ -107,7 +126,7 @@ export default function PropertyDetailsPage() {
         label: "Country",
         value: _listing?.details?.region?.country?.countryName,
       },
-    ])
+    ]);
     setDetails([
       {
         label: "Property ID",
@@ -145,19 +164,20 @@ export default function PropertyDetailsPage() {
         label: "Property Sizes",
         value: _listing?.details?.propertySize,
       },
-    ])
+    ]);
   }
 
   useEffect(() => {
     if (location.state) {
       setListing(location.state);
 
-      configureVars(location.state)
-
+      configureVars(location.state);
     } else {
       (async function () {
         try {
-          const contract = window.Wallet?.IsConnected ? getContractInstance() : getRPCProviderContract();
+          const contract = window.Wallet?.IsConnected
+            ? getContractInstance()
+            : getRPCProviderContract();
           setLoading(true);
           if (!contract) return;
           const listing = await contract.get_listing(id);
@@ -167,8 +187,8 @@ export default function PropertyDetailsPage() {
             address: BigInt(user.address).toString(16),
             id: Number(user.id),
             details: byteArrayToString(user.details),
-            user_type: user.user_type.variant.Entity ? "Entity" : "Individual"
-          }
+            user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
+          };
 
           const structured: Listing = {
             id: Number(listing.id),
@@ -176,24 +196,25 @@ export default function PropertyDetailsPage() {
             price: Number(listing.price),
             tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
             details: byteArrayToString(listing.details),
-            owner_details: user_construct
+            owner_details: user_construct,
           };
 
-
-          setListing(structured)
+          setListing(structured);
           configureVars(structured);
-          setLoading(false)
+          setLoading(false);
         } catch (error) {
           console.log(error);
-          setLoading(false)
+          setLoading(false);
           toast.error("LISTING_NOT_FOUND");
-          navigate("/dashboard")
+          navigate("/dashboard");
         }
-      }())
+      })();
     }
-  }, [])
+  }, []);
 
-  const [purchaseRequests, setPurchaseRequests] = useState<PurchaseRequest[]>([]);
+  const [purchaseRequests, setPurchaseRequests] = useState<PurchaseRequest[]>(
+    [],
+  );
   const [loadingPurchaseRequests, setLoadingPurchaseRequests] = useState(false);
 
   useEffect(() => {
@@ -201,8 +222,11 @@ export default function PropertyDetailsPage() {
       try {
         if (loadingPurchaseRequests) return;
         setLoadingPurchaseRequests(true);
-        const contract = window.Wallet?.IsConnected ? getContractInstance() : getRPCProviderContract();
-        const purchase_requests = await contract!.get_listing_purchase_requests(id);
+        const contract = window.Wallet?.IsConnected
+          ? getContractInstance()
+          : getRPCProviderContract();
+        const purchase_requests =
+          await contract!.get_listing_purchase_requests(id);
 
         const structured = purchase_requests.map((request: any) => {
           const user = request.user.Some;
@@ -212,41 +236,39 @@ export default function PropertyDetailsPage() {
             address: BigInt(user.address).toString(16),
             id: Number(user.id),
             details: byteArrayToString(user.details),
-            user_type: user.user_type.variant.Entity ? "Entity" : "Individual"
-          }
+            user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
+          };
 
           const request_construct: PurchaseRequest = {
             initiator: BigInt(request.initiator).toString(16),
             listing_id: Number(request.listing_id),
             price: Number(request.price),
             request_id: Number(request.id),
-            user: user_construct
-          }
-          return request_construct
-        })
+            user: user_construct,
+          };
+          return request_construct;
+        });
 
-
-        console.log(structured)
-        setPurchaseRequests(structured)
+        console.log(structured);
+        setPurchaseRequests(structured);
         setLoadingPurchaseRequests(false);
       } catch (error) {
-        console.log(error)
+        console.log(error);
         setLoadingPurchaseRequests(false);
       }
-    }())
-  }, [])
-
-
+    })();
+  }, []);
 
   useEffect(() => {
     setContent({ ...content, message: listing?.details?.title });
-  }, [listing])
+  }, [listing]);
 
-  const { hasRegistered } = useAppSelector(state => state.wallet);
-  const { credential } = useAppSelector(state => state.credential);
-  const { walletAddress } = useAppSelector(state => state.wallet)
+  const { hasRegistered } = useAppSelector((state) => state.wallet);
+  const { credential } = useAppSelector((state) => state.credential);
+  const { walletAddress } = useAppSelector((state) => state.wallet);
 
-  const [creatingPurchaseAgreement, setCreatingPurchaseAgreement] = useState<boolean>(false);
+  const [creatingPurchaseAgreement, setCreatingPurchaseAgreement] =
+    useState<boolean>(false);
   const { handleConnectWallet } = useWalletHook();
   async function createPurchaseAgreement(bidPrice?: number) {
     try {
@@ -271,7 +293,13 @@ export default function PropertyDetailsPage() {
         return;
       }
 
-      if (purchaseRequests.length > 0 && purchaseRequests.filter(ft => parseInt(ft.initiator, 16) === parseInt(credential.address, 16)).length > 0) {
+      if (
+        purchaseRequests.length > 0 &&
+        purchaseRequests.filter(
+          (ft) =>
+            parseInt(ft.initiator, 16) === parseInt(credential.address, 16),
+        ).length > 0
+      ) {
         toast.error("ALREADY_CREATED");
         return;
       }
@@ -283,12 +311,15 @@ export default function PropertyDetailsPage() {
       const contract = getContractInstance();
 
       const erc20 = getErc20Instance();
-      const allowance = await erc20!.allowance(walletAddress, variables.daoAddress);
+      const allowance = await erc20!.allowance(
+        walletAddress,
+        variables.daoAddress,
+      );
       const account = window.Wallet.Account!;
       if ((bidPrice || listing.price) > Number(allowance)) {
         const approval_call = erc20!.populate("approve", [
           variables.daoAddress,
-          bidPrice || listing.price
+          bidPrice || listing.price,
         ]);
 
         const approval_tx = await account.execute(approval_call);
@@ -298,8 +329,7 @@ export default function PropertyDetailsPage() {
       const call = contract!.populate("create_purchase_request", [
         listing.id,
         new CairoOption(CairoOptionVariant.Some, bidPrice || listing.price),
-      ])
-
+      ]);
 
       const tx = await account?.execute(call);
       await account?.waitForTransaction(tx!.transaction_hash);
@@ -310,23 +340,22 @@ export default function PropertyDetailsPage() {
         listing_id: listing.id,
         price: bidPrice || listing.price,
         request_id: 0,
-        user: credential
-      }
+        user: credential,
+      };
 
-      setPurchaseRequests([...purchaseRequests, new_purchase_request_construct])
-      toast.success("Purchase Request created")
-
-
+      setPurchaseRequests([
+        ...purchaseRequests,
+        new_purchase_request_construct,
+      ]);
+      toast.success("Purchase Request created");
     } catch (error: any) {
       console.log(error);
-      setCreatingPurchaseAgreement(false)
+      setCreatingPurchaseAgreement(false);
       toast.error(error.message || "Something went wrong");
     }
   }
 
-
   const [showDialog, setShowDialog] = useState(false);
-
 
   if (loading)
     return (
@@ -377,27 +406,40 @@ export default function PropertyDetailsPage() {
       url: yahooUrl,
       icon: FaYahoo,
     },
-  ]
-
+  ];
 
   return (
     <div className="flex flex-col gap-4 py-4">
       <Helmet>
         <title>{listing?.details?.title || "Loading..."}</title>
-        <meta name="description" content={listing?.details?.description || "Loading..."} />
-        <meta name="keywords" content={`${listing?.details?.title?.split(" ").join(", ")}, real estate, listing, property`} />
-
+        <meta
+          name="description"
+          content={listing?.details?.description || "Loading..."}
+        />
+        <meta
+          name="keywords"
+          content={`${listing?.details?.title?.split(" ").join(", ")}, real estate, listing, property`}
+        />
 
         <meta property="og:type" content="website" />
         <meta property="og:url" content={content.url} />
 
-
-        <meta property="og:title" content={listing?.details?.title || "Loading..."} />
-        <meta property="og:description" content={listing?.details?.description || "Loading..."} />
-        <meta property="og:image" content={listing ? `${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}` : ""} />
-
-
-
+        <meta
+          property="og:title"
+          content={listing?.details?.title || "Loading..."}
+        />
+        <meta
+          property="og:description"
+          content={listing?.details?.description || "Loading..."}
+        />
+        <meta
+          property="og:image"
+          content={
+            listing
+              ? `${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`
+              : ""
+          }
+        />
       </Helmet>
       <Breadcrumb>
         <BreadcrumbList>
@@ -413,11 +455,16 @@ export default function PropertyDetailsPage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-
-      <Modal loading={creatingPurchaseAgreement} onSubmit={createPurchaseAgreement} purchaseRequests={purchaseRequests} details={details} onClose={() => setShowDialog(false)} isOpen={showDialog}
-
+      <Modal
+        loading={creatingPurchaseAgreement}
+        onSubmit={createPurchaseAgreement}
+        purchaseRequests={purchaseRequests}
+        details={details}
+        onClose={() => setShowDialog(false)}
+        isOpen={showDialog}
         listing={listing ?? undefined}
       />
+        {}
       <div className="flex flex-1 flex-col gap-5 rounded-md sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:justify-between md:flex-col lg:flex-row lg:gap-[54px]">
           <div className="flex flex-col gap-4">
@@ -614,9 +661,9 @@ export default function PropertyDetailsPage() {
               <BiLeaf className="size-5" />
               <span>Purchase/Rent</span>
             </Button>
-            <DropdownMenu >
+            <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="w-12 h-12 flex items-center rounded-full justify-center border-2 border-black/30">
+                <button className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-black/30">
                   <Share2 size={20} className="text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
@@ -651,11 +698,19 @@ export default function PropertyDetailsPage() {
                     title={content.message}
                     children={<TelegramIcon round size={30} />}
                   />
-                  <WhatsappShareButton htmlTitle="Whatsapp" url={content.url} title={content.message} children={<WhatsappIcon round size={30} />} />
-                  <button title="Copy Link" onClick={async () => {
-                    await navigator.clipboard.writeText(content.url);
-                    toast.success("Link copied")
-                  }}>
+                  <WhatsappShareButton
+                    htmlTitle="Whatsapp"
+                    url={content.url}
+                    title={content.message}
+                    children={<WhatsappIcon round size={30} />}
+                  />
+                  <button
+                    title="Copy Link"
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(content.url);
+                      toast.success("Link copied");
+                    }}
+                  >
                     <LinkIcon size={20} />
                   </button>
                 </div>
@@ -675,25 +730,29 @@ export default function PropertyDetailsPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-              {listing?.details?.imagesCid?.filter((ft: string) => !listing?.details?.floorPlanCid?.includes(ft))?.map((image: string, index: number) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(image)}
-                  className={cn(
-                    "relative flex-shrink-0 overflow-hidden rounded-md transition-all hover:opacity-90",
-                    (selectedImage || listing?.details?.imagesCid[0]) === image
-                      ? "ring-2 ring-primary"
-                      : "opacity-50",
-                  )}
-                >
-                  <img
-                    src={`${import.meta.env.VITE_PINATA_GATEWAY}/${image}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-
-                    alt={listing?.details?.title}
-                    className="object-cover"
-                  />
-                </button>
-              ))}
+              {listing?.details?.imagesCid
+                ?.filter(
+                  (ft: string) => !listing?.details?.floorPlanCid?.includes(ft),
+                )
+                ?.map((image: string, index: number) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(image)}
+                    className={cn(
+                      "relative flex-shrink-0 overflow-hidden rounded-md transition-all hover:opacity-90",
+                      (selectedImage || listing?.details?.imagesCid[0]) ===
+                        image
+                        ? "ring-2 ring-primary"
+                        : "opacity-50",
+                    )}
+                  >
+                    <img
+                      src={`${import.meta.env.VITE_PINATA_GATEWAY}/${image}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+                      alt={listing?.details?.title}
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
             </div>
           </div>
 
@@ -810,16 +869,17 @@ export default function PropertyDetailsPage() {
       </div>
 
       <Separator className="my-2 h-px w-full" />
+      {/* Bidding info*/}
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="">
-          <div className="grid xl:grid-cols-2 grid-cols-1">
+          <div className="grid grid-cols-1 xl:grid-cols-2">
             <p className="mb-2 border-b pb-2 text-base font-semibold uppercase tracking-wide">
               Bidding Info
             </p>
           </div>
-          <div className="grid xl:grid-cols-2 grid-cols-1 lg:gap-0 gap-5 items-start">
-            <div className="lg:max-h-[65vh] max-h-[50vh] overflow-y-auto">
-              <table className="w-full text-left mt-4">
+          <div className="grid grid-cols-1 items-start gap-5 lg:gap-0 xl:grid-cols-2">
+            <div className="max-h-[50vh] overflow-y-auto lg:max-h-[65vh]">
+              <table className="mt-4 w-full text-left">
                 <thead>
                   <tr>
                     <th className="pb-2 text-[#C1C1C1]">Username</th>
@@ -828,38 +888,53 @@ export default function PropertyDetailsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {purchaseRequests.sort((a, b) => b.price - a.price).map((request, index) => {
-                    return <tr key={index}>
-                      <td className="py-2">
-                        <div className="flex items-center gap-2">
-                          <div className="bg-[#C0D9BF] w-10 h-10 rounded-full flex items-center justify-center">
-
-                            <img src={generateAvatarFromAddress(`0x${request.initiator}`)} className="w-7 h-7" alt="" />
-                          </div>
-                          <p className="text-[#475467] text-sm">{truncateAddr(`0x${request.initiator}`)}</p>
-                        </div>
-                      </td>
-                      <td className="py-2 text-sm">{String(index + 1).padStart(2, '0')}</td>
-                      <td className="py-2 text-sm">${request.price.toLocaleString()}</td>
-                    </tr>
-                  })}
-
-
+                  {purchaseRequests
+                    .sort((a, b) => b.price - a.price)
+                    .map((request, index) => {
+                      return (
+                        <tr key={index}>
+                          <td className="py-2">
+                            <div className="flex items-center gap-2">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C0D9BF]">
+                                <img
+                                  src={generateAvatarFromAddress(
+                                    `0x${request.initiator}`,
+                                  )}
+                                  className="h-7 w-7"
+                                  alt=""
+                                />
+                              </div>
+                              <p className="text-sm text-[#475467]">
+                                {truncateAddr(`0x${request.initiator}`)}
+                              </p>
+                            </div>
+                          </td>
+                          <td className="py-2 text-sm">
+                            {String(index + 1).padStart(2, "0")}
+                          </td>
+                          <td className="py-2 text-sm">
+                            ${request.price.toLocaleString()}
+                          </td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
-              {purchaseRequests.length === 0 ? <p className="text-muted-foreground mt-5 text-center text-sm">No biddings yet</p> : null}
+              {purchaseRequests.length === 0 ? (
+                <p className="mt-5 text-center text-sm text-muted-foreground">
+                  No biddings yet
+                </p>
+              ) : null}
             </div>
 
             <div className="space-y-7">
               <img src={BID_LG} alt="" />
-
             </div>
           </div>
         </div>
       </div>
       <Separator className="my-2 h-px w-full" />
-
-
+      {/* INTERIOR, OUTDOOR & UTILITIES DETAILS */}
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="grid w-full grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-20 lg:p-10">
           <div className="flex flex-col gap-6">
@@ -899,7 +974,7 @@ export default function PropertyDetailsPage() {
       </div>
 
       <Separator className="my-2 h-px w-full" />
-
+      {/* FLOOR PLANS */}
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="flex w-full flex-col gap-10 xl:flex-row">
           <div className="flex flex-1 flex-col gap-3">
@@ -916,21 +991,25 @@ export default function PropertyDetailsPage() {
             </p>
           </div>
 
-          <Carousel opts={{ active: true, loop: true, duration: 1 }} className="relative aspect-[1.5] flex-1 rounded-xl bg-secondary">
+          <Carousel
+            opts={{ active: true, loop: true, duration: 1 }}
+            className="relative aspect-[1.5] flex-1 rounded-xl bg-secondary"
+          >
             <CarouselContent>
-              {listing?.details?.floorPlanCid?.map((floorPlanCid: any, index: number) => (
-                <CarouselItem key={index} className="aspect-[1.5]">
-                  <div className="size-full overflow-hidden rounded-md border bg-secondary md:rounded-xl">
-                    <img
-                      // src={floorPlanCid}
-                      src={`${import.meta.env.VITE_PINATA_GATEWAY}/${floorPlanCid}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-
-                      alt="floor plan"
-                      className="size-full object-cover"
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
+              {listing?.details?.floorPlanCid?.map(
+                (floorPlanCid: any, index: number) => (
+                  <CarouselItem key={index} className="aspect-[1.5]">
+                    <div className="size-full overflow-hidden rounded-md border bg-secondary md:rounded-xl">
+                      <img
+                        // src={floorPlanCid}
+                        src={`${import.meta.env.VITE_PINATA_GATEWAY}/${floorPlanCid}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+                        alt="floor plan"
+                        className="size-full object-cover"
+                      />
+                    </div>
+                  </CarouselItem>
+                ),
+              )}
             </CarouselContent>
             <CarouselPrevious className="left-6" />
             <CarouselNext className="right-6" />
@@ -939,19 +1018,25 @@ export default function PropertyDetailsPage() {
       </div>
 
       <Separator className="my-2 h-px w-full" />
-
-      {
-        listing?.details?.videosCid?.length && (
-          <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] 2xl:flex-row">
-            <video controls muted autoPlay loop className="aspect-video w-full rounded-lg">
-              <source src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`} />
-            </video>
-          </div>
-        )
-      }
+      {/* VIDEO SNIPPET */}
+      {listing?.details?.videosCid?.length && (
+        <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] 2xl:flex-row">
+          <video
+            controls
+            muted
+            autoPlay
+            loop
+            className="aspect-video w-full rounded-lg"
+          >
+            <source
+              src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+            />
+          </video>
+        </div>
+      )}
 
       <Separator className="my-2 h-px w-full" />
-
+      {/* AGENT DETAILS & MAP */}
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="flex w-full flex-col gap-6 sm:max-w-full xl:max-w-full xl:flex-row 2xl:max-w-lg 2xl:flex-col">
           <div className="space-y-2">
@@ -961,8 +1046,18 @@ export default function PropertyDetailsPage() {
 
                 <div className="flex flex-col">
                   <div className="flex items-center gap-1">
-                    <p className="font-medium capitalize">{listing?.owner_details?.details.name}</p>
-                    {listing?.owner_details?.user_type === "Entity" ? listing?.owner_details.verified ? <Verified size={19} color="#166534" /> : <div className="border border-red-500 rounded-full py-0.5 px-3 text-sm text-red-500 font-bold">Not verified</div> : null}
+                    <p className="font-medium capitalize">
+                      {listing?.owner_details?.details.name}
+                    </p>
+                    {listing?.owner_details?.user_type === "Entity" ? (
+                      listing?.owner_details.verified ? (
+                        <Verified size={19} color="#166534" />
+                      ) : (
+                        <div className="rounded-full border border-red-500 px-3 py-0.5 text-sm font-bold text-red-500">
+                          Not verified
+                        </div>
+                      )
+                    ) : null}
                   </div>
                   <p className="text-muted-foreground">
                     {listing?.owner_details?.details?.email}
@@ -970,9 +1065,15 @@ export default function PropertyDetailsPage() {
                 </div>
               </div>
 
-              <Button onClick={() => {
-                navigate(`/profile/0x${listing?.owner}`, { state: listing?.owner_details })
-              }} size={"lg"} className="rounded-full">
+              <Button
+                onClick={() => {
+                  navigate(`/profile/0x${listing?.owner}`, {
+                    state: listing?.owner_details,
+                  });
+                }}
+                size={"lg"}
+                className="rounded-full"
+              >
                 <svg
                   width="27"
                   height="27"
@@ -1063,19 +1164,23 @@ export default function PropertyDetailsPage() {
                       </DropdownMenuItem>
                     </Link>
                   ))}
-
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
         </div>
 
-        <div dangerouslySetInnerHTML={{ __html: listing?.details?.map }} className="-z-0 aspect-[1.4] flex-1 w-full overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl 2xl:aspect-auto">
+        {/* dangerouslySetInnerHTML={{ __html: listing?.details?.map }}  */}
+        <div
+          // dangerouslySetInnerHTML={{ __html: listing?.details?.map }}
+          className="-z-0 aspect-[1.4] w-full flex-1 overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl"
+        >
+          <GoogleMapComp />
           {/* <MapView
-            location={listingFormData?.region?.country?.countryName}
+            location={listing?.details?.region?.country?.countryName}
             center={[
-              listingFormData?.region?.country?.countryLat,
-              listingFormData?.region?.country?.countryLong,
+              listing?.details?.location?.latitude,
+              listing?.details?.location?.longitude,
             ]}
           /> */}
         </div>
@@ -1105,9 +1210,9 @@ export default function PropertyDetailsPage() {
               </div>
 
               <div className="ml-auto mr-2">
-                <Link target="_blank"
+                <Link
+                  target="_blank"
                   to={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.licenseCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-
                 >
                   <RxOpenInNewWindow className="size-6" role="button" />
                 </Link>
@@ -1116,13 +1221,9 @@ export default function PropertyDetailsPage() {
           ))}
         </div>
       </div>
-    </div >
+    </div>
   );
 }
-
-
-
-
 
 interface ModalProps {
   isOpen: boolean;
@@ -1131,13 +1232,23 @@ interface ModalProps {
   details: any[];
   purchaseRequests: PurchaseRequest[];
   onSubmit: (bidPrice?: number) => void;
-  loading?: boolean
+  loading?: boolean;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, listing, details, purchaseRequests, onSubmit, loading }) => {
+const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  listing,
+  details,
+  purchaseRequests,
+  onSubmit,
+  loading,
+}) => {
   if (!isOpen) return null;
 
-  const handleOutsideClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleOutsideClick = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
     if (event.target === event.currentTarget) {
       onClose();
     }
@@ -1156,16 +1267,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, listing, details, purcha
     };
   }, []);
 
-
   const bidInputRef = useRef<HTMLInputElement>(null);
-
 
   const submit = () => {
     if (!bidInputRef.current) {
       toast.error("INVALID_BID");
       return;
     }
-    const value = (bidInputRef.current.value)
+    const value = bidInputRef.current.value;
     if (value.trim().length > 0) {
       if (isNaN(Number(value))) {
         toast.error("INVALID_BID");
@@ -1180,76 +1289,73 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, listing, details, purcha
       return;
     }
     onSubmit();
-  }
+  };
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 overflow-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50"
       onClick={handleOutsideClick}
     >
-      <div className="bg-white rounded-lg shadow-lg lg:p-6 p-3 w-full lg:max-w-[70vw] max-w-screen-sm transform transition-all scale-100 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center border-b pb-2 mb-4">
-          <h2 className="text-xl font-satoshi font-semibold">Agreement Info</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700"><X /></button>
+      <div className="max-h-[90vh] w-full max-w-screen-sm scale-100 transform overflow-y-auto rounded-lg bg-white p-3 shadow-lg transition-all lg:max-w-[70vw] lg:p-6">
+        <div className="mb-4 flex items-center justify-between border-b pb-2">
+          <h2 className="font-satoshi text-xl font-semibold">Agreement Info</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <X />
+          </button>
         </div>
-        <div>  <div className="flex w-full flex-col gap-10 xl:flex-row xl:items-start">
-          <div className="flex w-full flex-col gap-6">
-            <div className="w-full overflow-hidden rounded-2xl border bg-secondary">
-              <img
-                src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-                alt={`Product image`}
-                className=" object-cover lg:h-[30rem] h-72 w-full"
-              />
-            </div>
-
-
-          </div>
-
-          <div className="flex w-full flex-col gap-12 lg:max-w-[685px]">
-            <div className="flex flex-col gap-2">
-              <p className="text-xl font-bold text-primary">Snapshot</p>
-              <pre className="flex flex-col whitespace-pre-wrap text-left font-satoshi text-base md:text-base">
-                <span
-                  className={"line-clamp-4 md:font-normal"}
-                >
-                  {listing?.details?.description}
-                </span>
-
-              </pre>
-            </div>
-
-
-
-            <div className="flex flex-col gap-2">
-              <p className="mb-2 border-b pb-2 text-base font-semibold uppercase tracking-wide">
-                Building Info
-              </p>
-
-              <div className="grid grid-cols-2 gap-2">
-                {details.map((dtls: any) => (
-                  <div key={dtls.label} className="flex flex-col">
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {dtls.label}
-                    </span>
-                    <span className="text font-medium">{dtls.value}</span>
-                  </div>
-                ))}
+        <div>
+          {" "}
+          <div className="flex w-full flex-col gap-10 xl:flex-row xl:items-start">
+            <div className="flex w-full flex-col gap-6">
+              <div className="w-full overflow-hidden rounded-2xl border bg-secondary">
+                <img
+                  src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+                  alt={`Product image`}
+                  className="h-72 w-full object-cover lg:h-[30rem]"
+                />
               </div>
             </div>
 
+            <div className="flex w-full flex-col gap-12 lg:max-w-[685px]">
+              <div className="flex flex-col gap-2">
+                <p className="text-xl font-bold text-primary">Snapshot</p>
+                <pre className="flex flex-col whitespace-pre-wrap text-left font-satoshi text-base md:text-base">
+                  <span className={"line-clamp-4 md:font-normal"}>
+                    {listing?.details?.description}
+                  </span>
+                </pre>
+              </div>
 
+              <div className="flex flex-col gap-2">
+                <p className="mb-2 border-b pb-2 text-base font-semibold uppercase tracking-wide">
+                  Building Info
+                </p>
+
+                <div className="grid grid-cols-2 gap-2">
+                  {details.map((dtls: any) => (
+                    <div key={dtls.label} className="flex flex-col">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {dtls.label}
+                      </span>
+                      <span className="text font-medium">{dtls.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-
           <div className="mt-20">
-            <div className="grid lg:grid-cols-2 grid-cols-1">
+            <div className="grid grid-cols-1 lg:grid-cols-2">
               <p className="mb-2 border-b pb-2 text-base font-semibold uppercase tracking-wide">
                 Bidding Info
               </p>
             </div>
-            <div className="grid lg:grid-cols-2 grid-cols-1 lg:gap-0 gap-5 items-start">
+            <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-2 lg:gap-0">
               <div className="max-h-[50vh] overflow-y-auto">
-                <table className="w-full text-left mt-4">
+                <table className="mt-4 w-full text-left">
                   <thead>
                     <tr>
                       <th className="pb-2 text-[#C1C1C1]">Username</th>
@@ -1258,28 +1364,43 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, listing, details, purcha
                     </tr>
                   </thead>
                   <tbody>
-                    {purchaseRequests.sort((a, b) => b.price - a.price).map((request, index) => {
-                      return <tr key={index}>
-                        <td className="py-2">
-                          <div className="flex items-center gap-2">
-                            <div className="bg-[#C0D9BF] w-10 h-10 rounded-full flex items-center justify-center">
-
-                              <img src={generateAvatarFromAddress(`0x${request.initiator}`)} className="w-7 h-7" alt="" />
-                            </div>
-                            <p className="text-[#475467] text-sm">{truncateAddr(`0x${request.initiator}`)}</p>
-                          </div>
-                        </td>
-                        <td className="py-2 text-sm">{String(index + 1).padStart(2, '0')}</td>
-                        <td className="py-2 text-sm">${request.price.toLocaleString()}</td>
-                      </tr>
-                    })}
-
-
-
-
+                    {purchaseRequests
+                      .sort((a, b) => b.price - a.price)
+                      .map((request, index) => {
+                        return (
+                          <tr key={index}>
+                            <td className="py-2">
+                              <div className="flex items-center gap-2">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C0D9BF]">
+                                  <img
+                                    src={generateAvatarFromAddress(
+                                      `0x${request.initiator}`,
+                                    )}
+                                    className="h-7 w-7"
+                                    alt=""
+                                  />
+                                </div>
+                                <p className="text-sm text-[#475467]">
+                                  {truncateAddr(`0x${request.initiator}`)}
+                                </p>
+                              </div>
+                            </td>
+                            <td className="py-2 text-sm">
+                              {String(index + 1).padStart(2, "0")}
+                            </td>
+                            <td className="py-2 text-sm">
+                              ${request.price.toLocaleString()}
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
                 </table>
-                {purchaseRequests.length === 0 ? <p className="text-muted-foreground mt-5 text-center text-sm">No biddings yet</p> : null}
+                {purchaseRequests.length === 0 ? (
+                  <p className="mt-5 text-center text-sm text-muted-foreground">
+                    No biddings yet
+                  </p>
+                ) : null}
               </div>
 
               <div className="space-y-7">
@@ -1288,12 +1409,30 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, listing, details, purcha
                   <span className="text-sm font-medium text-muted-foreground">
                     Current Bid Price
                   </span>
-                  {purchaseRequests.length > 0 ? <span className="font-medium">${purchaseRequests.sort((a, b) => b.price - a.price)[0].price.toLocaleString()}</span> : null}
+                  {purchaseRequests.length > 0 ? (
+                    <span className="font-medium">
+                      $
+                      {purchaseRequests
+                        .sort((a, b) => b.price - a.price)[0]
+                        .price.toLocaleString()}
+                    </span>
+                  ) : null}
                 </div>
 
                 <div className="">
-                  <label htmlFor="bid" className="text-sm text-muted-foreground">Input Your Bid Price</label>
-                  <Input ref={bidInputRef} type="number" id="bid" className="mt-1 text-sm" placeholder={`$${purchaseRequests.length > 0 ? purchaseRequests.sort((a, b) => b.price - a.price)[0].price.toLocaleString() : listing?.price.toLocaleString()}`} />
+                  <label
+                    htmlFor="bid"
+                    className="text-sm text-muted-foreground"
+                  >
+                    Input Your Bid Price
+                  </label>
+                  <Input
+                    ref={bidInputRef}
+                    type="number"
+                    id="bid"
+                    className="mt-1 text-sm"
+                    placeholder={`$${purchaseRequests.length > 0 ? purchaseRequests.sort((a, b) => b.price - a.price)[0].price.toLocaleString() : listing?.price.toLocaleString()}`}
+                  />
                 </div>
 
                 <div className="flex items-center justify-end">
@@ -1309,13 +1448,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, listing, details, purcha
                         <span>Initiate Agreement</span>
                       </>
                     )}
-
                   </Button>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
