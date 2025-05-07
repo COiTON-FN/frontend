@@ -73,8 +73,8 @@ import { ImAppleinc } from "react-icons/im";
 import { FaYahoo } from "react-icons/fa";
 import { PiMicrosoftOutlookLogo } from "react-icons/pi";
 import { CgMicrosoft } from "react-icons/cg";
-import { MapView } from "@/components/shared/map-view";
-import GoogleMapComp from "./google-map";
+// import { MapView } from "@/components/shared/map-view";
+
 
 export default function PropertyDetailsPage() {
   const [showMore, setShowMore] = useState(false);
@@ -1172,10 +1172,9 @@ export default function PropertyDetailsPage() {
 
         {/* dangerouslySetInnerHTML={{ __html: listing?.details?.map }}  */}
         <div
-          // dangerouslySetInnerHTML={{ __html: listing?.details?.map }}
+          dangerouslySetInnerHTML={{ __html: listing?.details?.map }}
           className="-z-0 aspect-[1.4] w-full flex-1 overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl"
         >
-          <GoogleMapComp />
           {/* <MapView
             location={listing?.details?.region?.country?.countryName}
             center={[
