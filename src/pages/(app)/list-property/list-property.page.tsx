@@ -142,7 +142,11 @@ export const buildingFormSchema = z.object({
   zip: z.coerce.number().min(1),
   landmark: z.string(),
   area: z.string(),
-  map: z.string(),
+  map: z.object({
+    lat: z.coerce.number(),
+    long: z.coerce.number(),
+    name: z.string().min(1),
+  }),
 
   // 3. Details
   // rangeFrom: z.coerce.number().min(1),
@@ -235,7 +239,11 @@ export const landFormSchema = z.object({
   zip: z.coerce.number().min(1),
   landmark: z.string(),
   area: z.string(),
-  map: z.string(),
+  map: z.object({
+    lat: z.coerce.number(),
+    long: z.coerce.number(),
+    name: z.string().min(1),
+  }),
 
   // 2. Survey Plan: (Property license)
   landSize: z.coerce.number().min(1),

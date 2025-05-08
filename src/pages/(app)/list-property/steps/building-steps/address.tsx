@@ -127,6 +127,8 @@ export default function AddressForm() {
     setCountries(getCountries());
   }, []);
 
+  console.log(form.watch("map"));
+
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
       <div className="flex flex-col gap-3">
@@ -363,15 +365,6 @@ export default function AddressForm() {
             <FormItem className="w-full">
               <FormControl>
                 <div className="flex items-center gap-2">
-                  {/* <Input
-                    placeholder="Map"
-                    readOnly
-                    value={field.value}
-                    className={cn("text-foreground", {
-                      "border-red-500 focus-visible:ring-red-500":
-                        errors.map?.message,
-                    })}
-                  /> */}
                   <MapPicker value={field.value} onChange={field.onChange} />
                 </div>
               </FormControl>
