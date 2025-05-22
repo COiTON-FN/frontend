@@ -34,6 +34,7 @@ import { RxOpenInNewWindow } from "react-icons/rx";
 
 import { byteArrayToString } from "@/lib/starknet/utils";
 import { useEffect, useRef, useState } from "react";
+import { parseUnits } from "ethers";
 import {
   cn,
   formatDate,
@@ -58,7 +59,7 @@ import { useAppSelector } from "@/store";
 import BID from "../../../assets/images/bid.png";
 import BID_LG from "../../../assets/images/bid_lg.png";
 import { Input } from "@/components/ui/input";
-import { CairoOption, CairoOptionVariant } from "starknet";
+import { CairoOption, CairoOptionVariant, Call } from "starknet";
 import { variables } from "@/utils/variables";
 import {
   google,
@@ -73,7 +74,7 @@ import { ImAppleinc } from "react-icons/im";
 import { FaYahoo } from "react-icons/fa";
 import { PiMicrosoftOutlookLogo } from "react-icons/pi";
 import { CgMicrosoft } from "react-icons/cg";
-import { inspection } from "@/utils/inspection";
+import { contract } from "@/utils/contract";
 // import { MapView } from "@/components/shared/map-view";
 
 export default function PropertyDetailsPage() {
@@ -92,8 +93,7 @@ export default function PropertyDetailsPage() {
   const [details, setDetails] = useState<{ label: string; value: string }[]>(
     [],
   );
-  const { getContractInstance, getRPCProviderContract, getErc20Instance } =
-    useContractInstance();
+  const { getContractInstance, getErc20Instance } = useContractInstance();
 
   const [content, setContent] = useState({
     url: window.location.href,
@@ -167,48 +167,48 @@ export default function PropertyDetailsPage() {
     ]);
   }
 
+  async function fetchListings() {
+    try {
+      const contract = getContractInstance();
+      setLoading(true);
+      if (!contract) return;
+      const listing = await contract.get_listing(id);
+      const user = listing.owner_details.Some;
+      const user_construct: User = {
+        ...user,
+        address: BigInt(user.address).toString(16),
+        id: Number(user.id),
+        details: byteArrayToString(user.details),
+        user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
+      };
+
+      const structured: Listing = {
+        id: Number(listing.id),
+        owner: BigInt(listing.owner).toString(16),
+        price: Number(listing.price),
+        tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
+        details: byteArrayToString(listing.details),
+        owner_details: user_construct,
+      };
+
+      setListing(structured);
+      configureVars(structured);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      toast.error("LISTING_NOT_FOUND");
+      navigate("/dashboard");
+    }
+  }
+
   useEffect(() => {
     if (location.state) {
       setListing(location.state);
 
       configureVars(location.state);
     } else {
-      (async function () {
-        try {
-          const contract = window.Wallet?.IsConnected
-            ? getContractInstance()
-            : getRPCProviderContract();
-          setLoading(true);
-          if (!contract) return;
-          const listing = await contract.get_listing(id);
-          const user = listing.owner_details.Some;
-          const user_construct: User = {
-            ...user,
-            address: BigInt(user.address).toString(16),
-            id: Number(user.id),
-            details: byteArrayToString(user.details),
-            user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
-          };
-
-          const structured: Listing = {
-            id: Number(listing.id),
-            owner: BigInt(listing.owner).toString(16),
-            price: Number(listing.price),
-            tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
-            details: byteArrayToString(listing.details),
-            owner_details: user_construct,
-          };
-
-          setListing(structured);
-          configureVars(structured);
-          setLoading(false);
-        } catch (error) {
-          console.log(error);
-          setLoading(false);
-          toast.error("LISTING_NOT_FOUND");
-          navigate("/dashboard");
-        }
-      })();
+      fetchListings();
     }
   }, []);
 
@@ -217,47 +217,46 @@ export default function PropertyDetailsPage() {
   );
   const [loadingPurchaseRequests, setLoadingPurchaseRequests] = useState(false);
 
+  const fetchPurchaseRequests = async () => {
+    if (loadingPurchaseRequests) return;
+    try {
+      setLoadingPurchaseRequests(true);
+      const contract = getContractInstance();
+      const purchase_requests =
+        await contract.get_listing_purchase_requests(id);
+
+      const structured = purchase_requests.map((request: any) => {
+        const user = request.user.Some;
+
+        const user_construct: User = {
+          ...user,
+          address: BigInt(user.address).toString(16),
+          id: Number(user.id),
+          details: byteArrayToString(user.details),
+          user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
+        };
+
+        const request_construct: PurchaseRequest = {
+          initiator: BigInt(request.initiator).toString(16),
+          listing_id: Number(request.listing_id),
+          price: Number(request.price),
+          request_id: Number(request.id),
+          user: user_construct,
+        };
+        return request_construct;
+      });
+
+      setPurchaseRequests(structured);
+      setLoadingPurchaseRequests(false);
+    } catch (error) {
+      console.log(error);
+      setLoadingPurchaseRequests(false);
+    }
+  };
+
   useEffect(() => {
-    (async function () {
-      try {
-        if (loadingPurchaseRequests) return;
-        setLoadingPurchaseRequests(true);
-        const contract = window.Wallet?.IsConnected
-          ? getContractInstance()
-          : getRPCProviderContract();
-        const purchase_requests =
-          await contract!.get_listing_purchase_requests(id);
-
-        const structured = purchase_requests.map((request: any) => {
-          const user = request.user.Some;
-
-          const user_construct: User = {
-            ...user,
-            address: BigInt(user.address).toString(16),
-            id: Number(user.id),
-            details: byteArrayToString(user.details),
-            user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
-          };
-
-          const request_construct: PurchaseRequest = {
-            initiator: BigInt(request.initiator).toString(16),
-            listing_id: Number(request.listing_id),
-            price: Number(request.price),
-            request_id: Number(request.id),
-            user: user_construct,
-          };
-          return request_construct;
-        });
-
-        console.log(structured);
-        setPurchaseRequests(structured);
-        setLoadingPurchaseRequests(false);
-      } catch (error) {
-        console.log(error);
-        setLoadingPurchaseRequests(false);
-      }
-    })();
-  }, []);
+    fetchPurchaseRequests();
+  }, [id]);
 
   useEffect(() => {
     setContent({ ...content, message: listing?.details?.title });
@@ -269,7 +268,42 @@ export default function PropertyDetailsPage() {
 
   const [creatingPurchaseAgreement, setCreatingPurchaseAgreement] =
     useState<boolean>(false);
-  const { handleConnectWallet } = useWalletHook();
+  const { handleConnectWallet, getArgentWallet } = useWalletHook();
+
+  const handleConnect = async ({
+    callbackData,
+    approval = parseUnits("100").toString(),
+  }: {
+    callbackData?: string;
+    approval?: string;
+  }) => {
+    console.log(approval.toString());
+    const argentWebWallet = getArgentWallet();
+    const response = await argentWebWallet.requestConnection({
+      callbackData: callbackData,
+      approvalRequests: [
+        {
+          tokenAddress: contract.erc20Address as any,
+          amount: approval.toString(),
+          // Your dapp contract
+          spender: contract.daoAddress as any,
+        },
+      ],
+    });
+    console.log(response);
+
+    if (response) {
+      window.Wallet = {
+        Account: response.account,
+        IsConnected: true,
+      };
+      // Dispatch a custom event to notify about the change
+      const event = new Event("windowWalletClassChange");
+      window.dispatchEvent(event);
+      return response.callbackData;
+    }
+  };
+
   async function createPurchaseAgreement(bidPrice?: number) {
     try {
       if (creatingPurchaseAgreement) return;
@@ -292,7 +326,6 @@ export default function PropertyDetailsPage() {
         toast.error("OWNER_CANNOT_PERFORM_ACTION");
         return;
       }
-
       if (
         purchaseRequests.length > 0 &&
         purchaseRequests.filter(
@@ -308,50 +341,94 @@ export default function PropertyDetailsPage() {
         return;
       }
       setCreatingPurchaseAgreement(true);
-      const contract = getContractInstance();
 
       const erc20 = getErc20Instance();
       const allowance = await erc20!.allowance(
         walletAddress,
-        variables.daoAddress,
+        contract.daoAddress,
       );
       const account = window.Wallet.Account!;
-      if ((bidPrice || listing.price) > Number(allowance)) {
-        const approval_call = erc20!.populate("approve", [
-          variables.daoAddress,
-          bidPrice || listing.price,
-        ]);
 
-        const approval_tx = await account.execute(approval_call);
-        await account.waitForTransaction(approval_tx.transaction_hash);
+      console.log(allowance);
+
+      if ((bidPrice || listing.price) > Number(allowance)) {
+        // const calls: Call = erc20!.populate("approve", [
+        //   contract.daoAddress,
+        //   bidPrice || listing.price,
+        // ]);
+
+        await handleConnect({
+          approval: (bidPrice || listing.price).toString(),
+        });
       }
 
-      const call = contract!.populate("create_purchase_request", [
-        listing.id,
-        new CairoOption(CairoOptionVariant.Some, bidPrice || listing.price),
-      ]);
+      const contractInstance = getContractInstance();
 
-      const tx = await account?.execute(call);
-      await account?.waitForTransaction(tx!.transaction_hash);
+      const calls: Call = contractInstance!.populate(
+        "create_purchase_request",
+        [
+          listing.id,
+          new CairoOption(CairoOptionVariant.Some, bidPrice || listing.price),
+        ],
+      );
+
+      if (!account) throw new Error("Wallet not connected!");
+
+      try {
+        const callPayload = await account?.getOutsideExecutionPayload({
+          calls: [calls],
+        });
+
+        console.log(callPayload);
+
+        console.log("CALLING ENDPOINT");
+        const response = await fetch(
+          `${variables.renderEndpoint}/contract/execute`,
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify(callPayload),
+            redirect: "follow",
+          },
+        );
+
+        console.log("ENDPOINT CALLED");
+
+        const result = await response.json();
+
+        if (!result?.success) {
+          toast.error(result?.message);
+          throw new Error(result?.message);
+        }
+
+        return result;
+      } catch (error: any) {
+        console.error("EXECUTE FN ERROR: ", error);
+      }
 
       setCreatingPurchaseAgreement(false);
-      const new_purchase_request_construct: PurchaseRequest = {
-        initiator: credential.address,
-        listing_id: listing.id,
-        price: bidPrice || listing.price,
-        request_id: 0,
-        user: credential,
-      };
+      // const new_purchase_request_construct: PurchaseRequest = {
+      //   initiator: credential.address,
+      //   listing_id: listing.id,
+      //   price: bidPrice || listing.price,
+      //   request_id: 0,
+      //   user: credential,
+      // };
 
-      setPurchaseRequests([
-        ...purchaseRequests,
-        new_purchase_request_construct,
-      ]);
-      toast.success("Purchase Request created");
+      // setPurchaseRequests([
+      //   ...purchaseRequests,
+      //   new_purchase_request_construct,
+      // ]);
+      // toast.success("Purchase Request created");
     } catch (error: any) {
       console.log(error);
       setCreatingPurchaseAgreement(false);
       toast.error(error.message || "Something went wrong");
+    } finally {
+      setCreatingPurchaseAgreement(false);
     }
   }
 
@@ -407,19 +484,15 @@ export default function PropertyDetailsPage() {
       icon: FaYahoo,
     },
   ];
-  
-  const userAddress = credential?.address ?? "";
-  const ownerAddress = listing?.owner ?? "";
-  
+
+  // const userAddress = credential?.address ?? "";
+  // const ownerAddress = listing?.owner ?? "";
 
   const isOwner =
     (credential?.address ?? "").toLowerCase() ===
     (listing?.owner ?? "").toLowerCase();
-    
 
-  console.log("User Address:", userAddress);
-  console.log("Owner Address:", ownerAddress);
-  console.log("isOwner:", isOwner);
+  // console.log({ userAddress, ownerAddress, isOwner });
 
   // Check if the connected wallet address belongs to the property owner
   // const isOwner =
@@ -433,20 +506,20 @@ export default function PropertyDetailsPage() {
   // inspection button function
 
   const handleInspection = async () => {
-    try {
-      await inspection({
-        id: "0x" + Date.now().toString(16),
-        data: {
-          title: "Inspections for Apartment",
-          description: "Please come early!",
-          start: "2020-02-29 18:00:00 +0100",
-          duration: [3, "hour"],
-        },
-      });
-      console.log("✅ Inspection created successfully!");
-    } catch (err) {
-      console.error("❌ Error creating inspection:", err);
-    }
+    // try {
+    //   await inspection({
+    //     id: "0x" + Date.now().toString(16),
+    //     data: {
+    //       title: "Inspections for Apartment",
+    //       description: "Please come early!",
+    //       start: "2020-02-29 18:00:00 +0100",
+    //       duration: [3, "hour"],
+    //     },
+    //   });
+    //   console.log("✅ Inspection created successfully!");
+    // } catch (err) {
+    //   console.error("❌ Error creating inspection:", err);
+    // }
   };
 
   // const handleInspection = async () => {
@@ -1219,8 +1292,8 @@ export default function PropertyDetailsPage() {
                     sideOffset={0}
                     className="w-[280px]"
                   >
-                    {calendarLinks.map((link) => (
-                      <Link to={link.url} target="_blank">
+                    {calendarLinks.map((link, index) => (
+                      <Link to={link.url} target="_blank" key={index}>
                         <DropdownMenuItem className="gap-3">
                           <link.icon className="!size-5" />
                           <span>{link.label}</span>
@@ -1253,7 +1326,7 @@ export default function PropertyDetailsPage() {
 
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-          {listing?.details?.licenseCid.map((_: any, _index: number) => (
+          {listing?.details?.licenseCid.map((_: unknown, _index: number) => (
             <div
               key={_index}
               className="flex items-center gap-4 rounded-2xl bg-secondary p-4"
@@ -1307,6 +1380,23 @@ const Modal: React.FC<ModalProps> = ({
   onSubmit,
   loading,
 }) => {
+  // Always call hooks at the top level
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      onClose();
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  const bidInputRef = useRef<HTMLInputElement | null>(null);
+
   if (!isOpen) return null;
 
   const handleOutsideClick = (
@@ -1316,21 +1406,6 @@ const Modal: React.FC<ModalProps> = ({
       onClose();
     }
   };
-
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      onClose();
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
-
-  const bidInputRef = useRef<HTMLInputElement>(null);
 
   const submit = () => {
     if (!bidInputRef.current) {

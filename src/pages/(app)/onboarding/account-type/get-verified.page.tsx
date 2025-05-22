@@ -1,14 +1,11 @@
 //! Third-party libraries
 import { motion } from "framer-motion";
-import { useForm } from "react-hook-form";
+import { FieldErrors, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TiArrowRightOutline } from "react-icons/ti";
 import { Check, ChevronsUpDown, Loader, Paperclip } from "lucide-react";
 import { z } from "zod";
 import { formatPhoneNumber } from "react-phone-number-input";
-
-
-
 
 //! Components
 import { Button } from "@/components/ui/button";
@@ -55,8 +52,25 @@ import { registrationSchema } from "@/utils/validators";
 
 //! React and Router
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { DropzoneOptions } from "react-dropzone";
+import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.hook";
+import { RootState, useAppDispatch } from "@/store";
+import { stringToByteArray } from "@/lib/starknet/utils";
+import { executeFn } from "@/lib/execute";
+import { contract } from "@/utils/contract";
+import { setCredential, User, UserType } from "@/store/slice/credential.slice";
+import { setHasRegistered } from "@/store/slice/wallet.slice";
+import { CairoCustomEnum } from "starknet";
+import useWalletHook from "@/hooks/useWallet.hook";
+import { useSelector } from "react-redux";
+import { toast } from "sonner";
+
+const propertyManagementSchema = registrationSchema.extend({});
+
+export type PROPERTY_MANAGEMENT_SCHEMA = z.infer<
+  typeof propertyManagementSchema
+>;
 
 const daoManagementSchema = registrationSchema.extend({
   license: z
@@ -101,30 +115,69 @@ export default function GetVerifiedPage() {
 
   const [countries, setCountries] = useState<CountryData[]>([]);
   const [states, setStates] = useState<StateData[]>([]);
+  const { handleConnectWallet } = useWalletHook();
+  const location = useLocation();
 
+  const walletStore = useSelector((state: RootState) => state.wallet);
 
-
-  const form = useForm<DAO_MANAGEMENT_SCHEMA>({
-    resolver: zodResolver(daoManagementSchema),
+  const form = useForm<DAO_MANAGEMENT_SCHEMA | PROPERTY_MANAGEMENT_SCHEMA>({
+    resolver: zodResolver(
+      location?.state?.type === "Entity"
+        ? daoManagementSchema
+        : propertyManagementSchema,
+    ),
     defaultValues: {
-      isDao: true,
+      name: "",
+      email: "",
+      phone: undefined,
+      region: undefined,
+      socials: undefined,
+      // name: "John Doe",
+      // email: "johndow@gmail.com",
+      // phone: {
+      //     national: "+2341234567890",
+      //     international: "0123 456 7890"
+      // },
+      // region: {
+      //     country: {
+      //         countryName: "Nigeria",
+      //         countryCode: "NG",
+      //         countryFlag: "🇳🇬",
+      //         countryLat: 10,
+      //         countryLong: 8
+      //     },
+      //     state: {
+      //         stateName: "Kaduna",
+      //         stateCode: "KD",
+      //         countryCode: "NG",
+      //         stateLat: 10.3764006,
+      //         stateLong: 7.7094537
+      //     }
+      // },
+      // socials: [
+      //     {
+      //         id: "3b1df6b8-ef59-40d4-b860-6d29a6c22339",
+      //         url: "https://x.com/johndoe",
+      //         type: "twitter"
+      //     }
+      // ]
     },
   });
 
   const {
     control,
+    handleSubmit,
     formState: { errors },
   } = form;
 
+  const [isLoading, setIsLoading] = useState(false);
 
-
-
-
-  // const isLoading = receipt?.isLoading || transaction?.isPending;
-  const [isLoading, _] = useState(false);
-
-
-
+  useEffect(() => {
+    const state = location.state;
+    if (!state?.type) {
+      navigate("/onboarding");
+    }
+  }, []);
 
   useEffect(() => {
     setCountries(getCountries());
@@ -166,6 +219,92 @@ export default function GetVerifiedPage() {
     }
   };
 
+  const { onUpload } = useUploadFileToPinataHook();
+  const dispatch = useAppDispatch();
+
+  const onSubmit = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      const formData = form.getValues();
+      const { region, email, name, phone } = formData;
+
+      // Validate top-level fields
+      if (!email || !name || !phone?.national || !phone?.national) {
+        return;
+      }
+
+      // Validate `region.country` fields
+      if (
+        !region?.country?.countryLat ||
+        !region.country.countryLong ||
+        !region.country.countryCode ||
+        !region.country.countryName
+      ) {
+        return;
+      }
+      let licenseCid: string[] | null = null;
+      if (location?.state?.type === "Entity") {
+        licenseCid = await onUpload(
+          (formData as DAO_MANAGEMENT_SCHEMA).license,
+        );
+      }
+
+      if (!licenseCid || !licenseCid.length)
+        throw new Error("Failed to upload license");
+
+      if (!walletStore.isWalletConnected) {
+        await handleConnectWallet();
+      }
+
+      const user_type: UserType | undefined = location.state?.type;
+      const userType = new CairoCustomEnum(
+        user_type === "Individual" ? { Individual: {} } : { Entity: {} },
+      );
+      const processed_data = {
+        ...formData,
+        ...(location?.state?.type === "Entity" ? { licenseCid } : {}),
+      };
+      const detailsToBytesArray = stringToByteArray(
+        JSON.stringify(processed_data),
+      );
+
+      console.log({ processed_data, detailsToBytesArray, userType });
+      const result = await executeFn({
+        contractAddress: contract.daoAddress,
+        entrypoint: "register",
+        calldata: [userType, detailsToBytesArray],
+      });
+
+      if (!result?.success) return;
+
+      const account = window.Wallet.Account;
+
+      setIsLoading(false);
+
+      const user_construct: User = {
+        address: account?.address as string,
+        details: processed_data,
+        registered: true,
+        user_type: location?.state?.type,
+        verified: false,
+      };
+      dispatch(setCredential(user_construct));
+      dispatch(setHasRegistered(true));
+
+      navigate("/dashboard");
+    } catch (error) {
+      setIsLoading(false);
+
+      console.error("Unexpected error during transaction:", error);
+      toast.error(
+        error instanceof Error ? error.message : "An unknown error occurred",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex lg:h-full">
       <Form {...form}>
@@ -191,7 +330,7 @@ export default function GetVerifiedPage() {
             x: { duration: 0.5, ease: "linear" },
             opacity: { duration: 0.5, ease: "linear" },
           }}
-          onSubmit={() => { }}
+          onSubmit={handleSubmit(onSubmit)}
           className="flex w-full items-center justify-center overflow-y-auto p-6 lg:max-w-[55%]"
         >
           <div className="flex w-full max-w-[480px] flex-col gap-4">
@@ -292,10 +431,10 @@ export default function GetVerifiedPage() {
                           >
                             {field.value?.countryName
                               ? countries.find(
-                                (country) =>
-                                  country.countryName ===
-                                  field.value?.countryName,
-                              )?.countryName
+                                  (country) =>
+                                    country.countryName ===
+                                    field.value?.countryName,
+                                )?.countryName
                               : "Select country..."}
                             <ChevronsUpDown className="size-4 opacity-50" />
                           </div>
@@ -361,9 +500,9 @@ export default function GetVerifiedPage() {
                           >
                             {field.value?.stateName
                               ? states.find(
-                                (state) =>
-                                  state.stateName === field.value?.stateName,
-                              )?.stateName
+                                  (state) =>
+                                    state.stateName === field.value?.stateName,
+                                )?.stateName
                               : "Select state..."}
                             <ChevronsUpDown className="size-4 opacity-50" />
                           </div>
@@ -406,69 +545,69 @@ export default function GetVerifiedPage() {
               />
             </div>
 
-            <FormField
-              control={control}
-              name="license"
-              render={({ field }) => (
-                <FormItem>
-                  <FileUploader
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    dropzoneOptions={dropZoneConfig}
-                    className="relative"
-                  >
-                    <FileInput
-                      className={cn(
-                        "rounded-md border border-neutral-200 sm:rounded-xl",
-                        {
-                          "border-red-500": errors.license,
-                        },
-                      )}
+            {location?.state?.type === "Entity" ? (
+              <FormField
+                control={control}
+                name="license"
+                render={({ field }) => (
+                  <FormItem>
+                    <FileUploader
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      dropzoneOptions={dropZoneConfig}
+                      className="relative"
                     >
-                      <div className="flex h-14 w-full items-center px-6">
-                        Click to upload license
-                      </div>
-                    </FileInput>
-                    <FileUploaderContent className="flex">
-                      {field.value &&
-                        field.value.length > 0 &&
-                        field.value.map((file, i) => (
-                          <FileUploaderItem
-                            key={i}
-                            index={i}
-                            className="!rounded-md"
-                            type="document"
-                          >
-                            <Paperclip className="size-5" />
-                            <span className="text-sm font-medium text-foreground">
-                              {file.name}
-                            </span>
-                          </FileUploaderItem>
-                        ))}
-                    </FileUploaderContent>
-                  </FileUploader>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      <FileInput
+                        className={cn(
+                          "rounded-md border border-neutral-200 sm:rounded-xl",
+                          {
+                            "border-red-500": (
+                              errors as FieldErrors<DAO_MANAGEMENT_SCHEMA>
+                            ).license,
+                          },
+                        )}
+                      >
+                        <div className="flex h-14 w-full items-center px-6">
+                          Click to upload license
+                        </div>
+                      </FileInput>
+                      <FileUploaderContent className="flex">
+                        {field.value &&
+                          field.value.length > 0 &&
+                          field.value.map((file, i) => (
+                            <FileUploaderItem
+                              key={i}
+                              index={i}
+                              className="!rounded-md"
+                              type="document"
+                            >
+                              <Paperclip className="size-5" />
+                              <span className="text-sm font-medium text-foreground">
+                                {file.name}
+                              </span>
+                            </FileUploaderItem>
+                          ))}
+                      </FileUploaderContent>
+                    </FileUploader>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
 
             <FormField
               control={control}
               name="socials"
               render={({ field }) => (
-                <SocialInput
-                  maxSocials={3}
-                  error={errors?.socials?.message}
-                  {...field}
-                />
+                <SocialInput error={errors?.socials?.message} {...field} />
               )}
             />
 
-            <div className="flex items-center gap-4 pb-6">
+            <div className="flex items-center gap-4">
               <Button
                 variant={"outline"}
                 size={"lg"}
-                className="rounded-full"
+                className="rounded-full tracking-wide"
                 type="button"
                 onClick={() => navigate("/onboarding")}
               >
@@ -477,17 +616,17 @@ export default function GetVerifiedPage() {
               <Button
                 disabled={isLoading}
                 type="submit"
-                className="w-full rounded-full"
+                className="w-full rounded-full tracking-wide"
                 size={"lg"}
               >
                 {isLoading ? (
                   <>
                     <Loader className="size-5 animate-spin" />
-                    <span>Uploading...</span>
+                    <span>Registering...</span>
                   </>
                 ) : (
                   <>
-                    <span>Upload</span>
+                    <span>Register</span>
                     <TiArrowRightOutline className="size-5" />
                   </>
                 )}

@@ -22,7 +22,7 @@ const types = [
   {
     label: "Entity",
     sub: "Join our DAO to verify listings and influence platform decisions.",
-    path: "property-management",
+    path: "get-verified",
     img: "/dao.webp",
     isAvailable: true,
   },

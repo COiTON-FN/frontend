@@ -223,6 +223,3 @@ export function generateAvatarFromAddress(address: string) {
 
   return svg;
 }
-
-// export const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS!;
-// export const TOKEN_ADDRESS = process.env.REACT_APP_TOKEN_ADDRESS!;

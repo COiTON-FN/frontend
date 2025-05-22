@@ -1,7 +1,12 @@
 import { ArgentWebWallet } from "@argent/invisible-sdk";
 import { contract } from "@/utils/contract";
 import { useAppDispatch } from "@/store";
-import { resetWallet, setCurrentConnector, setIsWalletConnected, setWalletAddress } from "@/store/slice/wallet.slice";
+import {
+  resetWallet,
+  setCurrentConnector,
+  setIsWalletConnected,
+  setWalletAddress,
+} from "@/store/slice/wallet.slice";
 import { setCredential } from "@/store/slice/credential.slice";
 
 const useWalletHook = () => {
@@ -27,14 +32,19 @@ const useWalletHook = () => {
             contract: contract.daoAddress,
             selector: "approve_purchase_request",
           },
-         
-        
-          // {
-          //   contract: CONTRACT_ADDRESS,
-          //   selector: "make_prediction",
-          // },
+          {
+            contract: contract.erc721Address,
+            selector: "approve",
+          },
+          {
+            contract: contract.erc20Address,
+            selector: "approve",
+          },
+          {
+            contract: contract.erc20Address,
+            selector: "allowance",
+          },
         ],
-
         validityDays: 30,
       },
 
@@ -49,39 +59,31 @@ const useWalletHook = () => {
   const dispatch = useAppDispatch();
 
   const handleConnectWallet = async (callbackData?: string) => {
-    try {
-      const argentWebWallet = getArgentWallet();
+    const argentWebWallet = getArgentWallet();
 
-      const response = await argentWebWallet.requestConnection({
-        callbackData: callbackData,
-        approvalRequests: [
-          {
-            tokenAddress: contract.erc20Address,
-            amount: BigInt("100000000000000000000").toString(),
-            // Your dapp contract
-            spender: contract.erc20Address,
-          },
-        ],
-      });
-      console.log(response);
+    const response = await argentWebWallet.requestConnection({
+      callbackData: callbackData,
+      approvalRequests: [
+        {
+          tokenAddress: contract.erc20Address,
+          amount: BigInt("100000000000000000000").toString(),
+          spender: contract.erc20Address,
+        },
+      ],
+    });
+    console.log(response);
 
-      if (response) {
-        window.Wallet = {
-          Account: response.account,
-          IsConnected: true,
-        };
-        dispatch(setIsWalletConnected(true));
-        dispatch(setWalletAddress(response.account.address))
-        // Dispatch a custom event to notify about the change
-        const event = new Event("windowWalletClassChange");
-        window.dispatchEvent(event);
-        return response.callbackData;
-      }
-    } catch (error: any) {
-      // toast.error(error.message || "error here");
-      // console.log(error);
-
-      throw error;
+    if (response) {
+      window.Wallet = {
+        Account: response.account,
+        IsConnected: true,
+      };
+      dispatch(setIsWalletConnected(true));
+      dispatch(setWalletAddress(response.account.address));
+      // Dispatch a custom event to notify about the change
+      const event = new Event("windowWalletClassChange");
+      window.dispatchEvent(event);
+      return response.callbackData;
     }
   };
 
@@ -93,12 +95,10 @@ const useWalletHook = () => {
       Account: undefined,
       IsConnected: false,
     };
-    dispatch(
-      setCurrentConnector(null)
-    );
+    dispatch(setCurrentConnector(null));
     dispatch(setIsWalletConnected(false));
-    dispatch(setCredential(null))
-    dispatch(resetWallet())
+    dispatch(setCredential(null));
+    dispatch(resetWallet());
     const event = new Event("windowWalletClassChange");
     window.dispatchEvent(event);
   };
