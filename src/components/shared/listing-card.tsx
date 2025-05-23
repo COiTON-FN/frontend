@@ -29,7 +29,7 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
           </svg>
 
           <span className="text-sm">
-            For {listing.tag === "ForSale" ? "Rent" : "Sale"}
+            {listing.tag === "ForSale" ? "For Rent" : "Sold"}
           </span>
         </div>
       </div>

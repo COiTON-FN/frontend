@@ -24,12 +24,12 @@ export const routes = createBrowserRouter([
         element: pages.profilePage,
       },
       {
-        path: "/approve/:address",
+        path: "/approve",
         element: pages.approveBidPage,
       },
       {
-        path: "/new-listings",
-        element: pages.newListingsPage,
+        path: "/requests",
+        element: pages.requestsPage,
       },
       {
         path: "/list-property",
@@ -41,7 +41,7 @@ export const routes = createBrowserRouter([
       },
       {
         path: "/listings",
-        element: pages.buyOrRentPage,
+        element: pages.listingsPage,
       },
       {
         path: "/trading",

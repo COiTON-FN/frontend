@@ -46,22 +46,27 @@ import { Link as LinkIcon, Loader, Share2, Verified, X } from "lucide-react";
 import { BiLeaf } from "react-icons/bi";
 import { toast } from "sonner";
 import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User } from "@/store/slice/credential.slice";
-import { useWalletHook } from "@/hooks/useWallet.hook";
+import useWalletHook from "@/hooks/useWallet.hook";
 import { useAppSelector } from "@/store";
 import BID from "../../../assets/images/bid.png";
 import BID_LG from "../../../assets/images/bid_lg.png";
 import { Input } from "@/components/ui/input";
 import { CairoOption, CairoOptionVariant } from "starknet";
 import { variables } from "@/utils/variables";
+import { google, outlook, office365, yahoo, ics, CalendarEvent } from "calendar-link";
+import { SiGooglecalendar } from "react-icons/si";
+import { ImAppleinc } from "react-icons/im";
+import { FaYahoo } from "react-icons/fa";
+import { PiMicrosoftOutlookLogo } from "react-icons/pi";
+import { CgMicrosoft } from "react-icons/cg";
+
+
 
 export default function PropertyDetailsPage() {
   const [showMore, setShowMore] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<any>(
-    null
-
-  );
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   // const [property, setProperty] = useState<any>(null)
 
   const [listing, setListing] = useState<Listing | null>(null);
@@ -69,8 +74,8 @@ export default function PropertyDetailsPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
-  const [addresses, setAddresses] = useState<any>([]);
-  const [details, setDetails] = useState<any>([]);
+  const [addresses, setAddresses] = useState<{ label: string, value: string }[]>([]);
+  const [details, setDetails] = useState<{ label: string, value: string }[]>([]);
   const { getContractInstance, getRPCProviderContract, getErc20Instance } = useContractInstance()
 
   const [content, setContent] = useState({ url: window.location.href, message: "" });
@@ -142,6 +147,7 @@ export default function PropertyDetailsPage() {
       },
     ])
   }
+
   useEffect(() => {
     if (location.state) {
       setListing(location.state);
@@ -209,7 +215,7 @@ export default function PropertyDetailsPage() {
             user_type: user.user_type.variant.Entity ? "Entity" : "Individual"
           }
 
-          let request_construct: PurchaseRequest = {
+          const request_construct: PurchaseRequest = {
             initiator: BigInt(request.initiator).toString(16),
             listing_id: Number(request.listing_id),
             price: Number(request.price),
@@ -289,8 +295,6 @@ export default function PropertyDetailsPage() {
         await account.waitForTransaction(approval_tx.transaction_hash);
       }
 
-
-
       const call = contract!.populate("create_purchase_request", [
         listing.id,
         new CairoOption(CairoOptionVariant.Some, bidPrice || listing.price),
@@ -316,7 +320,7 @@ export default function PropertyDetailsPage() {
     } catch (error: any) {
       console.log(error);
       setCreatingPurchaseAgreement(false)
-      toast.error(error.message || "Somethong went wrong");
+      toast.error(error.message || "Something went wrong");
     }
   }
 
@@ -333,11 +337,49 @@ export default function PropertyDetailsPage() {
       </div>
     );
 
+  const event: CalendarEvent = {
+    title: "COiTON Inspection times",
+    description: "Inspection and property viewing are still happening",
+    start: "2025-12-3 13:00:00 +0100",
+    end: "2025-12-3 13:40:00 +0100",
+    duration: [40, "minutes"],
+  };
 
-  // const content = {
-  //   url: window.location.href,
-  //   message: "oiiii"
-  // }
+  const googleUrl = google(event);
+  const outlookUrl = outlook(event);
+  const office365Url = office365(event);
+  const yahooUrl = yahoo(event);
+  const icsUrl = ics(event);
+
+  const calendarLinks = [
+    {
+      label: "Google Calendar",
+      url: googleUrl,
+      icon: SiGooglecalendar,
+    },
+    {
+      label: "Apple (ICS)",
+      url: icsUrl,
+      icon: ImAppleinc,
+    },
+    {
+      label: "Office365",
+      url: office365Url,
+      icon: CgMicrosoft,
+    },
+    {
+      label: "Outlook",
+      url: outlookUrl,
+      icon: PiMicrosoftOutlookLogo,
+    },
+    {
+      label: "Yahoo",
+      url: yahooUrl,
+      icon: FaYahoo,
+    },
+  ]
+
+
   return (
     <div className="flex flex-col gap-4 py-4">
       <Helmet>
@@ -633,7 +675,7 @@ export default function PropertyDetailsPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-              {listing?.details?.imagesCid?.filter((ft: any) => !listing?.details?.floorPlanCid?.includes(ft))?.map((image: any, index: number) => (
+              {listing?.details?.imagesCid?.filter((ft: string) => !listing?.details?.floorPlanCid?.includes(ft))?.map((image: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(image)}
@@ -902,7 +944,7 @@ export default function PropertyDetailsPage() {
         listing?.details?.videosCid?.length && (
           <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] 2xl:flex-row">
             <video controls muted autoPlay loop className="aspect-video w-full rounded-lg">
-                <source src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`} />
+              <source src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`} />
             </video>
           </div>
         )
@@ -975,49 +1017,68 @@ export default function PropertyDetailsPage() {
                 </div>
               </div>
 
-              <Button size={"lg"} className="rounded-full">
-                <svg
-                  width="27"
-                  height="27"
-                  viewBox="0 0 27 27"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M4.89453 11.654C4.89453 7.56846 4.89453 5.52572 6.16373 4.25651C7.43294 2.9873 9.47569 2.9873 13.5612 2.9873H15.1862C19.2717 2.9873 21.3145 2.9873 22.5836 4.25651C23.8529 5.52572 23.8529 7.56846 23.8529 11.654V15.9873C23.8529 20.0728 23.8529 22.1156 22.5836 23.3847C21.3145 24.654 19.2717 24.654 15.1862 24.654H13.5612C9.47569 24.654 7.43294 24.654 6.16373 23.3847C4.89453 22.1156 4.89453 20.0728 4.89453 15.9873V11.654Z"
-                    stroke="white"
-                    strokeWidth="1.5"
-                  />
-                  <path
-                    d="M11.1771 13.7923C10.715 12.9864 10.4918 12.3283 10.3573 11.6612C10.1583 10.6748 10.6137 9.71108 11.3681 9.09618C11.687 8.8363 12.0525 8.92509 12.241 9.26336L12.6667 10.027C13.0041 10.6323 13.1728 10.935 13.1393 11.2559C13.1059 11.5767 12.8784 11.838 12.4234 12.3607L11.1771 13.7923ZM11.1771 13.7923C12.1126 15.4233 13.5806 16.8922 15.2136 17.8288M15.2136 17.8288C16.0195 18.2909 16.6775 18.5141 17.3446 18.6486C18.3311 18.8476 19.2947 18.3922 19.9096 17.6378C20.1695 17.3188 20.0808 16.9533 19.7425 16.7648L18.9788 16.3392C18.3735 16.0017 18.0709 15.833 17.75 15.8665C17.4291 15.9 17.1678 16.1275 16.6451 16.5825L15.2136 17.8288Z"
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M5.97786 7.32031H3.26953M5.97786 13.8203H3.26953M5.97786 20.3203H3.26953"
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size={"lg"} className="rounded-full">
+                    <svg
+                      width="27"
+                      height="27"
+                      viewBox="0 0 27 27"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M4.89453 11.654C4.89453 7.56846 4.89453 5.52572 6.16373 4.25651C7.43294 2.9873 9.47569 2.9873 13.5612 2.9873H15.1862C19.2717 2.9873 21.3145 2.9873 22.5836 4.25651C23.8529 5.52572 23.8529 7.56846 23.8529 11.654V15.9873C23.8529 20.0728 23.8529 22.1156 22.5836 23.3847C21.3145 24.654 19.2717 24.654 15.1862 24.654H13.5612C9.47569 24.654 7.43294 24.654 6.16373 23.3847C4.89453 22.1156 4.89453 20.0728 4.89453 15.9873V11.654Z"
+                        stroke="white"
+                        strokeWidth="1.5"
+                      />
+                      <path
+                        d="M11.1771 13.7923C10.715 12.9864 10.4918 12.3283 10.3573 11.6612C10.1583 10.6748 10.6137 9.71108 11.3681 9.09618C11.687 8.8363 12.0525 8.92509 12.241 9.26336L12.6667 10.027C13.0041 10.6323 13.1728 10.935 13.1393 11.2559C13.1059 11.5767 12.8784 11.838 12.4234 12.3607L11.1771 13.7923ZM11.1771 13.7923C12.1126 15.4233 13.5806 16.8922 15.2136 17.8288M15.2136 17.8288C16.0195 18.2909 16.6775 18.5141 17.3446 18.6486C18.3311 18.8476 19.2947 18.3922 19.9096 17.6378C20.1695 17.3188 20.0808 16.9533 19.7425 16.7648L18.9788 16.3392C18.3735 16.0017 18.0709 15.833 17.75 15.8665C17.4291 15.9 17.1678 16.1275 16.6451 16.5825L15.2136 17.8288Z"
+                        stroke="white"
+                        strokeWidth="1.5"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M5.97786 7.32031H3.26953M5.97786 13.8203H3.26953M5.97786 20.3203H3.26953"
+                        stroke="white"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
 
-                <span>Add to calender</span>
-              </Button>
+                    <span>Add to calender</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  side="bottom"
+                  sideOffset={0}
+                  className="w-[280px]"
+                >
+                  {calendarLinks.map((link) => (
+                    <Link to={link.url} target="_blank">
+                      <DropdownMenuItem className="gap-3">
+                        <link.icon className="!size-5" />
+                        <span>{link.label}</span>
+                      </DropdownMenuItem>
+                    </Link>
+                  ))}
+
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
 
-          <div dangerouslySetInnerHTML={{ __html: listing?.details?.map }} className="-z-0 aspect-[1.4] flex-1 w-full overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl 2xl:aspect-auto">
-            {/* <MapView
+        <div dangerouslySetInnerHTML={{ __html: listing?.details?.map }} className="-z-0 aspect-[1.4] flex-1 w-full overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl 2xl:aspect-auto">
+          {/* <MapView
             location={listingFormData?.region?.country?.countryName}
             center={[
               listingFormData?.region?.country?.countryLat,
               listingFormData?.region?.country?.countryLong,
             ]}
           /> */}
-          </div>
+        </div>
       </div>
 
       <Separator className="my-2 h-px w-full" />
