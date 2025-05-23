@@ -19,8 +19,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, Plus, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import BuyToken from "@/components/shared/buy-token";
-import { RiShoppingCartLine } from "react-icons/ri";
 import { TbCopy } from "react-icons/tb";
 import useWalletHook from "@/hooks/useWallet.hook";
 
@@ -78,15 +76,6 @@ const Navbar = () => {
 
           {walletStore.isWalletConnected ? (
             <Fragment>
-              <BuyToken>
-                <Button
-                  size={"icon"}
-                  variant={"outline"}
-                  className="rounded-full border border-[#d4d6da]"
-                >
-                  <RiShoppingCartLine className="size-5" />
-                </Button>
-              </BuyToken>
               <Separator className="h-[30%] w-px bg-[#EAECF0]" />
 
               <DropdownMenu >

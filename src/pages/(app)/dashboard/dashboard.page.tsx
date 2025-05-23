@@ -1,5 +1,4 @@
 import { assets } from "@/assets";
-// import ListingBoard from "@/components/shared/listing-board";
 import { Button } from "@/components/ui/button";
 import { variants } from "@/utils/constants";
 import { motion } from "framer-motion";
@@ -11,23 +10,26 @@ import ListingCard from "@/components/shared/listing-card";
 import { useAppSelector } from "@/store";
 import { Listing } from "@/store/slice/listing.slice";
 import { IoMdCopy } from "react-icons/io";
-
+import InspectionForm from "@/components/shared/inspection-form";
 
 export default function DashboardPage() {
   const { fadeIn } = variants;
-  const { listings } = useAppSelector(state => state.listing);
-
-  // console.log(listings)
-
-  // const listingBoardValue = [
-  //   {
-  //     placeholder: "Tag",
-  //     options: ["ForSale", "Sold"],
-  //   },
-  // ]
+  const { listings } = useAppSelector((state) => state.listing);
 
   return (
     <div className="flex flex-col gap-4 py-4">
+      <InspectionForm
+        inspectionId="0x025de235bcba49aa753587d4ae45f6d71908db9e2b4152dca1246b80516e88ad"
+        type="create"
+      >
+        <Button>Create Inspection</Button>
+      </InspectionForm>
+      <InspectionForm
+        inspectionId="0x025de235bcba49aa753587d4ae45f6d71908db9e2b4152dca1246b80516e88ad"
+        type="update"
+      >
+        <Button>Update Inspection</Button>
+      </InspectionForm>
       <div className="h-[200px] w-full rounded-2xl bg-gradient-to-l from-[#0D857C] to-[#0EB9AC] p-[1px] sm:h-[240px] md:rounded-3xl">
         <div className="flex size-full overflow-hidden rounded-[inherit] bg-gradient-to-r from-[#056F67] to-[#0AADA1] text-white">
           <div className="lg:px-12">
@@ -83,69 +85,68 @@ export default function DashboardPage() {
       <Separator className="my-2 h-px w-full" />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-        <div className="h-max relative w-full overflow-hidden rounded-2xl border bg-[rgb(251,255,255)] md:h-[422px] md:rounded-3xl">
-            <div className="my-6 flex h-[55px] flex-col px-8 md:px-10">
-                <p className="text-2xl font-medium text-primary">Bidding</p>
-                <p className="text-base font-normal text-primary">
-                    Place bids on the property you eamt
-                </p>
-            </div>
+        <div className="relative h-max w-full overflow-hidden rounded-2xl border bg-[rgb(251,255,255)] md:h-[422px] md:rounded-3xl">
+          <div className="my-6 flex h-[55px] flex-col px-8 md:px-10">
+            <p className="text-2xl font-medium text-primary">Bidding</p>
+            <p className="text-base font-normal text-primary">
+              Place bids on the property you eamt
+            </p>
+          </div>
 
-            <img src={assets.images.bidLg} className="size-full" />
+          <img src={assets.images.bidLg} className="size-full" />
         </div>
 
-        <div className="h-max w-full relative overflow-hidden rounded-2xl border border-[#056F67] bg-primary md:h-[422px] md:rounded-3xl">
-            <div className="my-4 flex h-[55px] items-center justify-between px-8 md:px-10 relative z-[5]">
-                <div className="flex items-center gap-3">
-                    <span className="size-[7px] rounded-full bg-[#3A9992]" />
-                    <p className="text-2xl font-medium text-background">Trading</p>
-                </div>
-                <p className="text-sm text-[#0EC0B2]">Coming Soon</p>
+        <div className="relative h-max w-full overflow-hidden rounded-2xl border border-[#056F67] bg-primary md:h-[422px] md:rounded-3xl">
+          <div className="relative z-[5] my-4 flex h-[55px] items-center justify-between px-8 md:px-10">
+            <div className="flex items-center gap-3">
+              <span className="size-[7px] rounded-full bg-[#3A9992]" />
+              <p className="text-2xl font-medium text-background">Trading</p>
             </div>
+            <p className="text-sm text-[#0EC0B2]">Coming Soon</p>
+          </div>
 
-            <img src={assets.svgs.propertyManagement} className="size-full object-cover h-[632px] w-[409px] z-[1] absolute right-0 -mt-16 pointer-events-none" />
+          <img
+            src={assets.svgs.propertyManagement}
+            className="pointer-events-none absolute right-0 z-[1] -mt-16 size-full h-[632px] w-[409px] object-cover"
+          />
         </div>
 
-        <div className="aspect-[1.3] h-max w-full rounded-2xl bg-gradient-to-bl from-[#FFE692] to-[#B69C46] p-px text-[#9C7800] md:aspect-[1.8] md:rounded-[24px] lg:aspect-auto md:h-[422px] md:flex-1">
-            <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-[inherit] bg-[#FFFCF2] p-6 md:px-10 md:py-12">
-                <h2 className="text-[40px] font-normal leading-[50px] md:text-5xl lg:text-6xl lg:leading-[1.2]">
-                    Dive Deeper into Coiton
-                </h2>
+        <div className="aspect-[1.3] h-max w-full rounded-2xl bg-gradient-to-bl from-[#FFE692] to-[#B69C46] p-px text-[#9C7800] md:aspect-[1.8] md:h-[422px] md:flex-1 md:rounded-[24px] lg:aspect-auto">
+          <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-[inherit] bg-[#FFFCF2] p-6 md:px-10 md:py-12">
+            <h2 className="text-[40px] font-normal leading-[50px] md:text-5xl lg:text-6xl lg:leading-[1.2]">
+              Dive Deeper into Coiton
+            </h2>
 
-                <Link
-                to="https://hooopesteams-organization.gitbook.io/hooopes-team"
-                target="_blank"
-                className="w-max"
-                >
-                <Button
-                    size={"lg"}
-                    className="w-max rounded-full !bg-[#9C7800] hover:!bg-[#9C7800]/90"
-                >
-                    <span>View Whitepaper</span>{" "}
-                    <IoMdCopy size={22} className="ml-3" />
-                </Button>
-                </Link>
+            <Link
+              to="https://hooopesteams-organization.gitbook.io/hooopes-team"
+              target="_blank"
+              className="w-max"
+            >
+              <Button
+                size={"lg"}
+                className="w-max rounded-full !bg-[#9C7800] hover:!bg-[#9C7800]/90"
+              >
+                <span>View Whitepaper</span>{" "}
+                <IoMdCopy size={22} className="ml-3" />
+              </Button>
+            </Link>
 
-                <div className="absolute -right-[170px] top-10 z-0 md:-right-[210px] md:-top-[20px] md:size-[424px] lg:-top-[50px] lg:size-[324px]">
-                    <div className="rotate-[35deg]">
-                        <img
-                        src={assets.shapes.octYellowShape}
-                        alt="OCTERGON SHAPE"
-                        className="size-80 brightness-90 md:size-auto"
-                        />
-                    </div>
-                </div>
+            <div className="absolute -right-[170px] top-10 z-0 md:-right-[210px] md:-top-[20px] md:size-[424px] lg:-top-[50px] lg:size-[324px]">
+              <div className="rotate-[35deg]">
+                <img
+                  src={assets.shapes.octYellowShape}
+                  alt="OCTERGON SHAPE"
+                  className="size-80 brightness-90 md:size-auto"
+                />
+              </div>
             </div>
+          </div>
         </div>
       </div>
 
       <Separator className="my-2 h-px w-full" />
 
       <div className="rounded-2xl md:rounded-3xl md:border md:bg-background">
-        {/* {listings.length > 0 &&
-          <ListingBoard listingBoardValue={listingBoardValue} />
-        } */}
-
         {listings.length === 0 ? (
           <div className="mx-auto grid grid-cols-1 gap-4 overflow-y-auto py-6 md:gap-6 md:p-6 lg:grid-cols-2 2xl:grid-cols-3">
             {[...new Array(3)].map((_, _index) => (

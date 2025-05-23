@@ -1,5 +1,5 @@
-import { cn} from "@/lib/utils";
-import {  useLocation, useNavigate, useParams } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { IoBedOutline } from "react-icons/io5";
@@ -23,9 +23,11 @@ export default function ProfilePage() {
   const credential = useSelector(
     (state: RootState) => state.credential.credential,
   );
-  const listings = useAppSelector(state => state.listing.listings);
+  const listings = useAppSelector((state) => state.listing.listings);
   const [agent_listings, set_agent_listings] = useState<Listing[]>([]);
-  const connectedAddress = useAppSelector(state => state.wallet.walletAddress);
+  const connectedAddress = useAppSelector(
+    (state) => state.wallet.walletAddress,
+  );
 
   const totalListings = [
     { label: "Residential", value: 45, color: "#0EA5E9" },
@@ -40,12 +42,11 @@ export default function ProfilePage() {
     { label: "Industrial", value: 25, color: "#EAB308" },
   ];
 
-
   const [credentialStore, setCredential] = useState<User | null>(null);
   const location = useLocation();
-  const { getContractInstance, getRPCProviderContract } = useContractInstance()
+  const { getContractInstance } = useContractInstance();
   const [loading, setLoading] = useState<boolean>(false);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const state = location?.state;
@@ -58,7 +59,7 @@ export default function ProfilePage() {
             setCredential(credential);
             return;
           }
-          const contract = window.Wallet?.IsConnected ? getContractInstance() : getRPCProviderContract();
+          const contract = getContractInstance();
           if (!contract) return;
           setLoading(true);
           const user = await contract.get_user(address);
@@ -69,30 +70,39 @@ export default function ProfilePage() {
             id: Number(user.id),
             details: byteArrayToString(user.details),
             user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
-          }
+          };
 
           setCredential(user_construct);
-          setLoading(false)
+          setLoading(false);
         } catch (error) {
-          console.log("error", error)
+          console.log("error", error);
           toast.error("USER_NOT_FOUND");
-          setLoading(false)
+          setLoading(false);
           navigate("/dashboard");
         }
-      }())
+      })();
     }
-  }, [address, connectedAddress, credential, getContractInstance, getRPCProviderContract, location?.state, navigate])
-
+  }, [
+    address,
+    connectedAddress,
+    credential,
+    getContractInstance,
+    location?.state,
+    navigate,
+  ]);
 
   useEffect(() => {
     if (credentialStore) {
       if (listings.length > 0) {
-        set_agent_listings(listings.filter(ft => ft.owner.toLowerCase() === credentialStore!.address));
-
+        set_agent_listings(
+          listings.filter(
+            (ft) => ft.owner.toLowerCase() === credentialStore!.address,
+          ),
+        );
       } else {
         (async function () {
           try {
-            const contract = window.Wallet?.IsConnected ? getContractInstance() : getRPCProviderContract();
+            const contract = getContractInstance();
 
             const listings = await contract!.get_user_listings(address);
 
@@ -104,37 +114,35 @@ export default function ProfilePage() {
                 address: BigInt(user.address).toString(16),
                 id: Number(user.id),
                 details: byteArrayToString(user.details),
-                user_type: user.user_type.variant.Entity ? "Entity" : "Individual"
-              }
+                user_type: user.user_type.variant.Entity
+                  ? "Entity"
+                  : "Individual",
+              };
               return {
                 id: Number(listing.id),
                 owner: BigInt(listing.owner).toString(16),
                 price: Number(listing.price),
                 tag: (listing?.tag as any)?.variant?.Sold ? "Sold" : "ForSale",
                 details: byteArrayToString(listing.details),
-                owner_details: user_construct
-              }
-            })
+                owner_details: user_construct,
+              };
+            });
 
             // console.log({ structured })
 
             set_agent_listings(structured);
           } catch (error) {
-            console.log(error)
-
+            console.log(error);
           }
-        }())
+        })();
       }
     }
-  }, [address, credentialStore, getContractInstance, getRPCProviderContract, listings])
-
+  }, [address, credentialStore, getContractInstance, listings]);
 
   if (loading) return null;
 
-
   return (
     <div className="flex flex-col gap-4 py-4">
-
       <div className="flex w-full flex-col gap-4 sm:gap-6 md:gap-10">
         <div className="flex w-full flex-col gap-6 xl:flex-row">
           <ProfileCard credentialStore={credentialStore} />
@@ -165,7 +173,7 @@ export default function ProfilePage() {
 }
 
 interface UserListingsProps {
-  listings: Listing[]
+  listings: Listing[];
 }
 const ListingsSection = ({ listings }: UserListingsProps) => {
   const navigate = useNavigate();
@@ -177,18 +185,19 @@ const ListingsSection = ({ listings }: UserListingsProps) => {
     <div className="flex flex-1 flex-col gap-5 py-6 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:p-10">
       <div className="flex items-end justify-between">
         <p className="text-xl font-medium md:text-2xl">Agent Listings</p>
-
       </div>
 
       <div className="flex flex-grow flex-wrap gap-10">
-
         {(limited ? listings.slice(0, 2) : listings).map((listing, _index) => (
           <div
             key={_index}
             className="flex w-full flex-col gap-6 lg:h-[400px] lg:w-max lg:shrink-0 lg:flex-row lg:whitespace-nowrap"
           >
-
-            <img className="flex aspect-square rounded-2xl bg-secondary lg:aspect-auto lg:w-[300px] object-cover" src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`} alt="" />
+            <img
+              className="flex aspect-square rounded-2xl bg-secondary object-cover lg:aspect-auto lg:w-[300px]"
+              src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+              alt=""
+            />
             {/* <div style={{
               backgroundImage: `${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`
             }} className="flex aspect-square rounded-2xl bg-secondary lg:aspect-auto lg:w-[300px]"></div> */}
@@ -226,41 +235,45 @@ const ListingsSection = ({ listings }: UserListingsProps) => {
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <TbRulerMeasure className="size-5" />
-                    <span>{listing.details.propertySize.toLocaleString()} km/sq</span>
+                    <span>
+                      {listing.details.propertySize.toLocaleString()} km/sq
+                    </span>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col gap-2">
                 <p className="text-xl font-bold text-primary">Description</p>
                 <pre className="flex flex-col whitespace-pre-wrap text-left font-satoshi text-base md:text-base">
-                  <span
-                    className={cn("md:font-normal line-clamp-2")}
-                  >
+                  <span className={cn("line-clamp-2 md:font-normal")}>
                     {listing?.details?.description}
                   </span>
                 </pre>
               </div>
 
-              <Button onClick={() => {
-                navigate(`/listing/${listing.id}`, { state: listing })
-              }} size={"lg"} className="w-full rounded-full">
+              <Button
+                onClick={() => {
+                  navigate(`/listing/${listing.id}`, { state: listing });
+                }}
+                size={"lg"}
+                className="w-full rounded-full"
+              >
                 View Listing
               </Button>
             </div>
           </div>
         ))}
-
-
       </div>
-      {listings.length > 2 ? <div className="mt-5 flex justify-center">
-        <button
-          onClick={() => set_limited(!limited)}
-          role="button"
-          className="text-sm font-medium text-[#15948A] md:text-base"
-        >
-          {limited ? " View More..." : " View Less..."}
-        </button>
-      </div> : null}
+      {listings.length > 2 ? (
+        <div className="mt-5 flex justify-center">
+          <button
+            onClick={() => set_limited(!limited)}
+            role="button"
+            className="text-sm font-medium text-[#15948A] md:text-base"
+          >
+            {limited ? " View More..." : " View Less..."}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 };

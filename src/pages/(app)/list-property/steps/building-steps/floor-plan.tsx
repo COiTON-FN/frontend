@@ -7,7 +7,6 @@ import {
   BuildingFormSchemaTypes,
 } from "../../list-property.page";
 import {
-  resetForm,
   setCurrentStep,
   updateFormData,
 } from "@/store/slice/new-listing.slice";
@@ -17,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { apiClient, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, UploadIcon, Paperclip, Loader } from "lucide-react";
@@ -32,20 +31,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.hook";
-import { byteArrayToString, stringToByteArray } from "@/lib/starknet/utils";
-import { useNavigate } from "react-router-dom";
+import { stringToByteArray } from "@/lib/starknet/utils";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
-import { CairoCustomEnum, GetTransactionReceiptResponse } from "starknet";
-import { User } from "@/store/slice/credential.slice";
-import { addListing, Listing } from "@/store/slice/listing.slice";
-
+import { CairoCustomEnum, Call } from "starknet";
+import { variables } from "@/utils/variables";
 
 export default function FloorPlanForm() {
   const { onUpload } = useUploadFileToPinataHook();
 
   const dispatch = useDispatch<AppDispatch>();
   const formData = useSelector((state: RootState) => state.newListing.formData);
-
 
   const [loading, setLoading] = useState(false);
   const form = useForm<BuildingFormSchemaTypes>({
@@ -64,8 +59,7 @@ export default function FloorPlanForm() {
     formState: { errors },
   } = form;
 
-  const navigate = useNavigate();
-  const { getContractInstance } = useContractInstance()
+  const { getContractInstance } = useContractInstance();
 
   const onSubmit = async (data: Partial<BuildingFormSchemaTypes>) => {
     const formFields = {
@@ -79,7 +73,7 @@ export default function FloorPlanForm() {
     dispatch(updateFormData(formFields));
 
     try {
-      setLoading(true);
+      // setLoading(true);
       const toastId = toast.loading("Uploading files...");
 
       // Upload files only if they exist
@@ -124,10 +118,7 @@ export default function FloorPlanForm() {
         setValue("licenseCid", licenseCid);
       }
 
-      toast.dismiss(toastId)
-
-
-
+      toast.dismiss(toastId);
 
       // Prepare the result object with the uploaded CIDs
       const result = {
@@ -140,10 +131,10 @@ export default function FloorPlanForm() {
         images: undefined,
         videos: undefined,
         floorPlan: undefined,
-        license: undefined
+        license: undefined,
       };
 
-      if (!result.imagesCid || !result.videosCid || !result.floorPlanCid || !result.licenseCid) {
+      if (!result.imagesCid || !result.floorPlanCid || !result.licenseCid) {
         toast.error("UPLOAD_FAILED");
         setLoading(false);
         return;
@@ -151,59 +142,107 @@ export default function FloorPlanForm() {
 
       toast.success("Files uploaded successfully");
 
-      console.log(result)
+      console.log(result);
 
       dispatch(updateFormData(result));
 
       // Send transaction
       try {
         // await listingTx.sendAsync();
-        const contract = getContractInstance();
         const detailsBytes = stringToByteArray(JSON.stringify(result));
-        const type = new CairoCustomEnum({ Building: {} })
-        const call = contract!.populate("create_listing", [
+        const type = new CairoCustomEnum({ Building: {} });
+
+        const contract = getContractInstance();
+
+        const calls: Call = contract!.populate("create_listing", [
           type,
           formFields.price!,
           detailsBytes,
-        ])
+        ]);
 
+        const account = window.Wallet.Account!;
 
-        const tx = await window.Wallet.Account!.execute([call]);
-        const receipt = await window.Wallet.Account?.waitForTransaction(tx.transaction_hash)
-        apiClient.post("/listing", { tx_hash: tx.transaction_hash });
-        if (receipt?.isSuccess()) {
-          toast.success("Listing created successfully!");
-          dispatch(resetForm());
-          navigate("/dashboard");
+        if (!account) throw new Error("Wallet not connected!");
 
+        try {
+          const callPayload = await account?.getOutsideExecutionPayload({
+            calls: [calls],
+          });
 
-          const events = contract?.parseEvents(receipt as unknown as GetTransactionReceiptResponse);
-          const id = events![0][Object.keys(events![0])[0]].id;
-          const new_listing = await contract!.get_listing(id);
-          const user = new_listing.owner_details.Some;
-          const user_construct: User = {
-            ...user,
-            address: BigInt(user.address).toString(16),
-            id: Number(user.id),
-            details: byteArrayToString(user.details),
-            user_type: user.user_type.variant.Entity ? "Entity" : "Individual"
+          console.log(callPayload);
+
+          console.log("CALLING ENDPOINT");
+          const response = await fetch(
+            `${variables.renderEndpoint}/contract/execute`,
+            {
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              method: "POST",
+              body: JSON.stringify(callPayload),
+              redirect: "follow",
+            },
+          );
+
+          console.log("ENDPOINT CALLED");
+
+          const result = await response.json();
+
+          if (!result?.success) {
+            toast.error(result?.message);
+            throw new Error(result?.message);
           }
 
-          const structured: Listing = {
-            id: Number(new_listing.id),
-            owner: BigInt(new_listing.owner).toString(16),
-            price: Number(new_listing.price),
-            tag: new_listing.tag.variant.Sold ? "Sold" : "ForSale",
-            details: byteArrayToString(new_listing.details),
-            owner_details: user_construct
-          };
-          dispatch(addListing(structured));
-
-        } else {
-          toast.error("Failed to create listing. Please try again.");
+          return result;
+        } catch (error: any) {
+          console.error("EXECUTE FN ERROR: ", error);
         }
-        setLoading(false);
 
+        // if (!response?.success) return;
+
+        // const account = window.Wallet.Account;
+        // apiClient.post("/listing", { tx_hash: response.data.transaction_hash });
+
+        // const receipt = await account?.waitForTransaction(
+        //   response.data.transaction_hash,
+        // );
+
+        // if (receipt?.isSuccess()) {
+        //   const contractInstance = getContractInstance();
+        //   toast.success("Listing created successfully!");
+        //   dispatch(resetForm());
+        //   navigate("/dashboard");
+
+        //   const events = contractInstance?.parseEvents(
+        //     receipt as unknown as GetTransactionReceiptResponse,
+        //   );
+        //   const id = events![0][Object.keys(events![0])[0]].id;
+        //   const new_listing = await contractInstance!.get_listing(id);
+        //   const user = new_listing.owner_details.Some;
+        //   const user_construct: User = {
+        //     ...user,
+        //     address: BigInt(user.address).toString(16),
+        //     id: Number(user.id),
+        //     details: byteArrayToString(user.details),
+        //     user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
+        //   };
+
+        //   const structured: Listing = {
+        //     id: Number(new_listing.id),
+        //     owner: BigInt(new_listing.owner).toString(16),
+        //     price: Number(new_listing.price),
+        //     tag: new_listing.tag.variant.Sold ? "Sold" : "ForSale",
+        //     details: byteArrayToString(new_listing.details),
+        //     owner_details: user_construct,
+        //   };
+        //   dispatch(addListing(structured));
+        //   setLoading(false);
+        // } else {
+        //   toast.error("Failed to create listing. Please try again.");
+        //   setLoading(false);
+        // }
+        setLoading(false);
       } catch (error) {
         setLoading(false);
 
@@ -223,7 +262,6 @@ export default function FloorPlanForm() {
       toast.dismiss();
     }
   };
-
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">

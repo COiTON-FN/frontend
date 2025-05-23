@@ -25,10 +25,6 @@ export default function OnboardingPage() {
         return <WalletConnect />;
       case 3:
         return <Management />;
-      // case 4:
-      //   return <Dao />;
-      // case 5:
-      //   return <Trading />;
       case 4:
         return <AccountType />;
       default:
@@ -44,7 +40,7 @@ export default function OnboardingPage() {
           <motion.div
             key={walletState.currentStep}
             custom={walletState.currentStep}
-            className="flex w-full flex-col h-full gap-4"
+            className="flex h-full w-full flex-col gap-4"
           >
             {renderStep()}
           </motion.div>

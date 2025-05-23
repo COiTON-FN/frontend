@@ -35,6 +35,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import MapPicker from "../building-steps/google-map";
 
 export default function AddressForm() {
   const dispatch = useDispatch<AppDispatch>();
@@ -357,22 +358,12 @@ export default function AddressForm() {
           render={({ field }) => (
             <FormItem className="w-full">
               <FormControl>
-                <Input
-                  placeholder="Map"
-                  type="text"
-                  className={cn("text-foreground", {
-                    "border-red-500 focus-visible:ring-red-500":
-                      errors.map?.message,
-                  })}
-                  {...field}
-                />
+                <div className="flex items-center gap-2">
+                  <MapPicker value={field.value} onChange={field.onChange} />
+                </div>
               </FormControl>
               {errors.map && (
-                <p
-                  className={cn(
-                    "text-sm font-medium text-red-500 dark:text-red-900",
-                  )}
-                >
+                <p className="text-sm font-medium text-red-500 dark:text-red-900">
                   {errors.map?.message}
                 </p>
               )}

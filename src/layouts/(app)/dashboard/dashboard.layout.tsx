@@ -6,8 +6,6 @@ import MaxWrapper from "@/components/shared/max-wrapper";
 import ScrollTop from "@/components/shared/scroll-top";
 
 export default function DashboardLayout() {
-
-
   return (
     <SidebarProvider className="relative flex w-full flex-1">
       <AppSidebar />

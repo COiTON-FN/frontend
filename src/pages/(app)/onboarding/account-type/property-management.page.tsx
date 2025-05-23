@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { formatPhoneNumber } from "react-phone-number-input";
 
-
 //! Redux
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "@/store";
@@ -50,7 +49,6 @@ import {
 import { assets } from "@/assets";
 import { registrationSchema } from "@/utils/validators";
 import { stringToByteArray } from "@/lib/starknet/utils";
-import { useContractInstance } from "@/hooks/useContractInstance.hook";
 
 //! React and Router
 import { useEffect, useState } from "react";
@@ -59,16 +57,22 @@ import useWalletHook from "@/hooks/useWallet.hook";
 import { CairoCustomEnum } from "starknet";
 import { setCredential, User, UserType } from "@/store/slice/credential.slice";
 import { DropzoneOptions } from "react-dropzone";
-import { FileInput, FileUploader, FileUploaderContent, FileUploaderItem } from "@/components/extension/file-uploader";
+import {
+  FileInput,
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+} from "@/components/extension/file-uploader";
 import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.hook";
 import { setHasRegistered } from "@/store/slice/wallet.slice";
+import { executeFn } from "@/lib/execute";
+import { contract } from "@/utils/contract";
 
 const propertyManagementSchema = registrationSchema.extend({});
 
 export type PROPERTY_MANAGEMENT_SCHEMA = z.infer<
   typeof propertyManagementSchema
 >;
-
 
 const daoManagementSchema = registrationSchema.extend({
   license: z
@@ -96,15 +100,51 @@ export default function PropertyManagementPage() {
   const [countries, setCountries] = useState<CountryData[]>([]);
   const [states, setStates] = useState<StateData[]>([]);
   const { handleConnectWallet } = useWalletHook();
-  const { getContractInstance } = useContractInstance();
   const location = useLocation();
 
   const walletStore = useSelector((state: RootState) => state.wallet);
 
   const form = useForm<DAO_MANAGEMENT_SCHEMA | PROPERTY_MANAGEMENT_SCHEMA>({
-    resolver: zodResolver(location?.state?.type === "Entity" ? daoManagementSchema : propertyManagementSchema),
+    resolver: zodResolver(
+      location?.state?.type === "Entity"
+        ? daoManagementSchema
+        : propertyManagementSchema,
+    ),
     defaultValues: {
-
+      name: "",
+      email: "",
+      phone: undefined,
+      region: undefined,
+      socials: undefined,
+      // name: "John Doe",
+      // email: "johndow@gmail.com",
+      // phone: {
+      //     national: "+2341234567890",
+      //     international: "0123 456 7890"
+      // },
+      // region: {
+      //     country: {
+      //         countryName: "Nigeria",
+      //         countryCode: "NG",
+      //         countryFlag: "🇳🇬",
+      //         countryLat: 10,
+      //         countryLong: 8
+      //     },
+      //     state: {
+      //         stateName: "Kaduna",
+      //         stateCode: "KD",
+      //         countryCode: "NG",
+      //         stateLat: 10.3764006,
+      //         stateLong: 7.7094537
+      //     }
+      // },
+      // socials: [
+      //     {
+      //         id: "3b1df6b8-ef59-40d4-b860-6d29a6c22339",
+      //         url: "https://x.com/johndoe",
+      //         type: "twitter"
+      //     }
+      // ]
     },
   });
 
@@ -114,14 +154,12 @@ export default function PropertyManagementPage() {
     formState: { errors },
   } = form;
 
-
   const dropZoneConfig = {
     accept: {
       "application/pdf": [".pdf"],
       "text/csv": [".csv"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
-        ".docx",
-      ],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
       "application/msword": [".doc"],
       "application/vnd.ms-excel": [".xls"],
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
@@ -133,18 +171,14 @@ export default function PropertyManagementPage() {
     multiple: true,
   } satisfies DropzoneOptions;
 
-
-
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const state = location.state;
     if (!state?.type) {
-      navigate("/onboarding")
+      navigate("/onboarding");
     }
-  }, [])
-
-
+  }, []);
 
   useEffect(() => {
     setCountries(getCountries());
@@ -186,13 +220,12 @@ export default function PropertyManagementPage() {
     }
   };
 
-
   const { onUpload } = useUploadFileToPinataHook();
   const dispatch = useAppDispatch();
   const onSubmit = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
     try {
-      if (isLoading) return;
-      setIsLoading(true)
       const formData = form.getValues();
       const { region, email, name, phone } = formData;
 
@@ -212,48 +245,54 @@ export default function PropertyManagementPage() {
       }
       let licenseCid: string[] | null = null;
       if (location?.state?.type === "Entity") {
-        licenseCid = await onUpload((formData as DAO_MANAGEMENT_SCHEMA).license);
+        licenseCid = await onUpload(
+          (formData as DAO_MANAGEMENT_SCHEMA).license,
+        );
       }
 
-
-
+      if (!licenseCid || !licenseCid.length)
+        throw new Error("Failed to upload license");
 
       if (!walletStore.isWalletConnected) {
         await handleConnectWallet();
       }
 
-
-
-
-
-      const contract = getContractInstance();
       const user_type: UserType | undefined = location.state?.type;
-      const userType = new CairoCustomEnum(user_type === "Individual" ? { Individual: {} } : { Entity: {} })
-      const processed_data = { ...formData, ...(location?.state?.type === "Entity" ? { licenseCid } : {}) }
-      console.log(processed_data)
-      const detailsToBytesArray = stringToByteArray(JSON.stringify(processed_data));
-      const call = contract!.populate("register", [
-        userType,
-        detailsToBytesArray,
-      ])
+      const userType = new CairoCustomEnum(
+        user_type === "Individual" ? { Individual: {} } : { Entity: {} },
+      );
+      const processed_data = {
+        ...formData,
+        ...(location?.state?.type === "Entity" ? { licenseCid } : {}),
+      };
+      console.log(processed_data);
+      const detailsToBytesArray = stringToByteArray(
+        JSON.stringify(processed_data),
+      );
+
+      const result = await executeFn({
+        contractAddress: contract.daoAddress,
+        entrypoint: "register",
+        calldata: [userType, detailsToBytesArray],
+      });
+
+      if (!result?.success) return;
 
       const account = window.Wallet.Account;
-      const tx = await account?.execute(call);
-      await account?.waitForTransaction(tx!.transaction_hash);
+
       setIsLoading(false);
+
       const user_construct: User = {
-        address: account?.address!,
+        address: account?.address as string,
         details: processed_data,
         registered: true,
         user_type: location?.state?.type,
         verified: false,
+      };
+      dispatch(setCredential(user_construct));
+      dispatch(setHasRegistered(true));
 
-      }
-      dispatch(setCredential(user_construct))
-      dispatch(setHasRegistered(true))
-
-      navigate("/dashboard")
-
+      navigate("/dashboard");
     } catch (error) {
       setIsLoading(false);
 
@@ -261,12 +300,14 @@ export default function PropertyManagementPage() {
       toast.error(
         error instanceof Error ? error.message : "An unknown error occurred",
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex lg:h-full">
-      <Form  {...form}>
+      <Form {...form}>
         <motion.form
           variants={{
             enter: (currentStep: number) => ({
@@ -290,7 +331,6 @@ export default function PropertyManagementPage() {
             opacity: { duration: 0.5, ease: "linear" },
           }}
           onSubmit={handleSubmit(onSubmit)}
-
           className="flex w-full items-center justify-center overflow-y-auto p-6 lg:max-w-[55%]"
         >
           <div className="flex w-full max-w-[480px] flex-col gap-4">
@@ -390,10 +430,10 @@ export default function PropertyManagementPage() {
                           >
                             {field.value?.countryName
                               ? countries.find(
-                                (country) =>
-                                  country.countryName ===
-                                  field.value?.countryName,
-                              )?.countryName
+                                  (country) =>
+                                    country.countryName ===
+                                    field.value?.countryName,
+                                )?.countryName
                               : "Select country..."}
                             <ChevronsUpDown className="size-4 opacity-50" />
                           </div>
@@ -459,9 +499,9 @@ export default function PropertyManagementPage() {
                           >
                             {field.value?.stateName
                               ? states.find(
-                                (state) =>
-                                  state.stateName === field.value?.stateName,
-                              )?.stateName
+                                  (state) =>
+                                    state.stateName === field.value?.stateName,
+                                )?.stateName
                               : "Select state..."}
                             <ChevronsUpDown className="size-4 opacity-50" />
                           </div>
@@ -504,51 +544,55 @@ export default function PropertyManagementPage() {
               />
             </div>
 
-            {location?.state?.type === "Entity" ? <FormField
-              control={control}
-              name="license"
-              render={({ field }) => (
-                <FormItem>
-                  <FileUploader
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    dropzoneOptions={dropZoneConfig}
-                    className="relative"
-                  >
-                    <FileInput
-                      className={cn(
-                        "rounded-md border border-neutral-200 sm:rounded-xl",
-                        {
-                          "border-red-500": (errors as FieldErrors<DAO_MANAGEMENT_SCHEMA>).license,
-                        },
-                      )}
+            {location?.state?.type === "Entity" ? (
+              <FormField
+                control={control}
+                name="license"
+                render={({ field }) => (
+                  <FormItem>
+                    <FileUploader
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      dropzoneOptions={dropZoneConfig}
+                      className="relative"
                     >
-                      <div className="flex h-14 w-full items-center px-6">
-                        Click to upload license
-                      </div>
-                    </FileInput>
-                    <FileUploaderContent className="flex">
-                      {field.value &&
-                        field.value.length > 0 &&
-                        field.value.map((file, i) => (
-                          <FileUploaderItem
-                            key={i}
-                            index={i}
-                            className="!rounded-md"
-                            type="document"
-                          >
-                            <Paperclip className="size-5" />
-                            <span className="text-sm font-medium text-foreground">
-                              {file.name}
-                            </span>
-                          </FileUploaderItem>
-                        ))}
-                    </FileUploaderContent>
-                  </FileUploader>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> : null}
+                      <FileInput
+                        className={cn(
+                          "rounded-md border border-neutral-200 sm:rounded-xl",
+                          {
+                            "border-red-500": (
+                              errors as FieldErrors<DAO_MANAGEMENT_SCHEMA>
+                            ).license,
+                          },
+                        )}
+                      >
+                        <div className="flex h-14 w-full items-center px-6">
+                          Click to upload license
+                        </div>
+                      </FileInput>
+                      <FileUploaderContent className="flex">
+                        {field.value &&
+                          field.value.length > 0 &&
+                          field.value.map((file, i) => (
+                            <FileUploaderItem
+                              key={i}
+                              index={i}
+                              className="!rounded-md"
+                              type="document"
+                            >
+                              <Paperclip className="size-5" />
+                              <span className="text-sm font-medium text-foreground">
+                                {file.name}
+                              </span>
+                            </FileUploaderItem>
+                          ))}
+                      </FileUploaderContent>
+                    </FileUploader>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
 
             <FormField
               control={control}

@@ -1,7 +1,8 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
@@ -12,8 +13,17 @@ import {
 import { Link, useLocation } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { MdOutlineGeneratingTokens } from "react-icons/md";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown, Eye, EyeOff } from "lucide-react";
+import { setSelectedToken } from "@/store/slice/wallet.slice";
 
 const sidebarLinks = [
   {
@@ -131,28 +141,63 @@ const sidebarLinks = [
     ),
     label: "Trading",
     path: "/trading",
-    },
-    {
-        label: "Requests",
-        path: "/requests",
-        icon: (className: string) => (
-            <svg className={cn("!size-[26px]", className)} viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 14.5H3V21.5H10V14.5Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M10 3.5H3V10.5H10V3.5Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M14 4.5H21" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M14 9.5H21" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M14 15.5H21" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M14 20.5H21" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-        ),
-    },
+  },
+  {
+    label: "Requests",
+    path: "/requests",
+    icon: (className: string) => (
+      <svg
+        className={cn("!size-[26px]", className)}
+        viewBox="0 0 24 25"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M10 14.5H3V21.5H10V14.5Z"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M10 3.5H3V10.5H10V3.5Z"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14 4.5H21"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14 9.5H21"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14 15.5H21"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14 20.5H21"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
 ];
 
 const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
-//   const dispatch = useDispatch<AppDispatch>();
-//   const walletState = useSelector((state: RootState) => state.wallet);
+  const dispatch = useDispatch<AppDispatch>();
+  const walletState = useSelector((state: RootState) => state.wallet);
 
-//   const [shouldShowBalance, setShouldShowBalance] = useState(true);
+  const [shouldShowBalance, setShouldShowBalance] = useState(true);
 
   return (
     <Sidebar {...props}>
@@ -169,7 +214,7 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
       <SidebarContent>
         <NavMain />
       </SidebarContent>
-      {/* {walletState?.isWalletConnected && (
+      {walletState?.isWalletConnected && (
         <SidebarFooter>
           <div className="flex flex-col">
             <div className="flex items-center justify-between border-t border-[#EAECF0] px-8 py-4">
@@ -246,7 +291,7 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
             </div>
           </div>
         </SidebarFooter>
-      )} */}
+      )}
       <SidebarRail />
     </Sidebar>
   );
@@ -268,13 +313,12 @@ export function NavMain() {
           //   (link) =>
           //     credentialStore?.accountType === "dao" || !link.dao_members,
           // )
-          .map(({ label, path, icon }, _index: number) =>
-
+          .map(({ label, path, icon }, _index: number) => (
             <SidebarMenuItem key={_index}>
               <SidebarMenuButton
                 asChild
                 className={cn(
-                  "relative h-14 font-medium rounded-none rounded-l-full p-0 pl-6 transition hover:bg-secondary",
+                  "relative h-14 rounded-none rounded-l-full p-0 pl-6 font-medium transition hover:bg-secondary",
                   {
                     "bg-[#e7fefc] text-primary hover:bg-[#dbfffc] hover:text-primary":
                       isActive(path),
@@ -303,8 +347,7 @@ export function NavMain() {
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-
-          )}
+          ))}
       </SidebarMenu>
     </SidebarGroup>
   );

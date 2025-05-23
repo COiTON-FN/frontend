@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { variables } from "@/utils/variables";
 import { useAppSelector } from "@/store";
 import { Loader } from "lucide-react";
+import { executeFn } from "@/lib/execute";
 
 export default function BidPage() {
   const [searchParams] = useSearchParams();
@@ -25,20 +26,20 @@ export default function BidPage() {
   const [isLoadingDetails, setIsLoadingDetails] = useState(true);
   const [initiator, setInitiator] = useState<User | null>(null);
   const [listingDetails, setListingDetails] = useState<{
-    banner: string,
-    snapshot: string,
-    type: string,
-    zip: number,
-    bidPrice: number,
-    price: number,
-    state: string,
-    country: string,
+    banner: string;
+    snapshot: string;
+    type: string;
+    zip: number;
+    bidPrice: number;
+    price: number;
+    state: string;
+    country: string;
   } | null>(null);
   const [showMore, setShowMore] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
-  const { walletAddress } = useAppSelector(state => state.wallet)
+  const { walletAddress } = useAppSelector((state) => state.wallet);
 
-  const { getContractInstance, getErc721Instance } = useContractInstance()
+  const { getContractInstance, getErc721Instance } = useContractInstance();
 
   useEffect(() => {
     (async () => {
@@ -47,28 +48,35 @@ export default function BidPage() {
 
         const contract = getContractInstance();
         if (!contract) return;
-        setIsLoadingDetails(true)
+        setIsLoadingDetails(true);
 
         const listing = await contract.get_listing(Number(listingId));
 
-        const purchaseRequest = await contract.get_purchase(listingId, requestId);
+        const purchaseRequest = await contract.get_purchase(
+          listingId,
+          requestId,
+        );
         const refinedPurchaseRequest = {
           listingId,
           requestId,
           price: Number(purchaseRequest?.price),
           initiator: BigInt(purchaseRequest?.initiator).toString(16),
-        }
+        };
 
-        const initiatorDetails = await contract.get_user(`0x${refinedPurchaseRequest?.initiator}`);
+        const initiatorDetails = await contract.get_user(
+          `0x${refinedPurchaseRequest?.initiator}`,
+        );
         const initiator: User = {
           ...initiatorDetails,
           address: BigInt(initiatorDetails?.address).toString(16),
           id: Number(initiatorDetails?.id),
           details: byteArrayToString(initiatorDetails?.details),
-          user_type: initiatorDetails?.user_type.variant.Entity ? "Entity" : "Individual"
-        }
+          user_type: initiatorDetails?.user_type.variant.Entity
+            ? "Entity"
+            : "Individual",
+        };
 
-        setInitiator(initiator)
+        setInitiator(initiator);
 
         const structured: Listing = {
           id: Number(listing.id),
@@ -76,9 +84,8 @@ export default function BidPage() {
           price: Number(listing.price),
           tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
           details: byteArrayToString(listing.details),
-          owner_details: undefined
+          owner_details: undefined,
         };
-
 
         const snapshotDetails = {
           banner: structured?.details?.imagesCid[0],
@@ -89,10 +96,10 @@ export default function BidPage() {
           price: Number(structured?.details?.price),
           state: structured?.details?.region?.state?.stateName,
           country: structured?.details?.region?.country?.countryName,
-        }
+        };
 
-        setListingDetails(snapshotDetails)
-        setIsLoadingDetails(false)
+        setListingDetails(snapshotDetails);
+        setIsLoadingDetails(false);
       } catch (error) {
         console.error("Failed to load requests:", error);
         setIsLoadingDetails(false);
@@ -104,40 +111,167 @@ export default function BidPage() {
     if (!requestId || !listingId || !listingDetails || !initiator) return;
 
     try {
-      const contract = getContractInstance();
-      if (!contract) return;
       setIsApproving(true);
 
       const erc721 = getErc721Instance();
+      const contractInstance = getContractInstance();
       const approvedAddress = await erc721!.get_approved(listingId);
 
       if (approvedAddress !== walletAddress) {
-        const approval_call = erc721!.populate("approve", [
+        const approve_call = erc721!.populate("approve", [
           variables.daoAddress,
-          listingId
+          listingId,
         ]);
 
-        const approval_tx = await window.Wallet.Account!.execute(approval_call);
-        await window.Wallet.Account!.waitForTransaction(approval_tx.transaction_hash);
+        const result = await executeFn({
+          contractAddress: approve_call.contractAddress,
+          entrypoint: approve_call.entrypoint,
+          calldata: approve_call.calldata,
+        });
+
+        if (!result?.success) return;
       }
 
-      const call = contract.populate("approve_purchase_request", [listingId, requestId]);
-      const tx = await window.Wallet.Account!.execute(call);
-      const receipt = await window.Wallet.Account!.waitForTransaction(tx.transaction_hash);
-      setIsApproving(false);
+      const call = contractInstance!.populate("approve_purchase_request", [
+        listingId,
+        requestId,
+      ]);
 
-      console.log(receipt)
+      const result = await executeFn({
+        contractAddress: call.contractAddress,
+        entrypoint: call.entrypoint,
+        calldata: call.calldata,
+      });
+
+      if (!result?.success) {
+        toast.error(result?.message);
+        throw new Error(result?.message);
+      }
+
+      setIsApproving(false);
+      toast.success("E don sup");
+
+      console.log(result);
+
+      // const call = contract.populate("approve_purchase_request", [
+      //   listingId,
+      //   requestId,
+      // ]);
+
+      // console.log(callPayload);
+
+      // console.log("CALLING ENDPOINT");
+      // const response = await fetch(
+      //   `${variables.renderEndpoint}/contract/execute`,
+      //   {
+      //     headers: {
+      //       Accept: "application/json",
+      //       "Content-Type": "application/json",
+      //     },
+      //     method: "POST",
+      //     body: JSON.stringify(callPayload),
+      //     redirect: "follow",
+      //   },
+      // );
+
+      // console.log("ENDPOINT CALLED");
+
+      // const result = await response.json();
+
+      // if (!result?.success) {
+      //   toast.error(result?.message);
+      //   throw new Error(result?.message);
+      // }
+
+      // setIsApproving(false);
+      // return result;
+
+      // const result = await executeFn({
+      //   contractAddress: contract.erc721Address,
+      //   entrypoint: "approve_purchase_request",
+      //   calldata: [listingId, requestId],
+      // });
+
+      // if (!result?.value) return;
+
+      console.log(result);
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
       setIsApproving(false);
     }
-  }
+  };
 
-  if (isLoadingDetails) return <div className="h-[calc(100dvh-80px)] flex-col flex items-center justify-center gap-2">
-    <Loader className="size-6 animate-spin" />
-    <p className="text-xs uppercase font-medium">Please wait...</p>
-  </div>;
+  // const handleApprovePurchaseRequest = async () => {
+  //   if (!requestId || !listingId || !listingDetails || !initiator) return;
+
+  //   try {
+  //     setIsApproving(true);
+
+  //     const erc721 = getErc721Instance();
+  //     const approvedAddress = await erc721.get_approved(listingId);
+
+  //     if (approvedAddress !== walletAddress) {
+  //       const calls: Call = erc721!.populate("approve_purchase_request", [
+  //         listingId,
+  //         requestId,
+  //       ]);
+
+  //       const account = window.Wallet.Account!;
+
+  //       const callPayload = await account?.getOutsideExecutionPayload({
+  //         calls: [calls],
+  //       });
+
+  //       console.log(callPayload);
+
+  //       console.log("CALLING ENDPOINT");
+  //       const response = await fetch(
+  //         `${variables.renderEndpoint}/contract/execute`,
+  //         {
+  //           headers: {
+  //             Accept: "application/json",
+  //             "Content-Type": "application/json",
+  //           },
+  //           method: "POST",
+  //           body: JSON.stringify(callPayload),
+  //           redirect: "follow",
+  //         },
+  //       );
+
+  //       console.log("ENDPOINT CALLED");
+
+  //       const result = await response.json();
+
+  //       if (!result?.success) {
+  //         toast.error(result?.message);
+  //         throw new Error(result?.message);
+  //       }
+
+  //       return result;
+  //     }
+
+  //     setIsApproving(false);
+  //     // if (!result?.success) return;
+  //     // setIsApproving(false);
+
+  //     // console.log(result);
+  //   } catch (error) {
+  //     toast.error("Something went wrong");
+  //     console.log(error);
+  //     setIsApproving(false);
+  //   } finally {
+  //     setIsApproving(false);
+  //   }
+  // };
+
+  if (isLoadingDetails)
+    return (
+      <div className="flex h-[calc(100dvh-80px)] flex-col items-center justify-center gap-2">
+        <Loader className="size-6 animate-spin" />
+        <p className="text-xs font-medium uppercase">Please wait...</p>
+      </div>
+    );
 
   return (
     <div className="flex flex-col gap-4 py-4">
@@ -145,7 +279,7 @@ export default function BidPage() {
         <div className="flex w-full flex-col gap-6 xl:flex-row">
           <ProfileCard credentialStore={initiator} />
 
-          <div className="flex w-full flex-col gap-6 xl:w-[60%] rounded-2xl border bg-background py-6 sm:p-6 md:gap-10 md:p-10">
+          <div className="flex w-full flex-col gap-6 rounded-2xl border bg-background py-6 sm:p-6 md:gap-10 md:p-10 xl:w-[60%]">
             <div className="aspect-[1.4] w-full overflow-hidden rounded-2xl border bg-secondary lg:aspect-[1.3]">
               <img
                 src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listingDetails?.banner}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
@@ -153,7 +287,6 @@ export default function BidPage() {
                 className="size-full object-cover"
               />
             </div>
-
 
             <div className="flex flex-col gap-2">
               <p className="text-xl font-bold text-primary">Snapshot</p>
@@ -180,43 +313,54 @@ export default function BidPage() {
                 Building Info
               </p>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-
+              <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
                 <div className="flex flex-col">
                   <span className="text-sm font-medium text-muted-foreground">
                     Type
                   </span>
-                  <span className="text font-medium">{listingDetails?.type}</span>
+                  <span className="text font-medium">
+                    {listingDetails?.type}
+                  </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium text-muted-foreground">
                     Bid Price
                   </span>
-                  <span className="text font-medium">${listingDetails?.bidPrice.toLocaleString()}</span>
+                  <span className="text font-medium">
+                    ${listingDetails?.bidPrice.toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium text-muted-foreground">
                     ZIP
                   </span>
-                  <span className="text font-medium">{listingDetails?.zip}</span>
+                  <span className="text font-medium">
+                    {listingDetails?.zip}
+                  </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium text-muted-foreground">
                     Price
                   </span>
-                  <span className="text font-medium">${listingDetails?.price.toLocaleString()}</span>
+                  <span className="text font-medium">
+                    ${listingDetails?.price.toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium text-muted-foreground">
                     State/County
                   </span>
-                  <span className="text font-medium">{listingDetails?.state}</span>
+                  <span className="text font-medium">
+                    {listingDetails?.state}
+                  </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium text-muted-foreground">
                     Country
                   </span>
-                  <span className="text font-medium">{listingDetails?.country}</span>
+                  <span className="text font-medium">
+                    {listingDetails?.country}
+                  </span>
                 </div>
               </div>
             </div>
@@ -225,24 +369,46 @@ export default function BidPage() {
 
         <Separator className="my-2 h-px w-full" />
 
-        <div className="grid xl:grid-cols-2 grid-cols-1 gap-10 items-start">
-          <div className="space-y-7 h-max">
+        <div className="grid grid-cols-1 items-start gap-10 xl:grid-cols-2">
+          <div className="h-max space-y-7">
             <img src={BID} alt="" />
           </div>
 
           <div className="flex flex-col gap-10">
             <div className="">
-              <label htmlFor="bid" className="text-sm text-muted-foreground">Bid Offer</label>
-              <Input type="number" disabled id="bid" className="mt-1 text-sm" placeholder={`$${listingDetails?.bidPrice.toLocaleString()}`} />
-              <p className="text-base text-muted-foreground">This is current bid offer from this user, you can either approve ot disapprove if this offer aligns with you.</p>
+              <label htmlFor="bid" className="text-sm text-muted-foreground">
+                Bid Offer
+              </label>
+              <Input
+                type="number"
+                disabled
+                id="bid"
+                className="mt-1 text-sm"
+                placeholder={`$${listingDetails?.bidPrice.toLocaleString()}`}
+              />
+              <p className="text-base text-muted-foreground">
+                This is current bid offer from this user, you can either approve
+                ot disapprove if this offer aligns with you.
+              </p>
             </div>
 
             <div className="flex items-center gap-4">
-              <Button isLoading={isApproving} content="Approving..." className="w-[220px]" size="lg" onClick={handleApprovePurchaseRequest}>
+              <Button
+                isLoading={isApproving}
+                content="Approving..."
+                className="w-[220px]"
+                size="lg"
+                onClick={handleApprovePurchaseRequest}
+              >
                 <BiLeaf className="size-5" />
                 <span>Approve</span>
               </Button>
-              <Button variant={"destructive"} disabled className="w-[220px]" size="lg">
+              <Button
+                variant={"destructive"}
+                disabled
+                className="w-[220px]"
+                size="lg"
+              >
                 <BiLeaf className="size-5" />
                 <span>Disapprove</span>
               </Button>
@@ -251,5 +417,5 @@ export default function BidPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
