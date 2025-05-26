@@ -6,11 +6,14 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
   const { details } = listing;
 
   return (
-    <div className="group rounded-[24px] border bg-white">
-      <div className="relative w-full aspect-[1.6] overflow-hidden rounded-[inherit] bg-secondary">
+    <Link
+      to={`/listing/${listing.id}`}
+      state={listing}
+      className="group rounded-[24px] border bg-white"
+    >
+      <div className="relative aspect-[1.4] w-full overflow-hidden rounded-[22px] bg-secondary md:h-[240px]">
         <img
           src={`${import.meta.env.VITE_PINATA_GATEWAY}/${details.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-
           alt={details?.title}
           className="size-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
         />
@@ -34,21 +37,22 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 md:gap-6 p-6">
-        <p className="font-bold text-xl md:text-2xl leading-none tracking-wide text-primary">
+      <div className="flex flex-col gap-4 p-6 md:gap-6">
+        <p className="text-xl font-semibold leading-none tracking-wide text-primary md:text-2xl">
           ${Number(details?.price).toLocaleString()}
         </p>
 
-        <Link to={`/listing/${listing.id}`} state={listing} className="flex flex-col gap-2">
-          <span className="font-medium text-lg md:text-xl leading-none text-[#1D2939]">
+        <div className="flex flex-col gap-1.5">
+          <span className="line-clamp-1 text-lg font-medium leading-none text-[#1D2939] md:text-xl">
             {details?.title}
           </span>
-          <span className="font-light text-sm sm:text-base leading-none text-[#475467]">
-            {details?.area} - {details?.region?.state?.stateName}, {details?.region?.country?.countryName}
+          <span className="line-clamp-1 text-sm font-normal leading-none text-[#475467] sm:text-base">
+            {details?.area} - {details?.region?.state?.stateName},{" "}
+            {details?.region?.country?.countryName}
           </span>
-        </Link>
+        </div>
 
-        <div className="flex items-center justify-between">
+        <div className="mt-auto flex items-center justify-between">
           <p className="flex flex-1 items-center justify-start gap-2 border-r">
             <svg
               width="19"
@@ -63,7 +67,7 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
               />
             </svg>
 
-            <span className="font-normal text-sm md:text-base text-muted-foreground">
+            <span className="text-sm font-normal text-muted-foreground md:text-base">
               Beds: {details?.bedrooms ?? 0}
             </span>
           </p>
@@ -81,7 +85,7 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
               />
             </svg>
 
-            <span className="font-normal text-sm md:text-base text-muted-foreground">
+            <span className="text-sm font-normal text-muted-foreground md:text-base">
               Baths: {details?.bathrooms ?? 0}
             </span>
           </p>
@@ -99,13 +103,13 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
               />
             </svg>
 
-            <span className="font-normal text-sm md:text-base text-muted-foreground">
+            <span className="text-sm font-normal text-muted-foreground md:text-base">
               {(details?.propertySize ?? 0).toLocaleString()} sqft
             </span>
           </p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

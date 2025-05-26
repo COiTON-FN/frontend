@@ -64,12 +64,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : motion.button;
     return (
       <Comp
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.99 }}
+        transition={{ type: "spring", stiffness: 700, damping: 25 }}
         className={cn("gap-2", buttonVariants({ variant, size }), className)}
         ref={ref}
-        disabled={isLoading}
+        disabled={isLoading || props.disabled}
         {...props}
       >
         {/* @ts-ignore */}

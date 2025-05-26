@@ -12,14 +12,6 @@ import {
   XIcon,
 } from "react-share";
 import { Helmet } from "react-helmet-async";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -50,7 +42,6 @@ import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User } from "@/store/slice/credential.slice";
@@ -61,21 +52,17 @@ import BID_LG from "../../../assets/images/bid_lg.png";
 import { Input } from "@/components/ui/input";
 import { CairoOption, CairoOptionVariant, Call } from "starknet";
 import { variables } from "@/utils/variables";
-import {
-  google,
-  outlook,
-  office365,
-  yahoo,
-  ics,
-  CalendarEvent,
-} from "calendar-link";
-import { SiGooglecalendar } from "react-icons/si";
-import { ImAppleinc } from "react-icons/im";
-import { FaYahoo } from "react-icons/fa";
-import { PiMicrosoftOutlookLogo } from "react-icons/pi";
-import { CgMicrosoft } from "react-icons/cg";
+import { RiUser6Line } from "react-icons/ri";
 import { contract } from "@/utils/contract";
-// import { MapView } from "@/components/shared/map-view";
+import InspectionCard from "./_components/inspection-card";
+import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import { Icon } from "leaflet";
+
+const customIcon = new Icon({
+  iconUrl: "/marker.svg",
+  iconSize: [35, 51],
+  iconAnchor: [12, 41],
+});
 
 export default function PropertyDetailsPage() {
   const [showMore, setShowMore] = useState(false);
@@ -443,96 +430,9 @@ export default function PropertyDetailsPage() {
       </div>
     );
 
-  const event: CalendarEvent = {
-    title: "COiTON Inspection times",
-    description: "Inspection and property viewing are still happening",
-    start: "2025-12-3 13:00:00 +0100",
-    end: "2025-12-3 13:40:00 +0100",
-    duration: [40, "minutes"],
-  };
-
-  const googleUrl = google(event);
-  const outlookUrl = outlook(event);
-  const office365Url = office365(event);
-  const yahooUrl = yahoo(event);
-  const icsUrl = ics(event);
-
-  const calendarLinks = [
-    {
-      label: "Google Calendar",
-      url: googleUrl,
-      icon: SiGooglecalendar,
-    },
-    {
-      label: "Apple (ICS)",
-      url: icsUrl,
-      icon: ImAppleinc,
-    },
-    {
-      label: "Office365",
-      url: office365Url,
-      icon: CgMicrosoft,
-    },
-    {
-      label: "Outlook",
-      url: outlookUrl,
-      icon: PiMicrosoftOutlookLogo,
-    },
-    {
-      label: "Yahoo",
-      url: yahooUrl,
-      icon: FaYahoo,
-    },
-  ];
-
-  // const userAddress = credential?.address ?? "";
-  // const ownerAddress = listing?.owner ?? "";
-
   const isOwner =
     (credential?.address ?? "").toLowerCase() ===
     (listing?.owner ?? "").toLowerCase();
-
-  // console.log({ userAddress, ownerAddress, isOwner });
-
-  // Check if the connected wallet address belongs to the property owner
-  // const isOwner =
-  //   parseInt(credential?.address ?? "0x0", 16) ===
-  //   parseInt(listing?.owner ?? "0x0", 16);
-
-  // console.log("User:", credential?.address);
-  // console.log("Owner:", listing?.owner);
-
-  // id: "0x565c68e8f2492b1c7542c35ed48b066d32f23ad6896a3f6499d35331469f18f",
-  // inspection button function
-
-  const handleInspection = async () => {
-    // try {
-    //   await inspection({
-    //     id: "0x" + Date.now().toString(16),
-    //     data: {
-    //       title: "Inspections for Apartment",
-    //       description: "Please come early!",
-    //       start: "2020-02-29 18:00:00 +0100",
-    //       duration: [3, "hour"],
-    //     },
-    //   });
-    //   console.log("✅ Inspection created successfully!");
-    // } catch (err) {
-    //   console.error("❌ Error creating inspection:", err);
-    // }
-  };
-
-  // const handleInspection = async () => {
-  //   await inspection({
-  //     id: "0x" + Date.now().toString(16),
-  //     data: {
-  //       title: "Inspections for Apartment ",
-  //       description: "Please come early !",
-  //       start: "2020-02-29 18:00:00 +0100",
-  //       duration: [3, "hour"],
-  //     },
-  //   });
-  // };
 
   return (
     <div className="flex flex-col gap-4 py-4">
@@ -567,19 +467,6 @@ export default function PropertyDetailsPage() {
           }
         />
       </Helmet>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Property</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
 
       <Modal
         loading={creatingPurchaseAgreement}
@@ -590,16 +477,15 @@ export default function PropertyDetailsPage() {
         isOpen={showDialog}
         listing={listing ?? undefined}
       />
-      {}
       <div className="flex flex-1 flex-col gap-5 rounded-md sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:justify-between md:flex-col lg:flex-row lg:gap-[54px]">
           <div className="flex flex-col gap-4">
             <p className="flex flex-col gap-2">
-              <span className="text-base font-medium leading-none">
+              <span className="text-base font-normal">
                 {listing?.details?.title}
               </span>
-              <span className="text-xl font-medium text-primary">
-                Price ${listing?.price.toLocaleString()}
+              <span className="text-lg font-medium text-[#055852]">
+                Offer from ${listing?.price.toLocaleString()}
               </span>
             </p>
 
@@ -783,15 +669,15 @@ export default function PropertyDetailsPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Button onClick={() => setShowDialog(true)}>
+            <Button onClick={() => setShowDialog(true)} className="flex-1">
               <BiLeaf className="size-5" />
               <span>Purchase/Rent</span>
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-black/30">
+                <Button variant={"outline"} size="icon">
                   <Share2 size={20} className="text-muted-foreground" />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="bottom"
@@ -1146,22 +1032,24 @@ export default function PropertyDetailsPage() {
       <Separator className="my-2 h-px w-full" />
       {/* VIDEO SNIPPET */}
       {listing?.details?.videosCid?.length && (
-        <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] 2xl:flex-row">
-          <video
-            controls
-            muted
-            autoPlay
-            loop
-            className="aspect-video w-full rounded-lg"
-          >
-            <source
-              src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-            />
-          </video>
-        </div>
+        <>
+          <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] 2xl:flex-row">
+            <video
+              controls
+              muted
+              autoPlay
+              loop
+              className="aspect-video w-full rounded-lg"
+            >
+              <source
+                src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+              />
+            </video>
+          </div>
+          <Separator className="my-2 h-px w-full" />
+        </>
       )}
 
-      <Separator className="my-2 h-px w-full" />
       {/* AGENT DETAILS & MAP */}
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="flex w-full flex-col gap-6 sm:max-w-full xl:max-w-full xl:flex-row 2xl:max-w-lg 2xl:flex-col">
@@ -1198,128 +1086,87 @@ export default function PropertyDetailsPage() {
                   });
                 }}
                 size={"lg"}
+                disabled={isOwner}
                 className="rounded-full"
               >
-                <svg
-                  width="27"
-                  height="27"
-                  viewBox="0 0 27 27"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M4.89453 11.654C4.89453 7.56846 4.89453 5.52572 6.16373 4.25651C7.43294 2.9873 9.47569 2.9873 13.5612 2.9873H15.1862C19.2717 2.9873 21.3145 2.9873 22.5836 4.25651C23.8529 5.52572 23.8529 7.56846 23.8529 11.654V15.9873C23.8529 20.0728 23.8529 22.1156 22.5836 23.3847C21.3145 24.654 19.2717 24.654 15.1862 24.654H13.5612C9.47569 24.654 7.43294 24.654 6.16373 23.3847C4.89453 22.1156 4.89453 20.0728 4.89453 15.9873V11.654Z"
-                    stroke="white"
-                    strokeWidth="1.5"
-                  />
-                  <path
-                    d="M11.1771 13.7923C10.715 12.9864 10.4918 12.3283 10.3573 11.6612C10.1583 10.6748 10.6137 9.71108 11.3681 9.09618C11.687 8.8363 12.0525 8.92509 12.241 9.26336L12.6667 10.027C13.0041 10.6323 13.1728 10.935 13.1393 11.2559C13.1059 11.5767 12.8784 11.838 12.4234 12.3607L11.1771 13.7923ZM11.1771 13.7923C12.1126 15.4233 13.5806 16.8922 15.2136 17.8288M15.2136 17.8288C16.0195 18.2909 16.6775 18.5141 17.3446 18.6486C18.3311 18.8476 19.2947 18.3922 19.9096 17.6378C20.1695 17.3188 20.0808 16.9533 19.7425 16.7648L18.9788 16.3392C18.3735 16.0017 18.0709 15.833 17.75 15.8665C17.4291 15.9 17.1678 16.1275 16.6451 16.5825L15.2136 17.8288Z"
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M5.97786 7.32031H3.26953M5.97786 13.8203H3.26953M5.97786 20.3203H3.26953"
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-
-                <span>View Agent</span>
+                {isOwner ? (
+                  <span>No action needed</span>
+                ) : (
+                  <>
+                    <RiUser6Line className="!size-5" />
+                    <span>View Agent's Profile</span>
+                  </>
+                )}
               </Button>
             </div>
-            {isOwner ? (
-              <button
-                onClick={handleInspection}
-                className="rounded bg-blue-600 px-4 py-2 text-white"
-              >
-                Add Inspection
-              </button>
-            ) : (
-              <div className="flex flex-1 flex-col gap-16 rounded-md border p-6 sm:rounded-xl sm:p-8">
-                <div className="flex flex-col gap-7">
-                  <p className="text-xl font-medium">Inspection times</p>
-                  <button onClick={handleInspection}>Inspection</button>
 
-                  {/* Add to calendar card! */}
-                  <div className="flex flex-col">
-                    <p className="text-muted-foreground">
-                      Inspection and property viewing are still happening
-                    </p>
-                    <p className="text-lg font-medium text-primary sm:text-2xl">
-                      Wednesday 3 Dec, 1:00pm - 1:40pm
-                    </p>
-                  </div>
-                </div>
-                {/* Add to calendar dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size={"lg"} className="rounded-full">
-                      <svg
-                        width="27"
-                        height="27"
-                        viewBox="0 0 27 27"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M4.89453 11.654C4.89453 7.56846 4.89453 5.52572 6.16373 4.25651C7.43294 2.9873 9.47569 2.9873 13.5612 2.9873H15.1862C19.2717 2.9873 21.3145 2.9873 22.5836 4.25651C23.8529 5.52572 23.8529 7.56846 23.8529 11.654V15.9873C23.8529 20.0728 23.8529 22.1156 22.5836 23.3847C21.3145 24.654 19.2717 24.654 15.1862 24.654H13.5612C9.47569 24.654 7.43294 24.654 6.16373 23.3847C4.89453 22.1156 4.89453 20.0728 4.89453 15.9873V11.654Z"
-                          stroke="white"
-                          strokeWidth="1.5"
-                        />
-                        <path
-                          d="M11.1771 13.7923C10.715 12.9864 10.4918 12.3283 10.3573 11.6612C10.1583 10.6748 10.6137 9.71108 11.3681 9.09618C11.687 8.8363 12.0525 8.92509 12.241 9.26336L12.6667 10.027C13.0041 10.6323 13.1728 10.935 13.1393 11.2559C13.1059 11.5767 12.8784 11.838 12.4234 12.3607L11.1771 13.7923ZM11.1771 13.7923C12.1126 15.4233 13.5806 16.8922 15.2136 17.8288M15.2136 17.8288C16.0195 18.2909 16.6775 18.5141 17.3446 18.6486C18.3311 18.8476 19.2947 18.3922 19.9096 17.6378C20.1695 17.3188 20.0808 16.9533 19.7425 16.7648L18.9788 16.3392C18.3735 16.0017 18.0709 15.833 17.75 15.8665C17.4291 15.9 17.1678 16.1275 16.6451 16.5825L15.2136 17.8288Z"
-                          stroke="white"
-                          strokeWidth="1.5"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M5.97786 7.32031H3.26953M5.97786 13.8203H3.26953M5.97786 20.3203H3.26953"
-                          stroke="white"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-
-                      <span>Add to calender</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    side="bottom"
-                    sideOffset={0}
-                    className="w-[280px]"
-                  >
-                    {calendarLinks.map((link, index) => (
-                      <Link to={link.url} target="_blank" key={index}>
-                        <DropdownMenuItem className="gap-3">
-                          <link.icon className="!size-5" />
-                          <span>{link.label}</span>
-                        </DropdownMenuItem>
-                      </Link>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
+            <InspectionCard
+              isOwner={isOwner}
+              ownerAddress={listing?.owner_details?.address as string}
+              location={listing?.details?.map?.name}
+            />
           </div>
         </div>
 
         {/* dangerouslySetInnerHTML={{ __html: listing?.details?.map }}  */}
-        <div
-          dangerouslySetInnerHTML={{ __html: listing?.details?.map }}
-          className="-z-0 aspect-[1.4] w-full flex-1 overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl"
-        >
-          {/* <MapView
-            location={listing?.details?.region?.country?.countryName}
-            center={[
-              listing?.details?.location?.latitude,
-              listing?.details?.location?.longitude,
-            ]}
-          /> */}
-        </div>
+        {listing?.details?.map?.name &&
+        listing?.details?.map?.lat &&
+        listing?.details?.map?.long ? (
+          <div className="-z-0 aspect-[1.4] w-full flex-1 overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl">
+            <MapContainer
+              center={[listing?.details?.map?.lat, listing?.details?.map?.long]}
+              zoom={6}
+              className="h-full w-full"
+              key={[
+                listing?.details?.map?.lat,
+                listing?.details?.map?.long,
+              ].join(",")}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {/*
+                <TileLayer
+                  attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                />
+
+                <TileLayer
+                  attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                />
+
+                <TileLayer
+                  attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>'
+                  url="https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png"
+                />
+
+                <TileLayer
+                  attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>'
+                  url="https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+                />
+
+                <TileLayer
+                  attribution='Map data: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+                  url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+                />
+                */}
+              <Marker
+                position={[
+                  listing?.details?.map?.lat,
+                  listing?.details?.map?.long,
+                ]}
+                icon={customIcon}
+              />
+            </MapContainer>
+          </div>
+        ) : (
+          <div
+            dangerouslySetInnerHTML={{ __html: listing?.details?.map }}
+            className="-z-0 aspect-[1.4] w-full flex-1 overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl"
+          ></div>
+        )}
       </div>
 
       <Separator className="my-2 h-px w-full" />

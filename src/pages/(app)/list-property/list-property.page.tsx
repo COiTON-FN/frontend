@@ -1,12 +1,4 @@
-import { Link } from "react-router-dom";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { useNavigate } from "react-router-dom";
 import Indicator from "@/pages/(app)/list-property/_components/indicator";
 import { Form } from "@/components/ui/form";
 import { AnimatePresence, motion } from "framer-motion";
@@ -272,15 +264,23 @@ export type BuildingFormSchemaTypes = z.infer<typeof buildingFormSchema>;
 export type LandFormSchemaTypes = z.infer<typeof landFormSchema>;
 
 export default function ListPropertyPage() {
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const newListingState = useSelector((state: RootState) => state.newListing);
+  const credentialStore = useSelector(
+    (state: RootState) => state.credential.credential,
+  );
   const [selectedType, setSelectedType] = useState<"building" | "land" | null>(
     null,
   );
 
   const form = useForm<BuildingFormSchemaTypes | LandFormSchemaTypes>({
     resolver: zodResolver(
-      selectedType === "building" ? buildingFormSchema : createListingSchema,
+      selectedType === "building"
+        ? buildingFormSchema
+        : selectedType === "land"
+          ? landFormSchema
+          : createListingSchema,
     ),
   });
 
@@ -308,22 +308,12 @@ export default function ListPropertyPage() {
     subtitle: "Subtitle",
   };
 
-  return (
-    <div className="relative flex flex-col gap-4 py-4">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>New Listing</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+  if (credentialStore?.user_type !== "Entity") {
+    navigate("/dashboard", { replace: true });
+  }
 
+  return (
+    <div className="relative flex flex-col gap-4">
       <div className="relative flex w-full flex-col">
         <div className="flex gap-4 sm:gap-6">
           <div className="mx-auto hidden py-10 lg:flex xl:px-5 2xl:px-10">

@@ -38,7 +38,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import MapPicker from "./google-map";
+import MapPicker from "@/components/shared/map-picker";
 
 export default function AddressForm() {
   const dispatch = useDispatch<AppDispatch>();

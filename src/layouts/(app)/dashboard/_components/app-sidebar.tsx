@@ -1,8 +1,7 @@
-import { memo, useState } from "react";
+import { memo } from "react";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
@@ -13,17 +12,8 @@ import {
 import { Link, useLocation } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
-import { MdOutlineGeneratingTokens } from "react-icons/md";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, Eye, EyeOff } from "lucide-react";
-import { setSelectedToken } from "@/store/slice/wallet.slice";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const sidebarLinks = [
   {
@@ -52,6 +42,31 @@ const sidebarLinks = [
     ),
   },
   {
+    label: "Add Property",
+    path: "/list-property",
+    icon: (className: string) => (
+      <svg
+        viewBox="0 0 18 18"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("!size-6", className)}
+      >
+        <path
+          d="M1.5 9C1.5 5.81802 1.5 4.22703 2.37868 3.23851C3.25736 2.25 4.67157 2.25 7.5 2.25H10.5C13.3284 2.25 14.7427 2.25 15.6213 3.23851C16.5 4.22703 16.5 5.81802 16.5 9C16.5 12.1819 16.5 13.773 15.6213 14.7615C14.7427 15.75 13.3284 15.75 10.5 15.75H7.5C4.67157 15.75 3.25736 15.75 2.37868 14.7615C1.5 13.773 1.5 12.1819 1.5 9Z"
+          strokeWidth="1.2"
+        />
+        <path
+          d="M1.5 6.75H7.5C9.6213 6.75 10.6819 6.75 11.341 7.40901C12 8.06805 12 9.1287 12 11.25V15.75"
+          strokeWidth="1.2"
+        />
+        <path d="M7.5 15.75V6.75" stroke="#141B34" stroke-width="1.2" />
+      </svg>
+    ),
+    onlyFor: "Entity",
+  },
+  {
+    label: "All Listings",
+    path: "/listings",
     icon: (className: string) => (
       <svg
         className={cn("!size-[25px]", className)}
@@ -72,10 +87,10 @@ const sidebarLinks = [
         />
       </svg>
     ),
-    label: "Listings",
-    path: "/listings",
   },
   {
+    label: "Trade Center",
+    path: "/trading",
     icon: (className: string) => (
       <svg
         className={cn("!size-[26px]", className)}
@@ -139,8 +154,6 @@ const sidebarLinks = [
         />
       </svg>
     ),
-    label: "Trading",
-    path: "/trading",
   },
   {
     label: "Requests",
@@ -194,11 +207,6 @@ const sidebarLinks = [
 ];
 
 const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const walletState = useSelector((state: RootState) => state.wallet);
-
-  const [shouldShowBalance, setShouldShowBalance] = useState(true);
-
   return (
     <Sidebar {...props}>
       <SidebarHeader className="p-4 md:p-6">
@@ -214,84 +222,6 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
       <SidebarContent>
         <NavMain />
       </SidebarContent>
-      {walletState?.isWalletConnected && (
-        <SidebarFooter>
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between border-t border-[#EAECF0] px-8 py-4">
-              <p className="flex items-center gap-2 font-medium">
-                <MdOutlineGeneratingTokens className="size-5" />
-                <span>Tokens</span>
-              </p>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <p className="flex cursor-pointer items-center gap-1">
-                    <span className="font-medium capitalize">
-                      {walletState.selectedToken}
-                    </span>
-                    <ChevronDown className="size-4" />
-                  </p>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem
-                    onClick={() => dispatch(setSelectedToken("coiton"))}
-                  >
-                    Coiton
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => dispatch(setSelectedToken("starknet"))}
-                  >
-                    Starknet
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            <div className="flex flex-col gap-2 bg-[#F9FAFB] px-8 py-4">
-              <p className="text-sm text-[#667085]">Balance</p>
-
-              <div className="flex h-10 items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={
-                      walletState.selectedToken === "coiton"
-                        ? "/coiton.svg"
-                        : "/starknet.svg"
-                    }
-                    width={24}
-                    height={24}
-                  />
-                  <p className="relative flex items-center gap-2 text-xl font-semibold text-primary">
-                    {!shouldShowBalance ? (
-                      <span className="mb-1 flex items-center">
-                        xxx xxx xxx
-                      </span>
-                    ) : walletState.isWalletConnected ? (
-                      true ? (
-                        "0.00"
-                      ) : (
-                        <span className="font-satoshi">
-                          {Number(walletState.walletBalance?.formatted)
-                            .toFixed(2)
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                        </span>
-                      )
-                    ) : (
-                      "-"
-                    )}
-                  </p>
-                </div>
-                <span onClick={() => setShouldShowBalance(!shouldShowBalance)}>
-                  {!shouldShowBalance ? (
-                    <EyeOff className="size-5 cursor-pointer text-muted-foreground" />
-                  ) : (
-                    <Eye className="size-5 cursor-pointer text-muted-foreground" />
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
-        </SidebarFooter>
-      )}
       <SidebarRail />
     </Sidebar>
   );
@@ -305,14 +235,23 @@ export function NavMain() {
 
   const isActive = (path?: string) => path && location.pathname.includes(path);
 
+  const credentialStore = useSelector(
+    (state: RootState) => state.credential.credential,
+  );
+
   return (
     <SidebarGroup className="pl-4">
       <SidebarMenu className="gap-2 md:pl-4">
         {sidebarLinks
-          // .filter(
-          //   (link) =>
-          //     credentialStore?.accountType === "dao" || !link.dao_members,
-          // )
+          .filter((link) => {
+            if (
+              link.onlyFor === "Entity" &&
+              credentialStore?.user_type !== "Entity"
+            ) {
+              return false;
+            }
+            return true;
+          })
           .map(({ label, path, icon }, _index: number) => (
             <SidebarMenuItem key={_index}>
               <SidebarMenuButton

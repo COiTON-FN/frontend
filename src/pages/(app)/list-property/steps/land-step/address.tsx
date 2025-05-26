@@ -35,7 +35,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import MapPicker from "../building-steps/google-map";
+import MapPicker from "@/components/shared/map-picker";
 
 export default function AddressForm() {
   const dispatch = useDispatch<AppDispatch>();
@@ -56,7 +56,7 @@ export default function AddressForm() {
         zip: true,
         landmark: true,
         area: true,
-        map: true
+        map: true,
       }),
     ),
     defaultValues: {
@@ -148,9 +148,9 @@ export default function AddressForm() {
                     >
                       {field.value?.countryName
                         ? countries.find(
-                          (country) =>
-                            country.countryName === field.value?.countryName,
-                        )?.countryName
+                            (country) =>
+                              country.countryName === field.value?.countryName,
+                          )?.countryName
                         : "Select country..."}
                       <ChevronsUpDown className="size-4 opacity-50" />
                     </div>
@@ -216,9 +216,9 @@ export default function AddressForm() {
                       >
                         {field.value?.stateName
                           ? states.find(
-                            (state) =>
-                              state.stateName === field.value?.stateName,
-                          )?.stateName
+                              (state) =>
+                                state.stateName === field.value?.stateName,
+                            )?.stateName
                           : "Select state..."}
                         <ChevronsUpDown className="size-4 opacity-50" />
                       </div>
@@ -280,8 +280,8 @@ export default function AddressForm() {
                       >
                         {field.value?.cityName
                           ? cities.find(
-                            (city) => city.cityName === field.value?.cityName,
-                          )?.cityName
+                              (city) => city.cityName === field.value?.cityName,
+                            )?.cityName
                           : "Select city..."}
                         <ChevronsUpDown className="size-4 opacity-50" />
                       </div>

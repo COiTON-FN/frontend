@@ -7,7 +7,7 @@ import axios from "axios";
 import { variables } from "@/utils/variables";
 import { SOCIAL_TYPES } from "@/pages/(app)/onboarding/_components/social-input";
 import { createAvatar } from "@dicebear/core";
-import { adventurer } from "@dicebear/collection";
+import { pixelArt } from "@dicebear/collection";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -215,7 +215,7 @@ export function getSocialIcon(type: SOCIAL_TYPES) {
 }
 
 export function generateAvatarFromAddress(address: string) {
-  const avatar = createAvatar(adventurer, {
+  const avatar = createAvatar(pixelArt, {
     seed: `address-${address?.toLowerCase()}`,
   });
 
