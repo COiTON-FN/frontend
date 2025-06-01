@@ -2,9 +2,9 @@ import { type Abi as ABI } from "starknet";
 import { variables } from "./variables";
 
 export const contract = {
-  daoAddress: variables.daoAddress as string,
-  erc20Address: variables.erc20Address as string,
-  erc721Address: variables.erc721Address as string,
+  daoAddress: variables.daoAddress as `0x${string}`,
+  erc20Address: variables.erc20Address as `0x${string}`,
+  erc721Address: variables.erc721Address as `0x${string}`,
   daoABI: [
     {
       type: "impl",
