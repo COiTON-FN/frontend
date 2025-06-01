@@ -31,9 +31,6 @@ export const useContractInstance = () => {
       address: string,
       provider: ProviderInterface | AccountInterface,
     ) => {
-      if (!window.Wallet?.Account || !window.Wallet?.IsConnected)
-        throw new Error("Wallet not connected!");
-
       const rpcProvider = new RpcProvider({
         chainId: chainId,
         nodeUrl: import.meta.env.VITE_STARKNET_NODE_URL,
@@ -50,6 +47,9 @@ export const useContractInstance = () => {
   );
 
   const getContractInstance = useCallback(() => {
+    if (!window.Wallet?.Account || !window.Wallet?.IsConnected)
+      throw new Error("Wallet not connected!");
+
     const contract = contractInstance(
       daoABI,
       daoAddress,
@@ -60,6 +60,9 @@ export const useContractInstance = () => {
   }, [contractInstance, daoABI, daoAddress]);
 
   const getErc20Instance = useCallback(() => {
+    if (!window.Wallet?.Account || !window.Wallet?.IsConnected)
+      throw new Error("Wallet not connected!");
+
     const contract = contractInstance(
       erc20ABI,
       erc20Address,
@@ -70,6 +73,9 @@ export const useContractInstance = () => {
   }, [contractInstance, erc20ABI, erc20Address]);
 
   const getErc721Instance = useCallback(() => {
+    if (!window.Wallet?.Account || !window.Wallet?.IsConnected)
+      throw new Error("Wallet not connected!");
+
     const contract = contractInstance(
       erc721ABI,
       erc721Address,

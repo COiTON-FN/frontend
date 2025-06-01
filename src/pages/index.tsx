@@ -10,6 +10,7 @@ import ProfilePage from "./(app)/profile/profile.page";
 import PropertyDetailsPage from "./(app)/property-details/property-details.page";
 import TradingPage from "./(app)/trading/trading.page";
 import HomePage from "./(landing)/home.page";
+import UsersPage from "./(app)/users/users.page";
 
 export const pages = {
   dashboardPage: <DashboardPage />,
@@ -18,8 +19,9 @@ export const pages = {
   requestsPage: <RequestsPage />,
   listingsPage: <ListingsPage />,
   tradingPage: <TradingPage />,
-    propertyDetailsPage: <PropertyDetailsPage />,
+  propertyDetailsPage: <PropertyDetailsPage />,
   approveBidPage: <BidPage />,
+  usersPage: <UsersPage />,
 
   onboardingPage: <OnboardingPage />,
   // onboardings

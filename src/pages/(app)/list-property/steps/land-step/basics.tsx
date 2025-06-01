@@ -33,19 +33,19 @@ import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.
 import { toast } from "sonner";
 import { useState } from "react";
 import { CairoCustomEnum, GetTransactionReceiptResponse } from "starknet";
-import { byteArrayToString, stringToByteArray } from "@/lib/starknet/utils";
+import {
+  byteArrayToString,
+  stringToByteArray,
+  toHex,
+} from "@/lib/starknet/utils";
 import { useNavigate } from "react-router-dom";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { User } from "@/store/slice/credential.slice";
 import { addListing, Listing } from "@/store/slice/listing.slice";
 
-
 export default function BasicsForm() {
-
   const dispatch = useDispatch<AppDispatch>();
   const formData = useSelector((state: RootState) => state.newListing.formData);
-
-
 
   const form = useForm<LandFormSchemaTypes>({
     resolver: zodResolver(
@@ -71,7 +71,7 @@ export default function BasicsForm() {
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { getContractInstance } = useContractInstance()
+  const { getContractInstance } = useContractInstance();
 
   const onSubmit = async (data: Partial<LandFormSchemaTypes>) => {
     if (loading) return;
@@ -116,8 +116,7 @@ export default function BasicsForm() {
         setValue("surveyPlanCid", surveyPlanCid);
       }
 
-      toast.dismiss(toastId)
-
+      toast.dismiss(toastId);
 
       // Prepare the result object with the uploaded CIDs
       const result = {
@@ -127,7 +126,7 @@ export default function BasicsForm() {
         surveyPlanCid: surveyPlanCid || undefined,
         images: undefined,
         videos: undefined,
-        surveyPlan: undefined
+        surveyPlan: undefined,
       };
       if (!result.imagesCid || !result.videosCid || !result.surveyPlanCid) {
         toast.error("UPLOAD_FAILED");
@@ -137,7 +136,6 @@ export default function BasicsForm() {
 
       toast.success("Files uploaded successfully");
 
-
       dispatch(updateFormData(result));
 
       // Send transaction
@@ -145,52 +143,51 @@ export default function BasicsForm() {
         // await listingTx.sendAsync();
         const contract = getContractInstance();
         const detailsBytes = stringToByteArray(JSON.stringify(result));
-        const type = new CairoCustomEnum({ Land: {} })
+        const type = new CairoCustomEnum({ Land: {} });
         const call = contract!.populate("create_listing", [
           type,
           formFields.price!,
           detailsBytes,
-        ])
-
+        ]);
 
         const tx = await window.Wallet.Account!.execute([call]);
-        const receipt = await window.Wallet.Account?.waitForTransaction(tx.transaction_hash);
+        const receipt = await window.Wallet.Account?.waitForTransaction(
+          tx.transaction_hash,
+        );
         apiClient.post("/listing", { tx_hash: tx.transaction_hash });
         console.log("Receipt:", receipt);
-
-
-
 
         if (receipt?.isSuccess()) {
           toast.success("Listing created successfully!");
           dispatch(resetForm());
           navigate("/dashboard");
-          const events = contract?.parseEvents(receipt as GetTransactionReceiptResponse);
+          const events = contract?.parseEvents(
+            receipt as GetTransactionReceiptResponse,
+          );
           const id = events![0][Object.keys(events![0])[0]].id;
           const new_listing = await contract!.get_listing(id);
           const user = new_listing.owner_details.Some;
           const user_construct: User = {
             ...user,
-            address: BigInt(user.address).toString(16),
+            address: toHex(user.address),
             id: Number(user.id),
             details: byteArrayToString(user.details),
-            user_type: user.user_type.variant.Entity ? "Entity" : "Individual"
-          }
+            user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
+          };
 
           const structured: Listing = {
             id: Number(new_listing.id),
-            owner: BigInt(new_listing.owner).toString(16),
+            owner: toHex(new_listing.owner),
             price: Number(new_listing.price),
             tag: new_listing.tag.variant.Sold ? "Sold" : "ForSale",
             details: byteArrayToString(new_listing.details),
-            owner_details: user_construct
+            owner_details: user_construct,
           };
           dispatch(addListing(structured));
         } else {
           toast.error("Failed to create listing. Please try again.");
         }
         setLoading(false);
-
       } catch (error) {
         setLoading(false);
 
@@ -210,9 +207,6 @@ export default function BasicsForm() {
       toast.dismiss();
     }
   };
-
-
-
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
@@ -245,7 +239,6 @@ export default function BasicsForm() {
             </FormItem>
           )}
         />
-
 
         <FormField
           control={form.control}

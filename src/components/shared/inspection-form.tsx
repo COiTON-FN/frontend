@@ -65,8 +65,8 @@ const inspectionFormSchema = z
       .min(5, {
         message: "Description must be at least 5 characters long",
       })
-      .max(200, {
-        message: "Description must not exceed 200 characters",
+      .max(500, {
+        message: "Description must not exceed 500 characters",
       }),
     start: z.coerce.date(),
     end: z.coerce.date(),
@@ -127,7 +127,9 @@ const InspectionForm: FC<InspectionFormProps> = ({
     resolver: zodResolver(inspectionFormSchema),
     defaultValues: {
       title: inspectionData?.data?.title || "",
-      description: inspectionData?.data?.description || "",
+      description:
+        inspectionData?.data?.description ||
+        "Join us for a scheduled inspection of this prime real estate opportunity. Walk through the property, assess its condition, and visualize its potential. Our agents will be on-site to answer questions, provide details, and guide you through the inspection process. Ideal for buyers, investors, and agents conducting due diligence.",
       start: new Date(),
       end: new Date(),
       location: inspectionData?.data?.location || location || "",

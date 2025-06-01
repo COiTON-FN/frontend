@@ -251,7 +251,7 @@ const InspectionCard: FC<InspectionCardProps> = ({
 
   useEffect(() => {
     handleFetchInspection();
-  }, [ownerAddress]);
+  }, [handleFetchInspection, ownerAddress]);
 
   if (isFetchingInspection)
     return (
@@ -278,7 +278,7 @@ const InspectionCard: FC<InspectionCardProps> = ({
             {inspectionData?.data?.description ??
               "Set a scheduled inspection time for prospective viewings."}
           </p>
-          <p className="text-lg font-medium capitalize text-primary sm:text-xl">
+          <p className="mt-1 text-lg font-medium capitalize text-primary sm:text-xl">
             {inspectionData?.data?.start && inspectionData?.data?.end
               ? `${format(new Date(inspectionData?.data?.start), "MMM dd yyyy, HH:mm")} - ${format(new Date(inspectionData?.data?.end), "MMM dd yyyy, HH:mm")}`
               : "This is optional and can be configured later."}

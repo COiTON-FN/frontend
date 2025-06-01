@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { CgArrowTopRight } from "react-icons/cg";
 import { useNavigate, createSearchParams } from "react-router-dom";
@@ -11,12 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import ListingBoard from "@/components/shared/listing-board";
+// import ListingBoard from "@/components/shared/listing-board";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
-import { byteArrayToString } from "@/lib/starknet/utils";
-import { cn, generateAvatarFromAddress } from "@/lib/utils";
+import { byteArrayToString, toHex } from "@/lib/starknet/utils";
+import { cn, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { RootState, useAppSelector } from "@/store";
 import { Loader } from "lucide-react";
+import { MdVerified } from "react-icons/md";
 
 export default function NewListingsPage() {
   const navigate = useNavigate();
@@ -25,8 +25,8 @@ export default function NewListingsPage() {
 
   const [isLoadingMerchants, setIsLoadingMerchants] = useState(false);
   const [merchants, setMerchants] = useState<any[] | []>([]);
-  const [accountTypes, setAccountTypes] = useState<string[]>([]);
-  const [status, setStatus] = useState<string[]>([]);
+  // const [accountTypes, setAccountTypes] = useState<string[]>([]);
+  // const [status, setStatus] = useState<string[]>([]);
 
   const goToProfile = (requestId: string, listingId: string) => {
     navigate({
@@ -59,12 +59,14 @@ export default function NewListingsPage() {
                 listingId: Number(res?.listing_id),
                 requestId: Number(res?.request_id),
                 price: Number(res?.price),
-                initiator: BigInt(res?.initiator).toString(16),
+                initiator: toHex(res?.initiator),
                 user: user
                   ? {
-                      address: BigInt(user.address).toString(16),
+                      address: toHex(user.address),
                       id: Number(user.id),
                       details: byteArrayToString(user.details),
+                      registered: user.registered,
+                      verified: user.verified,
                       user_type: user.user_type?.variant?.Entity
                         ? "Entity"
                         : "Individual",
@@ -77,6 +79,7 @@ export default function NewListingsPage() {
           }),
         );
 
+        console.log(data[0]);
         setMerchants(data[0]);
         setIsLoadingMerchants(false);
       } catch (error) {
@@ -86,25 +89,25 @@ export default function NewListingsPage() {
     })();
   }, [walletAddress, getContractInstance]);
 
-  useEffect(() => {
-    if (merchants && merchants?.length > 0) {
-      const typeMap: any = {};
+  // useEffect(() => {
+  //   if (merchants && merchants?.length > 0) {
+  //     const typeMap: any = {};
 
-      merchants.forEach(({ user }: any) => {
-        if (!typeMap[user?.user_type]) {
-          typeMap[user?.user_type] = user?.user_type;
-        }
-      });
+  //     merchants.forEach(({ user }: any) => {
+  //       if (!typeMap[user?.user_type]) {
+  //         typeMap[user?.user_type] = user?.user_type;
+  //       }
+  //     });
 
-      setAccountTypes(Object.values(typeMap));
-      setStatus(["Pending", "Approved", "Denied"]);
-    }
-  }, [merchants]);
+  //     setAccountTypes(Object.values(typeMap));
+  //     setStatus(["Pending", "Approved", "Denied"]);
+  //   }
+  // }, [merchants]);
 
   return (
     <div className="flex flex-col gap-4 py-4">
       <div className="rounded-2xl md:rounded-3xl md:border md:bg-background">
-        {accountTypes && accountTypes?.length > 0 && (
+        {/* {accountTypes && accountTypes?.length > 0 && (
           <ListingBoard
             listingBoardValue={[
               {
@@ -117,7 +120,7 @@ export default function NewListingsPage() {
               },
             ]}
           />
-        )}
+        )} */}
 
         <Table className="py-6 md:p-6">
           <TableHeader>
@@ -170,19 +173,33 @@ export default function NewListingsPage() {
                       #{merchant?.requestId}
                     </TableCell>
                     <TableCell className="p-6 text-base font-normal">
-                      <div className="flex items-center gap-3">
-                        <div className="size-14 overflow-hidden rounded-full bg-secondary">
-                          <img
-                            src={generateAvatarFromAddress(
-                              `0x${merchant?.initiator}`,
-                            )}
-                            alt={merchant?.user?.details?.name}
-                            className="size-full rounded-full"
-                          />
+                      <div className="flex items-center gap-2">
+                        <div className="size-12 rounded-[12px] border p-0.5">
+                          <div className="size-full rounded-[10px] border bg-[#C0D9BF]">
+                            <img
+                              src={generateAvatarFromAddress(
+                                merchant?.initiator,
+                              )}
+                              alt={merchant?.user?.details?.name}
+                              width={48}
+                              height={48}
+                              className="rounded-[8px] object-contain"
+                            />
+                          </div>
                         </div>
-                        <p className="text-base font-normal">
-                          {merchant?.user?.details?.name}
-                        </p>
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2">
+                            <p className="text-base font-medium text-foreground transition-colors group-hover:text-primary">
+                              {merchant?.user.details.name}
+                            </p>
+                            {merchant?.user?.verified && (
+                              <MdVerified className="mt-px size-4 text-primary" />
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {truncateAddr(merchant?.initiator)}
+                          </p>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell className="p-6 text-base font-normal">

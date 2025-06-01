@@ -21,20 +21,24 @@ const sidebarLinks = [
     path: "/dashboard",
     icon: (className: string) => (
       <svg
-        viewBox="0 0 24 24"
-        fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className={cn("!size-6", className)}
+        viewBox="0 0 24 24"
+        fill="none"
       >
         <path
-          d="M5 17H4C3.46957 17 2.96086 16.7893 2.58579 16.4142C2.21071 16.0391 2 15.5304 2 15V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H20C20.5304 3 21.0391 3.21071 21.4142 3.58579C21.7893 3.96086 22 4.46957 22 5V15C22 15.5304 21.7893 16.0391 21.4142 16.4142C21.0391 16.7893 20.5304 17 20 17H19"
-          strokeWidth="2"
+          d="M3 8.976C3 4.05476 4.05476 3 8.976 3H15.024C19.9452 3 21 4.05476 21 8.976V15.024C21 19.9452 19.9452 21 15.024 21H8.976C4.05476 21 3 19.9452 3 15.024V8.976Z"
+          strokeWidth="1.7"
+        />
+        <path
+          d="M21 9L3 9"
+          strokeWidth="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
-          d="M12 15L17 21H7L12 15Z"
-          strokeWidth="2"
+          d="M9 21L9 9"
+          strokeWidth="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -46,111 +50,44 @@ const sidebarLinks = [
     path: "/list-property",
     icon: (className: string) => (
       <svg
-        viewBox="0 0 18 18"
-        fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className={cn("!size-6", className)}
+        viewBox="0 0 24 24"
+        fill="none"
       >
         <path
-          d="M1.5 9C1.5 5.81802 1.5 4.22703 2.37868 3.23851C3.25736 2.25 4.67157 2.25 7.5 2.25H10.5C13.3284 2.25 14.7427 2.25 15.6213 3.23851C16.5 4.22703 16.5 5.81802 16.5 9C16.5 12.1819 16.5 13.773 15.6213 14.7615C14.7427 15.75 13.3284 15.75 10.5 15.75H7.5C4.67157 15.75 3.25736 15.75 2.37868 14.7615C1.5 13.773 1.5 12.1819 1.5 9Z"
-          strokeWidth="1.2"
+          d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15"
+          strokeWidth="1.7"
+          strokeLinecap="round"
         />
         <path
-          d="M1.5 6.75H7.5C9.6213 6.75 10.6819 6.75 11.341 7.40901C12 8.06805 12 9.1287 12 11.25V15.75"
-          strokeWidth="1.2"
+          d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8"
+          strokeWidth="1.7"
+          strokeLinecap="round"
         />
-        <path d="M7.5 15.75V6.75" stroke="#141B34" stroke-width="1.2" />
       </svg>
     ),
     onlyFor: "Entity",
   },
   {
-    label: "All Listings",
+    label: "Properties",
     path: "/listings",
     icon: (className: string) => (
       <svg
+        xmlns="http://www.w3.org/2000/svg"
         className={cn("!size-[25px]", className)}
         viewBox="0 0 24 24"
         fill="none"
-        xmlns="http://www.w3.org/2000/svg"
       >
         <path
-          d="M3.16405 11.3497L4 11.5587L4.45686 16.1005C4.715 18.6668 4.84407 19.9499 5.701 20.7249C6.55793 21.5 7.84753 21.5 10.4267 21.5H13.5733C16.1525 21.5 17.4421 21.5 18.299 20.7249C19.1559 19.9499 19.285 18.6668 19.5431 16.1005L20 11.5587L20.836 11.3497C21.5201 11.1787 22 10.564 22 9.85882C22 9.35735 21.7553 8.88742 21.3445 8.59985L13.1469 2.86154C12.4583 2.37949 11.5417 2.37949 10.8531 2.86154L2.65549 8.59985C2.24467 8.88742 2 9.35735 2 9.85882C2 10.564 2.47993 11.1787 3.16405 11.3497Z"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M15 16C14.2005 16.6224 13.1502 17 12 17C10.8498 17 9.79952 16.6224 9 16"
-          strokeWidth="1.5"
+          d="M9 16C9.85038 16.6303 10.8846 17 12 17C13.1154 17 14.1496 16.6303 15 16"
+          strokeWidth="1.7"
           strokeLinecap="round"
         />
-      </svg>
-    ),
-  },
-  {
-    label: "Trade Center",
-    path: "/trading",
-    icon: (className: string) => (
-      <svg
-        className={cn("!size-[26px]", className)}
-        viewBox="0 0 26 26"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
         <path
-          d="M15.1673 17.3333V8.66667C15.1673 7.64529 15.1673 7.13461 14.85 6.8173C14.5327 6.5 14.022 6.5 13.0007 6.5C11.9793 6.5 11.4686 6.5 11.1513 6.8173C10.834 7.13461 10.834 7.64529 10.834 8.66667V17.3333C10.834 18.3547 10.834 18.8654 11.1513 19.1827C11.4686 19.5 11.9793 19.5 13.0007 19.5C14.022 19.5 14.5327 19.5 14.85 19.1827C15.1673 18.8654 15.1673 18.3547 15.1673 17.3333Z"
-          strokeWidth="1.5"
+          d="M21.6359 12.9579L21.3572 14.8952C20.8697 18.2827 20.626 19.9764 19.451 20.9882C18.2759 22 16.5526 22 13.1061 22H10.8939C7.44737 22 5.72409 22 4.54903 20.9882C3.37396 19.9764 3.13025 18.2827 2.64284 14.8952L2.36407 12.9579C1.98463 10.3208 1.79491 9.00229 2.33537 7.87495C2.87583 6.7476 4.02619 6.06234 6.32691 4.69181L7.71175 3.86687C9.80104 2.62229 10.8457 2 12 2C13.1543 2 14.199 2.62229 16.2882 3.86687L17.6731 4.69181C19.9738 6.06234 21.1242 6.7476 21.6646 7.87495"
+          strokeWidth="1.7"
           strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M22.7493 9.75033V7.58366C22.7493 6.56228 22.7493 6.0516 22.432 5.73429C22.1147 5.41699 21.604 5.41699 20.5827 5.41699C19.5613 5.41699 19.0506 5.41699 18.7333 5.73429C18.416 6.0516 18.416 6.56228 18.416 7.58366V9.75033C18.416 10.7717 18.416 11.2824 18.7333 11.5997C19.0506 11.917 19.5613 11.917 20.5827 11.917C21.604 11.917 22.1147 11.917 22.432 11.5997C22.7493 11.2824 22.7493 10.7717 22.7493 9.75033Z"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M7.58333 15.1663V12.9997C7.58333 11.9783 7.58333 11.4676 7.26604 11.1503C6.94873 10.833 6.43804 10.833 5.41667 10.833C4.39529 10.833 3.88461 10.833 3.5673 11.1503C3.25 11.4676 3.25 11.9783 3.25 12.9997V15.1663C3.25 16.1877 3.25 16.6984 3.5673 17.0157C3.88461 17.333 4.39529 17.333 5.41667 17.333C6.43804 17.333 6.94873 17.333 7.26604 17.0157C7.58333 16.6984 7.58333 16.1877 7.58333 15.1663Z"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M13 22.75V19.5"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M20.584 14.0837V11.917"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M13 6.5V3.25"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M20.584 5.41667V3.25"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M5.41602 19.4997V17.333"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M5.41602 10.8337V8.66699"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
         />
       </svg>
     ),
@@ -160,44 +97,107 @@ const sidebarLinks = [
     path: "/requests",
     icon: (className: string) => (
       <svg
-        className={cn("!size-[26px]", className)}
-        viewBox="0 0 24 25"
-        fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        className={cn("!size-6", className)}
+        viewBox="0 0 24 24"
+        fill="none"
       >
         <path
-          d="M10 14.5H3V21.5H10V14.5Z"
-          strokeWidth="2"
+          d="M19 16C19 18.8284 19 20.2426 18.1213 21.1213C17.2426 22 15.8284 22 13 22H11C8.17157 22 6.75736 22 5.87868 21.1213C5 20.2426 5 18.8284 5 16V12M5 8C5 5.17157 5 3.75736 5.87868 2.87868C6.75736 2 8.17157 2 11 2H13C15.8284 2 17.2426 2 18.1213 2.87868C19 3.75736 19 5.17157 19 8V12"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
+        <path
+          d="M5 4.07617C4.02491 4.17208 3.36857 4.38885 2.87868 4.87873C2 5.75741 2 7.17163 2 10.0001V14.0001C2 16.8285 2 18.2427 2.87868 19.1214C3.36857 19.6113 4.02491 19.828 5 19.9239"
+          strokeWidth="1.7"
+        />
+        <path
+          d="M19 4.07617C19.9751 4.17208 20.6314 4.38885 21.1213 4.87873C22 5.75741 22 7.17163 22 10.0001V14.0001C22 16.8285 22 18.2427 21.1213 19.1214C20.6314 19.6113 19.9751 19.828 19 19.9239"
+          strokeWidth="1.7"
+        />
+        <path d="M9 13H15" strokeWidth="1.7" strokeLinecap="round" />
+        <path d="M9 9H15" strokeWidth="1.7" strokeLinecap="round" />
+        <path d="M9 17H12" strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    label: "Accounts",
+    path: "/users",
+    icon: (className: string) => (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("!size-6", className)}
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <circle cx="12" cy="6" r="4" strokeWidth="1.7" />
+        <path
+          d="M18 9C19.6569 9 21 7.88071 21 6.5C21 5.11929 19.6569 4 18 4"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
+        <path
+          d="M6 9C4.34315 9 3 7.88071 3 6.5C3 5.11929 4.34315 4 6 4"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
+        <path
+          d="M17.1973 15C17.7078 15.5883 18 16.2714 18 17C18 19.2091 15.3137 21 12 21C8.68629 21 6 19.2091 6 17C6 14.7909 8.68629 13 12 13C12.3407 13 12.6748 13.0189 13 13.0553"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
+        <path
+          d="M20 19C21.7542 18.6153 23 17.6411 23 16.5C23 15.3589 21.7542 14.3847 20 14"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
+        <path
+          d="M4 19C2.24575 18.6153 1 17.6411 1 16.5C1 15.3589 2.24575 14.3847 4 14"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+    onlyFor: "Owner",
+  },
+  {
+    label: "Trade Center",
+    path: "/trading",
+    icon: (className: string) => (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("!size-6", className)}
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path
+          d="M4.75 17.4V6.6C4.75 5.1 5.39 4.5 6.98 4.5H8.02C9.61 4.5 10.25 5.1 10.25 6.6V17.4C10.25 18.9 9.61 19.5 8.02 19.5H6.98C5.39 19.5 4.75 18.9 4.75 17.4Z"
+          strokeWidth="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
-          d="M10 3.5H3V10.5H10V3.5Z"
-          strokeWidth="2"
+          d="M13.25 15.4V8.6C13.25 7.1 13.89 6.5 15.48 6.5H16.52C18.11 6.5 18.75 7.1 18.75 8.6V15.4C18.75 16.9 18.11 17.5 16.52 17.5H15.48C13.89 17.5 13.25 16.9 13.25 15.4Z"
+          strokeWidth="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
-          d="M14 4.5H21"
-          strokeWidth="2"
+          d="M2 12H4.4"
+          strokeWidth="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
-          d="M14 9.5H21"
-          strokeWidth="2"
+          d="M11 12H13"
+          strokeWidth="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
-          d="M14 15.5H21"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M14 20.5H21"
-          strokeWidth="2"
+          d="M22 12H19.31"
+          strokeWidth="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -231,62 +231,71 @@ export default memo(AppSidebar);
 
 export function NavMain() {
   const location = useLocation();
-  const walletState = useSelector((state: RootState) => state.wallet);
+  const walletAddress = useSelector(
+    (state: RootState) => state.wallet.walletAddress,
+  );
+  const contractOwner = useSelector(
+    (state: RootState) => state.wallet.contractOwner,
+  );
+  const credential = useSelector(
+    (state: RootState) => state.credential.credential,
+  );
+
+  const isContractOwner =
+    String(credential?.address).toLowerCase() ===
+    String(contractOwner).toLowerCase();
 
   const isActive = (path?: string) => path && location.pathname.includes(path);
 
-  const credentialStore = useSelector(
-    (state: RootState) => state.credential.credential,
-  );
+  const filteredLinks = sidebarLinks.filter((link) => {
+    // if (link.onlyFor === "Entity" && credential?.user_type !== "Entity")
+    //   return false;
+    if (link.onlyFor === "Entity" && !credential?.verified) return false;
+    if (link.onlyFor === "Owner" && !isContractOwner) return false;
+    return true;
+  });
 
   return (
     <SidebarGroup className="pl-4">
       <SidebarMenu className="gap-2 md:pl-4">
-        {sidebarLinks
-          .filter((link) => {
-            if (
-              link.onlyFor === "Entity" &&
-              credentialStore?.user_type !== "Entity"
-            ) {
-              return false;
-            }
-            return true;
-          })
-          .map(({ label, path, icon }, _index: number) => (
-            <SidebarMenuItem key={_index}>
+        {filteredLinks.map(({ label, path, icon }, index) => {
+          const active = isActive(path);
+          const toPath =
+            path === "/profile" ? `${path}/${walletAddress}` : path || "";
+
+          return (
+            <SidebarMenuItem key={index}>
               <SidebarMenuButton
                 asChild
                 className={cn(
-                  "relative h-14 rounded-none rounded-l-full p-0 pl-6 font-medium transition hover:bg-secondary",
-                  {
-                    "bg-[#e7fefc] text-primary hover:bg-[#dbfffc] hover:text-primary":
-                      isActive(path),
-                  },
+                  "group relative h-14 rounded-none rounded-l-full p-0 pl-6 font-medium transition hover:bg-secondary",
+                  active &&
+                    "bg-[#e7fefc] text-primary hover:bg-[#dbfffc] hover:text-primary",
                 )}
                 tooltip={label}
               >
-                <Link
-                  to={
-                    path === "/profile"
-                      ? `${path}/${walletState?.walletAddress}`
-                      : (path as string)
-                  }
-                  className="flex items-center gap-4"
-                >
-                  {icon &&
-                    icon(
-                      isActive(path)
-                        ? "stroke-[#056F67]"
-                        : "stroke-muted-foreground group-hover:stroke-foreground transition-[stroke]",
+                <Link to={toPath} className="flex items-center gap-4">
+                  {icon?.(
+                    active
+                      ? "stroke-[#056F67] stroke-2"
+                      : "stroke-muted-foreground transition-[stroke]",
+                  )}
+                  <span
+                    className={cn(
+                      "text-base font-normal tracking-wide",
+                      active && "font-medium",
                     )}
-                  <span className="text-base tracking-wide">{label}</span>
-                  {isActive(path) && (
+                  >
+                    {label}
+                  </span>
+                  {active && (
                     <span className="absolute right-0 top-0 h-full w-1 bg-primary" />
                   )}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          ))}
+          );
+        })}
       </SidebarMenu>
     </SidebarGroup>
   );

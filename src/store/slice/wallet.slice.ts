@@ -21,6 +21,7 @@ interface WalletState {
       | undefined;
   } | null;
   walletAddress: string | null;
+  contractOwner: string | null;
   isWalletConnected: boolean;
   hasRegistered: boolean;
   selectedToken: "starknet" | "coiton";
@@ -39,6 +40,7 @@ const initialState: WalletState = {
       }
     : null,
   walletAddress: null,
+  contractOwner: null,
   isWalletConnected: false,
   hasRegistered: false,
   selectedToken: "coiton",
@@ -51,13 +53,16 @@ const walletSlice = createSlice({
   reducers: {
     setCurrentConnector(
       state,
-      action: PayloadAction<WalletState["currentConnector"]>
+      action: PayloadAction<WalletState["currentConnector"]>,
     ) {
       state.currentConnector = action.payload;
       lcStorage.save("currentConnector", action.payload);
     },
     setWalletAddress(state, action: PayloadAction<string | null>) {
       state.walletAddress = action.payload;
+    },
+    setContractOwner(state, action: PayloadAction<string | null>) {
+      state.contractOwner = action.payload;
     },
     setHasRegistered(state, action: PayloadAction<boolean>) {
       state.hasRegistered = action.payload;
@@ -83,6 +88,7 @@ const walletSlice = createSlice({
 export const {
   setCurrentConnector,
   setWalletAddress,
+  setContractOwner,
   setIsWalletConnected,
   resetWallet,
   setHasRegistered,

@@ -47,6 +47,10 @@ export const routes = createBrowserRouter([
         path: "/trading",
         element: pages.tradingPage,
       },
+      {
+        path: "/users",
+        element: pages.usersPage,
+      },
     ],
   },
   {

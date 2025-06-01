@@ -13,7 +13,7 @@ export function byteArrayToString(data: string): any {
 
     // Convert byte array to string
     const jsonString = String.fromCharCode(...byteArray);
-    return jsonString === ""?{}: JSON.parse(jsonString);
+    return jsonString === "" ? {} : JSON.parse(jsonString);
   } catch (error) {
     console.error("Error converting byte array to string:", error);
     return null;
@@ -21,7 +21,7 @@ export function byteArrayToString(data: string): any {
 }
 
 export function stringToByteArray(str: string): string {
-  let utf8: number[] = [];
+  const utf8: number[] = [];
   for (let i = 0; i < str.length; i++) {
     let charcode = str.charCodeAt(i);
     if (charcode < 0x80) {
@@ -93,7 +93,7 @@ export function toHex(val: string | undefined): string {
   if (val === undefined || val === "") {
     return "";
   }
-  if (val.startsWith("0x") && isHex(removeHexPrefix(val))) {
+  if (String(val).startsWith("0x") && isHex(removeHexPrefix(val))) {
     return val;
   } else if (isDecimal(val)) {
     const nbn = new BN(val, 10);

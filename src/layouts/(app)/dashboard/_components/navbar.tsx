@@ -25,6 +25,7 @@ import { IoCopyOutline } from "react-icons/io5";
 import { LuArrowUpRight } from "react-icons/lu";
 import useWalletHook from "@/hooks/useWallet.hook";
 import { setSelectedToken } from "@/store/slice/wallet.slice";
+import { MdVerified } from "react-icons/md";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -94,7 +95,7 @@ const Navbar = () => {
                       <div className="size-full rounded-[10px] border bg-secondary">
                         <img
                           src={generateAvatarFromAddress(
-                            `0x${credentialStore?.address}`,
+                            credentialStore?.address as string,
                           )}
                           alt={credentialStore?.avatar}
                           width={48}
@@ -105,9 +106,14 @@ const Navbar = () => {
                     </div>
                     {credentialStore?.details?.name ? (
                       <div className="hidden flex-col truncate md:flex">
-                        <p className="text-sm font-medium">
-                          {credentialStore?.details?.name}
-                        </p>
+                        <div className="flex flex-1 items-center gap-2">
+                          <p className="line-clamp-1 text-sm font-medium text-foreground transition-colors group-hover:text-primary">
+                            {credentialStore?.details?.name}
+                          </p>
+                          {credentialStore?.verified && (
+                            <MdVerified className="mt-px size-4 text-primary" />
+                          )}
+                        </div>
                         <span className="text-xs font-normal text-muted-foreground">
                           {truncateAddr(walletStore.walletAddress as string)}
                         </span>
@@ -129,7 +135,7 @@ const Navbar = () => {
                           <div className="size-full rounded-[10px] border bg-secondary">
                             <img
                               src={generateAvatarFromAddress(
-                                `0x${credentialStore?.address}`,
+                                credentialStore?.address,
                               )}
                               alt={credentialStore?.avatar}
                               width={48}
@@ -140,9 +146,14 @@ const Navbar = () => {
                         </div>
 
                         <div className="line-clamp-1 flex flex-1 flex-col">
-                          <p className="line-clamp-1 text-sm font-medium">
-                            {credentialStore?.details?.name}
-                          </p>
+                          <div className="flex flex-1 items-center gap-2">
+                            <p className="line-clamp-1 text-sm font-medium text-foreground transition-colors group-hover:text-primary">
+                              {credentialStore?.details?.name}
+                            </p>
+                            {credentialStore?.verified && (
+                              <MdVerified className="mt-px size-4 text-primary" />
+                            )}
+                          </div>
                           <span className="line-clamp-1 text-xs font-normal text-muted-foreground">
                             {truncateAddr(walletStore.walletAddress as string)}
                           </span>

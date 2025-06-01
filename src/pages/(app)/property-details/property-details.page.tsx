@@ -24,7 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { PiFolderOpenDuotone } from "react-icons/pi";
 import { RxOpenInNewWindow } from "react-icons/rx";
 
-import { byteArrayToString } from "@/lib/starknet/utils";
+import { byteArrayToString, toHex } from "@/lib/starknet/utils";
 import { useEffect, useRef, useState } from "react";
 import { parseUnits } from "ethers";
 import {
@@ -35,7 +35,7 @@ import {
 } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
-import { Link as LinkIcon, Loader, Share2, Verified, X } from "lucide-react";
+import { Link as LinkIcon, Loader, Share2, X } from "lucide-react";
 import { BiLeaf } from "react-icons/bi";
 import { toast } from "sonner";
 import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
@@ -57,6 +57,7 @@ import { contract } from "@/utils/contract";
 import InspectionCard from "./_components/inspection-card";
 import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import { Icon } from "leaflet";
+import { MdVerified } from "react-icons/md";
 
 const customIcon = new Icon({
   iconUrl: "/marker.svg",
@@ -163,7 +164,7 @@ export default function PropertyDetailsPage() {
       const user = listing.owner_details.Some;
       const user_construct: User = {
         ...user,
-        address: BigInt(user.address).toString(16),
+        address: toHex(user.address),
         id: Number(user.id),
         details: byteArrayToString(user.details),
         user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
@@ -171,7 +172,7 @@ export default function PropertyDetailsPage() {
 
       const structured: Listing = {
         id: Number(listing.id),
-        owner: BigInt(listing.owner).toString(16),
+        owner: toHex(listing.owner),
         price: Number(listing.price),
         tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
         details: byteArrayToString(listing.details),
@@ -217,14 +218,14 @@ export default function PropertyDetailsPage() {
 
         const user_construct: User = {
           ...user,
-          address: BigInt(user.address).toString(16),
+          address: toHex(user.address),
           id: Number(user.id),
           details: byteArrayToString(user.details),
           user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
         };
 
         const request_construct: PurchaseRequest = {
-          initiator: BigInt(request.initiator).toString(16),
+          initiator: toHex(request.initiator),
           listing_id: Number(request.listing_id),
           price: Number(request.price),
           request_id: Number(request.id),
@@ -822,60 +823,6 @@ export default function PropertyDetailsPage() {
                 ))}
               </div>
             </div>
-
-            {/* <div className="flex flex-wrap items-center justify-between gap-10 sm:gap-6">
-              <div className="flex flex-col gap-1">
-                <svg
-                  width="24"
-                  height="25"
-                  viewBox="0 0 24 25"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M17.5 5.7207C18.3284 5.7207 19 6.39227 19 7.2207C19 8.04913 18.3284 8.7207 17.5 8.7207C16.6716 8.7207 16 8.04913 16 7.2207C16 6.39227 16.6716 5.7207 17.5 5.7207Z"
-                    stroke="#141B34"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M2.77423 11.8646C1.77108 12.985 1.7495 14.6753 2.67016 15.8644C4.49711 18.224 6.49674 20.2236 8.85633 22.0505C10.0454 22.9712 11.7357 22.9496 12.8561 21.9465C15.8979 19.2229 18.6835 16.3766 21.3719 13.2486C21.6377 12.9394 21.8039 12.5604 21.8412 12.1543C22.0062 10.3587 22.3452 5.18537 20.9403 3.78044C19.5353 2.37551 14.362 2.71447 12.5664 2.87946C12.1603 2.91678 11.7813 3.08303 11.472 3.34881C8.34412 6.03716 5.49781 8.82281 2.77423 11.8646Z"
-                    stroke="#141B34"
-                    strokeWidth="1.5"
-                  />
-                  <path
-                    d="M13.7884 13.0872C13.8097 12.6862 13.9222 11.9526 13.3125 11.3951M13.3125 11.3951C13.1238 11.2226 12.866 11.0669 12.5149 10.9431C11.2583 10.5003 9.71484 11.9826 10.8067 13.3395C11.3936 14.0688 11.8461 14.2932 11.8035 15.1214C11.7735 15.7041 11.2012 16.3128 10.4469 16.5447C9.7916 16.7461 9.06876 16.4794 8.61156 15.9685C8.05332 15.3448 8.1097 14.7567 8.10492 14.5004M13.3125 11.3951L14.0006 10.707M8.66131 16.0463L8.00781 16.6998"
-                    stroke="#141B34"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <p className="text-lg font-medium">Potential Value</p>
-                <div className="rounded-sm bg-[#DEEDEC] px-3 py-1 text-sm font-medium tracking-wide text-primary">
-                  High Confidence
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base font-medium text-muted-foreground">
-                  Low Range
-                </span>
-                <span className="text-lg font-medium">$410,000</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base font-medium text-muted-foreground">
-                  Mid Range
-                </span>
-                <span className="text-lg font-medium">$410,000</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base font-medium text-muted-foreground">
-                  High Range
-                </span>
-                <span className="text-lg font-medium">$410,000</span>
-              </div>
-            </div> */}
           </div>
         </div>
       </div>
@@ -905,26 +852,40 @@ export default function PropertyDetailsPage() {
                     .map((request, index) => {
                       return (
                         <tr key={index}>
-                          <td className="py-2">
+                          <td className="max-w-[200px] py-2">
                             <div className="flex items-center gap-2">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C0D9BF]">
-                                <img
-                                  src={generateAvatarFromAddress(
-                                    `0x${request.initiator}`,
-                                  )}
-                                  className="h-7 w-7"
-                                  alt=""
-                                />
+                              <div className="size-12 rounded-[12px] border p-0.5">
+                                <div className="size-full rounded-[10px] border bg-[#C0D9BF]">
+                                  <img
+                                    src={generateAvatarFromAddress(
+                                      request.initiator,
+                                    )}
+                                    alt={request.initiator}
+                                    width={48}
+                                    height={48}
+                                    className="rounded-[8px] object-contain"
+                                  />
+                                </div>
                               </div>
-                              <p className="text-sm text-[#475467]">
-                                {truncateAddr(`0x${request.initiator}`)}
-                              </p>
+                              <div className="flex flex-col">
+                                <div className="flex items-center gap-1.5">
+                                  <p className="text-sm font-medium capitalize text-foreground">
+                                    {request.user?.details.name}
+                                  </p>
+                                  {request.user?.verified && (
+                                    <MdVerified className="mt-px size-4 text-primary" />
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  {truncateAddr(request.initiator)}
+                                </p>
+                              </div>
                             </div>
                           </td>
-                          <td className="py-2 text-sm">
+                          <td className="py-2 text-sm font-medium">
                             {String(index + 1).padStart(2, "0")}
                           </td>
-                          <td className="py-2 text-sm">
+                          <td className="py-2 text-sm font-medium">
                             ${request.price.toLocaleString()}
                           </td>
                         </tr>
@@ -1059,29 +1020,28 @@ export default function PropertyDetailsPage() {
                 <p className="text-xl font-medium">Agent details</p>
 
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-1">
-                    <p className="font-medium capitalize">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-base font-medium capitalize text-primary">
                       {listing?.owner_details?.details.name}
                     </p>
-                    {listing?.owner_details?.user_type === "Entity" ? (
-                      listing?.owner_details.verified ? (
-                        <Verified size={19} color="#166534" />
-                      ) : (
-                        <div className="rounded-full border border-red-500 px-3 py-0.5 text-sm font-bold text-red-500">
-                          Not verified
-                        </div>
-                      )
-                    ) : null}
+                    {listing?.owner_details?.verified && (
+                      <MdVerified className="mt-px size-5 text-primary" />
+                    )}
                   </div>
-                  <p className="text-muted-foreground">
-                    {listing?.owner_details?.details?.email}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-muted-foreground">
+                      {listing?.owner_details?.details?.email}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {listing?.owner_details?.user_type}
+                    </p>
+                  </div>
                 </div>
               </div>
 
               <Button
                 onClick={() => {
-                  navigate(`/profile/0x${listing?.owner}`, {
+                  navigate(`/profile/${listing?.owner}`, {
                     state: listing?.owner_details,
                   });
                 }}
@@ -1292,7 +1252,6 @@ const Modal: React.FC<ModalProps> = ({
           </button>
         </div>
         <div>
-          {" "}
           <div className="flex w-full flex-col gap-10 xl:flex-row xl:items-start">
             <div className="flex w-full flex-col gap-6">
               <div className="w-full overflow-hidden rounded-2xl border bg-secondary">
@@ -1356,24 +1315,38 @@ const Modal: React.FC<ModalProps> = ({
                           <tr key={index}>
                             <td className="py-2">
                               <div className="flex items-center gap-2">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C0D9BF]">
-                                  <img
-                                    src={generateAvatarFromAddress(
-                                      `0x${request.initiator}`,
-                                    )}
-                                    className="h-7 w-7"
-                                    alt=""
-                                  />
+                                <div className="size-12 rounded-[12px] border p-0.5">
+                                  <div className="size-full rounded-[10px] border bg-[#C0D9BF]">
+                                    <img
+                                      src={generateAvatarFromAddress(
+                                        request.initiator,
+                                      )}
+                                      alt={request.initiator}
+                                      width={48}
+                                      height={48}
+                                      className="rounded-[8px] object-contain"
+                                    />
+                                  </div>
                                 </div>
-                                <p className="text-sm text-[#475467]">
-                                  {truncateAddr(`0x${request.initiator}`)}
-                                </p>
+                                <div className="flex flex-col">
+                                  <div className="flex items-center gap-1.5">
+                                    <p className="text-sm font-medium capitalize text-foreground">
+                                      {request.user?.details.name}
+                                    </p>
+                                    {request.user?.verified && (
+                                      <MdVerified className="mt-px size-4 text-primary" />
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">
+                                    {truncateAddr(request.initiator)}
+                                  </p>
+                                </div>
                               </div>
                             </td>
-                            <td className="py-2 text-sm">
+                            <td className="py-2 text-sm font-medium">
                               {String(index + 1).padStart(2, "0")}
                             </td>
-                            <td className="py-2 text-sm">
+                            <td className="py-2 text-sm font-medium">
                               ${request.price.toLocaleString()}
                             </td>
                           </tr>

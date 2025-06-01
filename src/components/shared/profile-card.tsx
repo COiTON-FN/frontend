@@ -17,7 +17,7 @@ import { PiTelegramLogoDuotone } from "react-icons/pi";
 import { HiOutlineLink } from "react-icons/hi2";
 import { SOCIAL } from "@/pages/(app)/onboarding/_components/social-input";
 import { User } from "@/store/slice/credential.slice";
-import { Verified } from "lucide-react";
+import { MdVerified } from "react-icons/md";
 
 interface ProfileCardProps {
   credentialStore: User | null;
@@ -30,7 +30,9 @@ const ProfileCard: FC<ProfileCardProps> = ({ credentialStore }) => {
         <div className="size-32 rounded-[40px] border bg-background p-1 md:size-48">
           <div className="size-full rounded-[36px] border bg-secondary">
             <img
-              src={generateAvatarFromAddress(`0x${credentialStore?.address}`)}
+              src={generateAvatarFromAddress(
+                credentialStore?.address as string,
+              )}
               alt={credentialStore?.address as string}
               width={192}
               height={192}
@@ -40,13 +42,13 @@ const ProfileCard: FC<ProfileCardProps> = ({ credentialStore }) => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="mb-2 flex items-center gap-1">
+          <div className="mb-2 flex items-center gap-1.5">
             <p className="text-2xl font-medium capitalize md:text-3xl">
               {credentialStore?.details?.name}
             </p>
             {credentialStore?.user_type === "Entity" ? (
               credentialStore.verified ? (
-                <Verified color="#166534" />
+                <MdVerified className="mt-px size-6 text-primary" />
               ) : (
                 <div className="rounded-full border border-red-500 px-3 py-1 text-sm font-bold text-red-500">
                   Not verified
@@ -61,7 +63,7 @@ const ProfileCard: FC<ProfileCardProps> = ({ credentialStore }) => {
                 viewBox="0 0 26 26"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="size-6 md:size-[26px]"
+                className="size-6"
               >
                 <path
                   d="M9.75 23.8336C10.1398 23.8336 11.5817 23.1756 13.0535 21.8596M13.0535 21.8596C14.3085 20.7373 15.5852 19.1366 16.25 17.0576C17.6944 12.5402 9.02777 17.0576 11.9167 20.8221C12.2721 21.2852 12.655 21.6237 13.0535 21.8596ZM13.0535 21.8596C14.7898 22.8867 16.8254 21.9638 18.2044 20.9025C18.626 20.5782 18.8367 20.416 18.9624 20.4665C19.0883 20.517 19.1618 20.8072 19.3089 21.3877C19.7796 23.2453 21.17 24.7447 22.75 22.3283"
@@ -85,7 +87,7 @@ const ProfileCard: FC<ProfileCardProps> = ({ credentialStore }) => {
                   strokeLinejoin="round"
                 />
               </svg>
-              <p className="text-base font-medium md:text-lg">
+              <p className="text-base font-medium">
                 {credentialStore?.user_type}
               </p>
               <div className="rounded-full border border-muted-foreground/60 px-3 py-1 text-xs font-medium text-muted-foreground">
@@ -97,11 +99,11 @@ const ProfileCard: FC<ProfileCardProps> = ({ credentialStore }) => {
           {credentialStore?.address && (
             <div className="flex items-center gap-3 md:gap-4">
               <p className="text-sm font-medium md:text-base">
-                {truncateAddr(`0x${credentialStore?.address}`)}
+                {truncateAddr(credentialStore?.address)}
               </p>
               <TbCopy
                 role="button"
-                onClick={() => copyToClipboard(`0x${credentialStore?.address}`)}
+                onClick={() => copyToClipboard(credentialStore?.address)}
                 className="size-4 md:size-5"
               />
             </div>
