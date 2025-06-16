@@ -1,7 +1,7 @@
 import ProfileCard from "@/components/shared/profile-card";
 import { Separator } from "@/components/ui/separator";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
-import { byteArrayToString } from "@/lib/starknet/utils";
+import { byteArrayToString, toHex } from "@/lib/starknet/utils";
 import { User } from "@/store/slice/credential.slice";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -60,15 +60,15 @@ export default function BidPage() {
           listingId,
           requestId,
           price: Number(purchaseRequest?.price),
-          initiator: BigInt(purchaseRequest?.initiator).toString(16),
+          initiator: toHex(purchaseRequest?.initiator),
         };
 
         const initiatorDetails = await contract.get_user(
-          `0x${refinedPurchaseRequest?.initiator}`,
+          refinedPurchaseRequest?.initiator,
         );
         const initiator: User = {
           ...initiatorDetails,
-          address: BigInt(initiatorDetails?.address).toString(16),
+          address: toHex(initiatorDetails?.address),
           id: Number(initiatorDetails?.id),
           details: byteArrayToString(initiatorDetails?.details),
           user_type: initiatorDetails?.user_type.variant.Entity
@@ -80,7 +80,7 @@ export default function BidPage() {
 
         const structured: Listing = {
           id: Number(listing.id),
-          owner: BigInt(listing.owner).toString(16),
+          owner: toHex(listing.owner),
           price: Number(listing.price),
           tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
           details: byteArrayToString(listing.details),
@@ -202,68 +202,7 @@ export default function BidPage() {
     }
   };
 
-  // const handleApprovePurchaseRequest = async () => {
-  //   if (!requestId || !listingId || !listingDetails || !initiator) return;
-
-  //   try {
-  //     setIsApproving(true);
-
-  //     const erc721 = getErc721Instance();
-  //     const approvedAddress = await erc721.get_approved(listingId);
-
-  //     if (approvedAddress !== walletAddress) {
-  //       const calls: Call = erc721!.populate("approve_purchase_request", [
-  //         listingId,
-  //         requestId,
-  //       ]);
-
-  //       const account = window.Wallet.Account!;
-
-  //       const callPayload = await account?.getOutsideExecutionPayload({
-  //         calls: [calls],
-  //       });
-
-  //       console.log(callPayload);
-
-  //       console.log("CALLING ENDPOINT");
-  //       const response = await fetch(
-  //         `${variables.renderEndpoint}/contract/execute`,
-  //         {
-  //           headers: {
-  //             Accept: "application/json",
-  //             "Content-Type": "application/json",
-  //           },
-  //           method: "POST",
-  //           body: JSON.stringify(callPayload),
-  //           redirect: "follow",
-  //         },
-  //       );
-
-  //       console.log("ENDPOINT CALLED");
-
-  //       const result = await response.json();
-
-  //       if (!result?.success) {
-  //         toast.error(result?.message);
-  //         throw new Error(result?.message);
-  //       }
-
-  //       return result;
-  //     }
-
-  //     setIsApproving(false);
-  //     // if (!result?.success) return;
-  //     // setIsApproving(false);
-
-  //     // console.log(result);
-  //   } catch (error) {
-  //     toast.error("Something went wrong");
-  //     console.log(error);
-  //     setIsApproving(false);
-  //   } finally {
-  //     setIsApproving(false);
-  //   }
-  // };
+  console.log(listingDetails);
 
   if (isLoadingDetails)
     return (

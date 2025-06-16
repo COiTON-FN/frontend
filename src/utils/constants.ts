@@ -4,6 +4,10 @@ import { IoImagesOutline } from "react-icons/io5";
 import { HiOutlineDocumentText } from "react-icons/hi2";
 import { assets } from "@/assets";
 
+import { RiBuilding2Line, RiHomeOfficeFill } from "react-icons/ri";
+import { MdFactory } from "react-icons/md";
+import { PiIslandDuotone, PiTreeFill, PiWarehouseFill } from "react-icons/pi";
+
 export const variants = {
   fadeIn: (direction: "up" | "down" | "left" | "right", delay: number) => {
     return {
@@ -26,6 +30,33 @@ export const variants = {
     };
   },
 };
+
+export const listPropertyOptions = [
+  {
+    type: "building" as const,
+    title: "Developed Property",
+    description:
+      "Includes completed structures for living, business, or industry",
+    icon: RiBuilding2Line,
+    subTypes: [
+      { icon: RiHomeOfficeFill, label: "Residential" },
+      { icon: MdFactory, label: "Commercial" },
+      { icon: PiWarehouseFill, label: "Industrial" },
+    ],
+  },
+  {
+    type: "land" as const,
+    title: "Undeveloped Land",
+    description:
+      "Raw or unused land suitable for farming, housing, or commerce",
+    icon: PiIslandDuotone,
+    subTypes: [
+      { icon: PiTreeFill, label: "Agricultural" },
+      { icon: RiHomeOfficeFill, label: "Residential" },
+      { icon: PiWarehouseFill, label: "Commercial" },
+    ],
+  },
+];
 
 export const connectorsInfo = [
   {
@@ -107,7 +138,7 @@ export const createListingSteps = [
 export const nav_routes = [
   { label: "About", path: "/about" },
   { label: "Token", path: "/token", comingSoon: true },
-  { label: "Listings", path: "/listings" },
+  { label: "Listings", path: "/properties" },
   { label: "Blog", path: "/blog" },
 ];
 
@@ -123,45 +154,6 @@ export const footer_routes = [
   {
     label: "Community",
     path: ["events", "blog", "forum", "podcast", "telegram"],
-  },
-];
-
-export const dummy_properties = [
-  {
-    id: 1,
-    isApproved: true,
-    title: "Sunny Villa",
-    propertyType: "House",
-    address: "123 Sunshine St, Miami, FL",
-    createdAt: "June 14, 2023",
-    price: 500000,
-    image: [
-      "https://images.pexels.com/photos/1115804/pexels-photo-1115804.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    ],
-  },
-  {
-    id: 2,
-    isApproved: true,
-    title: "Cozy Cottage",
-    propertyType: "Cottage",
-    address: "456 Oak Lane, Asheville, NC",
-    createdAt: "June 14, 2023",
-    price: 300000,
-    image: [
-      "https://images.pexels.com/photos/979190/pexels-photo-979190.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    ],
-  },
-  {
-    id: 3,
-    isApproved: true,
-    title: "Urban Apartment",
-    propertyType: "Apartment",
-    address: "789 Main St, New York, NY",
-    createdAt: "June 14, 2023",
-    price: 750000,
-    image: [
-      "https://images.pexels.com/photos/4280017/pexels-photo-4280017.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    ],
   },
 ];
 

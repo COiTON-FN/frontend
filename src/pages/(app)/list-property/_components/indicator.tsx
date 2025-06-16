@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
-import { memo } from "react";
 
 const Indicator = ({
   currentStep,
@@ -48,4 +47,4 @@ const Indicator = ({
     </div>
   );
 };
-export default memo(Indicator);
+export default Indicator;

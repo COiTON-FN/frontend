@@ -12,14 +12,6 @@ import {
   XIcon,
 } from "react-share";
 import { Helmet } from "react-helmet-async";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -29,10 +21,14 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
-import { PiFolderOpenDuotone } from "react-icons/pi";
+import {
+  PiBathtub,
+  PiFolderOpenDuotone,
+  PiIslandDuotone,
+} from "react-icons/pi";
 import { RxOpenInNewWindow } from "react-icons/rx";
 
-import { byteArrayToString } from "@/lib/starknet/utils";
+import { byteArrayToString, toHex } from "@/lib/starknet/utils";
 import { useEffect, useRef, useState } from "react";
 import { parseUnits } from "ethers";
 import {
@@ -43,39 +39,38 @@ import {
 } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
-import { Link as LinkIcon, Loader, Share2, Verified, X } from "lucide-react";
+import { Link as LinkIcon, Loader, Share2, X } from "lucide-react";
 import { BiLeaf } from "react-icons/bi";
 import { toast } from "sonner";
 import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User } from "@/store/slice/credential.slice";
-import useWalletHook from "@/hooks/useWallet.hook";
+import { useWalletHook } from "@/hooks/useWallet.hook";
 import { useAppSelector } from "@/store";
 import BID from "../../../assets/images/bid.png";
 import BID_LG from "../../../assets/images/bid_lg.png";
 import { Input } from "@/components/ui/input";
 import { CairoOption, CairoOptionVariant, Call } from "starknet";
 import { variables } from "@/utils/variables";
-import {
-  google,
-  outlook,
-  office365,
-  yahoo,
-  ics,
-  CalendarEvent,
-} from "calendar-link";
-import { SiGooglecalendar } from "react-icons/si";
-import { ImAppleinc } from "react-icons/im";
-import { FaYahoo } from "react-icons/fa";
-import { PiMicrosoftOutlookLogo } from "react-icons/pi";
-import { CgMicrosoft } from "react-icons/cg";
+import { RiBuilding2Line, RiUser6Line } from "react-icons/ri";
 import { contract } from "@/utils/contract";
-// import { MapView } from "@/components/shared/map-view";
+import InspectionCard from "./_components/inspection-card";
+import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import { Icon } from "leaflet";
+import { MdVerified } from "react-icons/md";
+import { IoBedOutline } from "react-icons/io5";
+import { TbResize } from "react-icons/tb";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+const customIcon = new Icon({
+  iconUrl: "/marker.svg",
+  iconSize: [35, 51],
+  iconAnchor: [12, 41],
+});
 
 export default function PropertyDetailsPage() {
   const [showMore, setShowMore] = useState(false);
@@ -111,20 +106,27 @@ export default function PropertyDetailsPage() {
         value: _listing?.details?.landmark,
       },
       {
-        label: "City",
-        value: _listing?.details?.region?.city?.cityName,
+        label: "Country",
+        value:
+          _listing?.details?.region?.country?.countryName ??
+          _listing?.details?.region?.[0],
       },
       {
         label: "State",
-        value: _listing?.details?.region?.state?.stateName,
+        value:
+          _listing?.details?.region?.state?.stateName ??
+          _listing?.details?.region?.[1],
+      },
+      {
+        label: "City",
+        value:
+          _listing?.details?.region?.city?.cityName ??
+          _listing?.details?.region?.[2] ??
+          "N/A",
       },
       {
         label: "ZIP",
         value: _listing?.details?.zip,
-      },
-      {
-        label: "Country",
-        value: _listing?.details?.region?.country?.countryName,
       },
     ]);
     setDetails([
@@ -176,7 +178,7 @@ export default function PropertyDetailsPage() {
       const user = listing.owner_details.Some;
       const user_construct: User = {
         ...user,
-        address: BigInt(user.address).toString(16),
+        address: toHex(user.address),
         id: Number(user.id),
         details: byteArrayToString(user.details),
         user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
@@ -184,7 +186,7 @@ export default function PropertyDetailsPage() {
 
       const structured: Listing = {
         id: Number(listing.id),
-        owner: BigInt(listing.owner).toString(16),
+        owner: toHex(listing.owner),
         price: Number(listing.price),
         tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
         details: byteArrayToString(listing.details),
@@ -230,14 +232,14 @@ export default function PropertyDetailsPage() {
 
         const user_construct: User = {
           ...user,
-          address: BigInt(user.address).toString(16),
+          address: toHex(user.address),
           id: Number(user.id),
           details: byteArrayToString(user.details),
           user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
         };
 
         const request_construct: PurchaseRequest = {
-          initiator: BigInt(request.initiator).toString(16),
+          initiator: toHex(request.initiator),
           listing_id: Number(request.listing_id),
           price: Number(request.price),
           request_id: Number(request.id),
@@ -268,7 +270,7 @@ export default function PropertyDetailsPage() {
 
   const [creatingPurchaseAgreement, setCreatingPurchaseAgreement] =
     useState<boolean>(false);
-  const { handleConnectWallet, getArgentWallet } = useWalletHook();
+  const { handleConnectWallet, argentWebWallet } = useWalletHook();
 
   const handleConnect = async ({
     callbackData,
@@ -278,7 +280,6 @@ export default function PropertyDetailsPage() {
     approval?: string;
   }) => {
     console.log(approval.toString());
-    const argentWebWallet = getArgentWallet();
     const response = await argentWebWallet.requestConnection({
       callbackData: callbackData,
       approvalRequests: [
@@ -344,7 +345,7 @@ export default function PropertyDetailsPage() {
 
       const erc20 = getErc20Instance();
       const allowance = await erc20!.allowance(
-        walletAddress,
+        walletAddress as string,
         contract.daoAddress,
       );
       const account = window.Wallet.Account!;
@@ -352,11 +353,6 @@ export default function PropertyDetailsPage() {
       console.log(allowance);
 
       if ((bidPrice || listing.price) > Number(allowance)) {
-        // const calls: Call = erc20!.populate("approve", [
-        //   contract.daoAddress,
-        //   bidPrice || listing.price,
-        // ]);
-
         await handleConnect({
           approval: (bidPrice || listing.price).toString(),
         });
@@ -443,96 +439,11 @@ export default function PropertyDetailsPage() {
       </div>
     );
 
-  const event: CalendarEvent = {
-    title: "COiTON Inspection times",
-    description: "Inspection and property viewing are still happening",
-    start: "2025-12-3 13:00:00 +0100",
-    end: "2025-12-3 13:40:00 +0100",
-    duration: [40, "minutes"],
-  };
-
-  const googleUrl = google(event);
-  const outlookUrl = outlook(event);
-  const office365Url = office365(event);
-  const yahooUrl = yahoo(event);
-  const icsUrl = ics(event);
-
-  const calendarLinks = [
-    {
-      label: "Google Calendar",
-      url: googleUrl,
-      icon: SiGooglecalendar,
-    },
-    {
-      label: "Apple (ICS)",
-      url: icsUrl,
-      icon: ImAppleinc,
-    },
-    {
-      label: "Office365",
-      url: office365Url,
-      icon: CgMicrosoft,
-    },
-    {
-      label: "Outlook",
-      url: outlookUrl,
-      icon: PiMicrosoftOutlookLogo,
-    },
-    {
-      label: "Yahoo",
-      url: yahooUrl,
-      icon: FaYahoo,
-    },
-  ];
-
-  // const userAddress = credential?.address ?? "";
-  // const ownerAddress = listing?.owner ?? "";
-
   const isOwner =
     (credential?.address ?? "").toLowerCase() ===
     (listing?.owner ?? "").toLowerCase();
 
-  // console.log({ userAddress, ownerAddress, isOwner });
-
-  // Check if the connected wallet address belongs to the property owner
-  // const isOwner =
-  //   parseInt(credential?.address ?? "0x0", 16) ===
-  //   parseInt(listing?.owner ?? "0x0", 16);
-
-  // console.log("User:", credential?.address);
-  // console.log("Owner:", listing?.owner);
-
-  // id: "0x565c68e8f2492b1c7542c35ed48b066d32f23ad6896a3f6499d35331469f18f",
-  // inspection button function
-
-  const handleInspection = async () => {
-    // try {
-    //   await inspection({
-    //     id: "0x" + Date.now().toString(16),
-    //     data: {
-    //       title: "Inspections for Apartment",
-    //       description: "Please come early!",
-    //       start: "2020-02-29 18:00:00 +0100",
-    //       duration: [3, "hour"],
-    //     },
-    //   });
-    //   console.log("✅ Inspection created successfully!");
-    // } catch (err) {
-    //   console.error("❌ Error creating inspection:", err);
-    // }
-  };
-
-  // const handleInspection = async () => {
-  //   await inspection({
-  //     id: "0x" + Date.now().toString(16),
-  //     data: {
-  //       title: "Inspections for Apartment ",
-  //       description: "Please come early !",
-  //       start: "2020-02-29 18:00:00 +0100",
-  //       duration: [3, "hour"],
-  //     },
-  //   });
-  // };
+  console.log(listing);
 
   return (
     <div className="flex flex-col gap-4 py-4">
@@ -567,19 +478,6 @@ export default function PropertyDetailsPage() {
           }
         />
       </Helmet>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Property</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
 
       <Modal
         loading={creatingPurchaseAgreement}
@@ -590,208 +488,75 @@ export default function PropertyDetailsPage() {
         isOpen={showDialog}
         listing={listing ?? undefined}
       />
-      {}
-      <div className="flex flex-1 flex-col gap-5 rounded-md sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10">
+      <div className="flex flex-1 flex-col gap-10 rounded-md sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:justify-between md:flex-col lg:flex-row lg:gap-[54px]">
           <div className="flex flex-col gap-4">
             <p className="flex flex-col gap-2">
-              <span className="text-base font-medium leading-none">
+              <span className="text-base font-normal">
                 {listing?.details?.title}
               </span>
-              <span className="text-xl font-medium text-primary">
-                Price ${listing?.price.toLocaleString()}
+              <span className="text-lg font-semibold text-primary sm:text-xl">
+                Offer from ${listing?.price.toLocaleString()}
               </span>
             </p>
 
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2">
-                <svg
-                  className="size-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M22 17.5H2"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M22 21V16C22 14.1144 22 13.1716 21.4142 12.5858C20.8284 12 19.8856 12 18 12H6C4.11438 12 3.17157 12 2.58579 12.5858C2 13.1716 2 14.1144 2 16V21"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M16 12V10.6178C16 10.1103 15.9085 9.94054 15.4396 9.7405C14.4631 9.32389 13.2778 9 12 9C10.7222 9 9.53688 9.32389 8.5604 9.7405C8.09154 9.94054 8 10.1103 8 10.6178V12"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M20 12V7.36057C20 6.66893 20 6.32311 19.8292 5.99653C19.6584 5.66995 19.4151 5.50091 18.9284 5.16283C16.9661 3.79978 14.5772 3 12 3C9.42282 3 7.03391 3.79978 5.07163 5.16283C4.58492 5.50091 4.34157 5.66995 4.17079 5.99653C4 6.32311 4 6.66893 4 7.36057V12"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
+            <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-0 sm:gap-y-2 sm:divide-x">
+              <div className="flex items-center gap-2 text-muted-foreground sm:pr-4">
+                <IoBedOutline className="size-5" />
 
-                <span className="text-sm font-normal leading-none text-[#8B8B8B]">
-                  {listing?.details?.bedrooms} Bedroom
+                <span className="text-sm font-normal leading-none">
+                  <strong>{listing?.details?.bedrooms}</strong> Bedroom
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <svg
-                  className="size-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M6 20L5 21M18 20L19 21"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M3 12V13C3 16.2998 3 17.9497 4.02513 18.9749C5.05025 20 6.70017 20 10 20H14C17.2998 20 18.9497 20 19.9749 18.9749C21 17.9497 21 16.2998 21 13V12"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M2 12H22"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M4 12V5.5234C4 4.12977 5.12977 3 6.5234 3C7.64166 3 8.62654 3.73598 8.94339 4.80841L9 5"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M8 6L10.5 4"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
+              <div className="flex items-center gap-2 text-muted-foreground sm:px-4">
+                <PiBathtub className="size-5" />
 
-                <span className="text-sm font-normal leading-none text-[#8B8B8B]">
-                  {listing?.details?.bathrooms} Baths
+                <span className="text-sm font-normal leading-none">
+                  <strong>{listing?.details?.bathrooms}</strong> Bathrooms
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <svg
-                  className="size-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M22 21V9.61065C22 8.28771 22 7.62624 21.6561 7.11395C21.3123 6.60167 20.7034 6.35601 19.4856 5.86468L13.4856 3.44396C12.752 3.14799 12.3852 3 12 3C11.6148 3 11.248 3.14799 10.5144 3.44396L4.51444 5.86468C3.29663 6.35601 2.68773 6.60167 2.34387 7.11395C2 7.62624 2 8.28771 2 9.61065V21"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M16 19V21M8 19V21"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M7.5 14L7.74254 13.0299C8.10632 11.5747 8.28821 10.8472 8.83073 10.4236C9.37325 10 10.1232 10 11.6231 10H12.3769C13.8768 10 14.6267 10 15.1693 10.4236C15.7118 10.8472 15.8937 11.5747 16.2575 13.0299L16.5 14"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M17 14H7C6.44772 14 6 14.4477 6 15V18C6 18.5523 6.44772 19 7 19H17C17.5523 19 18 18.5523 18 18V15C18 14.4477 17.5523 14 17 14Z"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M8.5 16.4902V16.5002"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M15.5 16.4902V16.5002"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+              <div className="flex items-center gap-2 text-muted-foreground sm:px-4">
+                <TbResize className="size-5" />
 
-                <span className="text-sm font-normal leading-none text-[#8B8B8B]">
-                  2 Car park
+                <span className="text-sm font-normal leading-none">
+                  <strong>
+                    {Number(listing?.details.propertySize).toLocaleString()}
+                  </strong>{" "}
+                  Sqft
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <svg
-                  className="size-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 12C7.46544 12 3.62948 14.9642 2.35747 19.044C1.99646 20.2019 1.81595 20.7809 2.26968 21.3904C2.7234 22 3.46112 22 4.93655 22H19.0634C20.5389 22 21.2766 22 21.7303 21.3904C22.184 20.7809 22.0035 20.2019 21.6425 19.044C20.3705 14.9642 16.5346 12 12 12Z"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M15 17H15.009"
-                    stroke="#949494"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M12 22C12 20.3431 10.6569 19 9 19C7.34315 19 6 20.3431 6 22"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M12 12V7.5M12 7.5V5C12 3.58579 12 2.87868 12.4393 2.43934C12.8787 2 13.5858 2 15 2H17.25C18.4228 2 19.0092 2 19.4131 2.30997C19.5171 2.38977 19.6102 2.48286 19.69 2.58686C20 2.99082 20 3.57721 20 4.75C20 5.92279 20 6.50918 19.69 6.91314C19.6102 7.01714 19.5171 7.11023 19.4131 7.19003C19.0092 7.5 18.4228 7.5 17.25 7.5H12Z"
-                    stroke="#949494"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
+              <div className="flex items-center gap-2 text-muted-foreground sm:pl-4">
+                {listing?.details?.propertyType === "land" ? (
+                  <PiIslandDuotone className="size-4" />
+                ) : (
+                  <RiBuilding2Line className="size-4" />
+                )}
 
-                <span className="text-sm font-normal leading-none text-[#8B8B8B]">
-                  {Number(listing?.details.propertySize).toLocaleString()} km/sq
+                <span className="text-sm font-normal capitalize leading-none">
+                  {listing?.details.propertyType ?? "building"}
                 </span>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Button onClick={() => setShowDialog(true)}>
+            <Button
+              disabled={listing?.tag === "Sold"}
+              onClick={() => setShowDialog(listing?.tag === "ForSale")}
+              className="flex-1"
+              title={
+                listing?.tag === "ForSale"
+                  ? "Property for sale"
+                  : "Property has been sold"
+              }
+            >
               <BiLeaf className="size-5" />
               <span>Purchase/Rent</span>
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-black/30">
+                <Button variant={"outline"} size="icon">
                   <Share2 size={20} className="text-muted-foreground" />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="bottom"
@@ -846,16 +611,8 @@ export default function PropertyDetailsPage() {
         </div>
 
         <div className="flex w-full flex-col gap-10 xl:flex-row xl:items-start">
-          <div className="flex w-full flex-col gap-6 xl:sticky xl:top-24">
-            <div className="aspect-[1.4] w-full overflow-hidden rounded-2xl border bg-secondary lg:aspect-[1.3]">
-              <img
-                src={`${import.meta.env.VITE_PINATA_GATEWAY}/${selectedImage || listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-                alt={`${listing?.details?.title}`}
-                className="size-full object-cover"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+          <div className="flex w-full gap-1 xl:sticky xl:top-24">
+            <ScrollArea className="flex h-[326px] w-[80px] flex-col gap-5 pr-3 sm:h-[426px] sm:w-[120px]">
               {listing?.details?.imagesCid
                 ?.filter(
                   (ft: string) => !listing?.details?.floorPlanCid?.includes(ft),
@@ -865,20 +622,27 @@ export default function PropertyDetailsPage() {
                     key={index}
                     onClick={() => setSelectedImage(image)}
                     className={cn(
-                      "relative flex-shrink-0 overflow-hidden rounded-md transition-all hover:opacity-90",
+                      "relative aspect-[1.2] w-full shrink-0 overflow-hidden rounded-md border-2 border-background transition-all hover:opacity-90 sm:rounded-lg",
                       (selectedImage || listing?.details?.imagesCid[0]) ===
                         image
-                        ? "ring-2 ring-primary"
+                        ? "border-primary"
                         : "opacity-50",
                     )}
                   >
                     <img
                       src={`${import.meta.env.VITE_PINATA_GATEWAY}/${image}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
                       alt={listing?.details?.title}
-                      className="object-cover"
+                      className="size-full object-cover"
                     />
                   </button>
                 ))}
+            </ScrollArea>
+            <div className="aspect-[1.2] w-full overflow-hidden rounded-2xl border bg-secondary">
+              <img
+                src={`${import.meta.env.VITE_PINATA_GATEWAY}/${selectedImage || listing?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+                alt={`${listing?.details?.title}`}
+                className="size-full object-cover"
+              />
             </div>
           </div>
 
@@ -936,65 +700,12 @@ export default function PropertyDetailsPage() {
                 ))}
               </div>
             </div>
-
-            {/* <div className="flex flex-wrap items-center justify-between gap-10 sm:gap-6">
-              <div className="flex flex-col gap-1">
-                <svg
-                  width="24"
-                  height="25"
-                  viewBox="0 0 24 25"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M17.5 5.7207C18.3284 5.7207 19 6.39227 19 7.2207C19 8.04913 18.3284 8.7207 17.5 8.7207C16.6716 8.7207 16 8.04913 16 7.2207C16 6.39227 16.6716 5.7207 17.5 5.7207Z"
-                    stroke="#141B34"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M2.77423 11.8646C1.77108 12.985 1.7495 14.6753 2.67016 15.8644C4.49711 18.224 6.49674 20.2236 8.85633 22.0505C10.0454 22.9712 11.7357 22.9496 12.8561 21.9465C15.8979 19.2229 18.6835 16.3766 21.3719 13.2486C21.6377 12.9394 21.8039 12.5604 21.8412 12.1543C22.0062 10.3587 22.3452 5.18537 20.9403 3.78044C19.5353 2.37551 14.362 2.71447 12.5664 2.87946C12.1603 2.91678 11.7813 3.08303 11.472 3.34881C8.34412 6.03716 5.49781 8.82281 2.77423 11.8646Z"
-                    stroke="#141B34"
-                    strokeWidth="1.5"
-                  />
-                  <path
-                    d="M13.7884 13.0872C13.8097 12.6862 13.9222 11.9526 13.3125 11.3951M13.3125 11.3951C13.1238 11.2226 12.866 11.0669 12.5149 10.9431C11.2583 10.5003 9.71484 11.9826 10.8067 13.3395C11.3936 14.0688 11.8461 14.2932 11.8035 15.1214C11.7735 15.7041 11.2012 16.3128 10.4469 16.5447C9.7916 16.7461 9.06876 16.4794 8.61156 15.9685C8.05332 15.3448 8.1097 14.7567 8.10492 14.5004M13.3125 11.3951L14.0006 10.707M8.66131 16.0463L8.00781 16.6998"
-                    stroke="#141B34"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <p className="text-lg font-medium">Potential Value</p>
-                <div className="rounded-sm bg-[#DEEDEC] px-3 py-1 text-sm font-medium tracking-wide text-primary">
-                  High Confidence
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base font-medium text-muted-foreground">
-                  Low Range
-                </span>
-                <span className="text-lg font-medium">$410,000</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base font-medium text-muted-foreground">
-                  Mid Range
-                </span>
-                <span className="text-lg font-medium">$410,000</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base font-medium text-muted-foreground">
-                  High Range
-                </span>
-                <span className="text-lg font-medium">$410,000</span>
-              </div>
-            </div> */}
           </div>
         </div>
       </div>
 
       <Separator className="my-2 h-px w-full" />
+
       {/* Bidding info*/}
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="">
@@ -1003,7 +714,7 @@ export default function PropertyDetailsPage() {
               Bidding Info
             </p>
           </div>
-          <div className="grid grid-cols-1 items-start gap-5 lg:gap-0 xl:grid-cols-2">
+          <div className="grid grid-cols-1 items-start gap-10 lg:gap-0 xl:grid-cols-2">
             <div className="max-h-[50vh] overflow-y-auto lg:max-h-[65vh]">
               <table className="mt-4 w-full text-left">
                 <thead>
@@ -1019,26 +730,51 @@ export default function PropertyDetailsPage() {
                     .map((request, index) => {
                       return (
                         <tr key={index}>
-                          <td className="py-2">
-                            <div className="flex items-center gap-2">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C0D9BF]">
-                                <img
-                                  src={generateAvatarFromAddress(
-                                    `0x${request.initiator}`,
-                                  )}
-                                  className="h-7 w-7"
-                                  alt=""
-                                />
+                          <td className="max-w-[200px] py-2">
+                            <div
+                              role="button"
+                              className="flex w-fit cursor-pointer items-center gap-2"
+                              onClick={() => {
+                                navigate(
+                                  `/profile?address=${request?.initiator}`,
+                                  {
+                                    state: request?.user,
+                                  },
+                                );
+                              }}
+                            >
+                              <div className="size-12 rounded-[12px] border p-0.5">
+                                <div className="size-full rounded-[10px] border bg-[#C0D9BF]">
+                                  <img
+                                    src={generateAvatarFromAddress(
+                                      request.initiator,
+                                    )}
+                                    alt={request.initiator}
+                                    width={48}
+                                    height={48}
+                                    className="rounded-[8px] object-contain"
+                                  />
+                                </div>
                               </div>
-                              <p className="text-sm text-[#475467]">
-                                {truncateAddr(`0x${request.initiator}`)}
-                              </p>
+                              <div className="flex flex-col">
+                                <div className="flex items-center gap-1.5">
+                                  <p className="text-sm font-medium capitalize text-foreground">
+                                    {request.user?.details.name}
+                                  </p>
+                                  {request.user?.verified && (
+                                    <MdVerified className="mt-px size-4 text-primary" />
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  {truncateAddr(request.initiator)}
+                                </p>
+                              </div>
                             </div>
                           </td>
-                          <td className="py-2 text-sm">
+                          <td className="py-2 text-sm font-medium">
                             {String(index + 1).padStart(2, "0")}
                           </td>
-                          <td className="py-2 text-sm">
+                          <td className="py-2 text-sm font-medium">
                             ${request.price.toLocaleString()}
                           </td>
                         </tr>
@@ -1046,7 +782,11 @@ export default function PropertyDetailsPage() {
                     })}
                 </tbody>
               </table>
-              {purchaseRequests.length === 0 ? (
+              {listing?.tag === "Sold" ? (
+                <p className="mt-5 text-center text-sm text-muted-foreground">
+                  This property has been sold!
+                </p>
+              ) : purchaseRequests.length === 0 ? (
                 <p className="mt-5 text-center text-sm text-muted-foreground">
                   No biddings yet
                 </p>
@@ -1059,17 +799,19 @@ export default function PropertyDetailsPage() {
           </div>
         </div>
       </div>
+
       <Separator className="my-2 h-px w-full" />
+
       {/* INTERIOR, OUTDOOR & UTILITIES DETAILS */}
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
-        <div className="grid w-full grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-20 lg:p-10">
+        <div className="grid w-full grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-20 lg:grid-cols-3 lg:p-10">
           <div className="flex flex-col gap-6">
             <p className="text-lg text-muted-foreground">Interior Details</p>
 
             <ul className="flex flex-col gap-2 pl-4">
               {listing?.details?.interior?.map((int: any, key: number) => (
                 <li key={key} className="list-disc text-base font-medium">
-                  {int.text}
+                  {int.text ?? int}
                 </li>
               ))}
             </ul>
@@ -1080,7 +822,7 @@ export default function PropertyDetailsPage() {
             <ul className="flex flex-col gap-2 pl-4">
               {listing?.details?.exterior?.map((ext: any, key: number) => (
                 <li key={key} className="list-disc text-base font-medium">
-                  {ext.text}
+                  {ext.text ?? ext}
                 </li>
               ))}
             </ul>
@@ -1091,7 +833,7 @@ export default function PropertyDetailsPage() {
             <ul className="flex flex-col gap-2 pl-4">
               {listing?.details?.utilities?.map((utils: any, key: number) => (
                 <li key={key} className="list-disc text-base font-medium">
-                  {utils.text}
+                  {utils.text ?? utils}
                 </li>
               ))}
             </ul>
@@ -1100,6 +842,7 @@ export default function PropertyDetailsPage() {
       </div>
 
       <Separator className="my-2 h-px w-full" />
+
       {/* FLOOR PLANS */}
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="flex w-full flex-col gap-10 xl:flex-row">
@@ -1144,24 +887,27 @@ export default function PropertyDetailsPage() {
       </div>
 
       <Separator className="my-2 h-px w-full" />
+
       {/* VIDEO SNIPPET */}
       {listing?.details?.videosCid?.length && (
-        <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] 2xl:flex-row">
-          <video
-            controls
-            muted
-            autoPlay
-            loop
-            className="aspect-video w-full rounded-lg"
-          >
-            <source
-              src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-            />
-          </video>
-        </div>
+        <>
+          <div className="flex aspect-video flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] 2xl:flex-row">
+            <video
+              controls
+              muted
+              autoPlay
+              loop
+              className="aspect-video w-full rounded-lg"
+            >
+              <source
+                src={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.videosCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+              />
+            </video>
+          </div>
+          <Separator className="my-2 h-px w-full" />
+        </>
       )}
 
-      <Separator className="my-2 h-px w-full" />
       {/* AGENT DETAILS & MAP */}
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="flex w-full flex-col gap-6 sm:max-w-full xl:max-w-full xl:flex-row 2xl:max-w-lg 2xl:flex-col">
@@ -1171,190 +917,149 @@ export default function PropertyDetailsPage() {
                 <p className="text-xl font-medium">Agent details</p>
 
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-1">
-                    <p className="font-medium capitalize">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-base font-medium capitalize text-primary">
                       {listing?.owner_details?.details.name}
                     </p>
-                    {listing?.owner_details?.user_type === "Entity" ? (
-                      listing?.owner_details.verified ? (
-                        <Verified size={19} color="#166534" />
-                      ) : (
-                        <div className="rounded-full border border-red-500 px-3 py-0.5 text-sm font-bold text-red-500">
-                          Not verified
-                        </div>
-                      )
-                    ) : null}
+                    {listing?.owner_details?.verified && (
+                      <MdVerified className="mt-px size-5 text-primary" />
+                    )}
                   </div>
-                  <p className="text-muted-foreground">
-                    {listing?.owner_details?.details?.email}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-muted-foreground">
+                      {listing?.owner_details?.details?.email}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {listing?.owner_details?.user_type}
+                    </p>
+                  </div>
                 </div>
               </div>
 
               <Button
                 onClick={() => {
-                  navigate(`/profile/0x${listing?.owner}`, {
+                  navigate(`/profile?address=${listing?.owner}`, {
                     state: listing?.owner_details,
                   });
                 }}
                 size={"lg"}
+                disabled={isOwner}
                 className="rounded-full"
               >
-                <svg
-                  width="27"
-                  height="27"
-                  viewBox="0 0 27 27"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M4.89453 11.654C4.89453 7.56846 4.89453 5.52572 6.16373 4.25651C7.43294 2.9873 9.47569 2.9873 13.5612 2.9873H15.1862C19.2717 2.9873 21.3145 2.9873 22.5836 4.25651C23.8529 5.52572 23.8529 7.56846 23.8529 11.654V15.9873C23.8529 20.0728 23.8529 22.1156 22.5836 23.3847C21.3145 24.654 19.2717 24.654 15.1862 24.654H13.5612C9.47569 24.654 7.43294 24.654 6.16373 23.3847C4.89453 22.1156 4.89453 20.0728 4.89453 15.9873V11.654Z"
-                    stroke="white"
-                    strokeWidth="1.5"
-                  />
-                  <path
-                    d="M11.1771 13.7923C10.715 12.9864 10.4918 12.3283 10.3573 11.6612C10.1583 10.6748 10.6137 9.71108 11.3681 9.09618C11.687 8.8363 12.0525 8.92509 12.241 9.26336L12.6667 10.027C13.0041 10.6323 13.1728 10.935 13.1393 11.2559C13.1059 11.5767 12.8784 11.838 12.4234 12.3607L11.1771 13.7923ZM11.1771 13.7923C12.1126 15.4233 13.5806 16.8922 15.2136 17.8288M15.2136 17.8288C16.0195 18.2909 16.6775 18.5141 17.3446 18.6486C18.3311 18.8476 19.2947 18.3922 19.9096 17.6378C20.1695 17.3188 20.0808 16.9533 19.7425 16.7648L18.9788 16.3392C18.3735 16.0017 18.0709 15.833 17.75 15.8665C17.4291 15.9 17.1678 16.1275 16.6451 16.5825L15.2136 17.8288Z"
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M5.97786 7.32031H3.26953M5.97786 13.8203H3.26953M5.97786 20.3203H3.26953"
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-
-                <span>View Agent</span>
+                {isOwner ? (
+                  <span>No action needed</span>
+                ) : (
+                  <>
+                    <RiUser6Line className="!size-5" />
+                    <span>View Agent's Profile</span>
+                  </>
+                )}
               </Button>
             </div>
-            {isOwner ? (
-              <button
-                onClick={handleInspection}
-                className="rounded bg-blue-600 px-4 py-2 text-white"
-              >
-                Add Inspection
-              </button>
-            ) : (
-              <div className="flex flex-1 flex-col gap-16 rounded-md border p-6 sm:rounded-xl sm:p-8">
-                <div className="flex flex-col gap-7">
-                  <p className="text-xl font-medium">Inspection times</p>
-                  <button onClick={handleInspection}>Inspection</button>
 
-                  {/* Add to calendar card! */}
-                  <div className="flex flex-col">
-                    <p className="text-muted-foreground">
-                      Inspection and property viewing are still happening
-                    </p>
-                    <p className="text-lg font-medium text-primary sm:text-2xl">
-                      Wednesday 3 Dec, 1:00pm - 1:40pm
-                    </p>
-                  </div>
-                </div>
-                {/* Add to calendar dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size={"lg"} className="rounded-full">
-                      <svg
-                        width="27"
-                        height="27"
-                        viewBox="0 0 27 27"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M4.89453 11.654C4.89453 7.56846 4.89453 5.52572 6.16373 4.25651C7.43294 2.9873 9.47569 2.9873 13.5612 2.9873H15.1862C19.2717 2.9873 21.3145 2.9873 22.5836 4.25651C23.8529 5.52572 23.8529 7.56846 23.8529 11.654V15.9873C23.8529 20.0728 23.8529 22.1156 22.5836 23.3847C21.3145 24.654 19.2717 24.654 15.1862 24.654H13.5612C9.47569 24.654 7.43294 24.654 6.16373 23.3847C4.89453 22.1156 4.89453 20.0728 4.89453 15.9873V11.654Z"
-                          stroke="white"
-                          strokeWidth="1.5"
-                        />
-                        <path
-                          d="M11.1771 13.7923C10.715 12.9864 10.4918 12.3283 10.3573 11.6612C10.1583 10.6748 10.6137 9.71108 11.3681 9.09618C11.687 8.8363 12.0525 8.92509 12.241 9.26336L12.6667 10.027C13.0041 10.6323 13.1728 10.935 13.1393 11.2559C13.1059 11.5767 12.8784 11.838 12.4234 12.3607L11.1771 13.7923ZM11.1771 13.7923C12.1126 15.4233 13.5806 16.8922 15.2136 17.8288M15.2136 17.8288C16.0195 18.2909 16.6775 18.5141 17.3446 18.6486C18.3311 18.8476 19.2947 18.3922 19.9096 17.6378C20.1695 17.3188 20.0808 16.9533 19.7425 16.7648L18.9788 16.3392C18.3735 16.0017 18.0709 15.833 17.75 15.8665C17.4291 15.9 17.1678 16.1275 16.6451 16.5825L15.2136 17.8288Z"
-                          stroke="white"
-                          strokeWidth="1.5"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M5.97786 7.32031H3.26953M5.97786 13.8203H3.26953M5.97786 20.3203H3.26953"
-                          stroke="white"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-
-                      <span>Add to calender</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    side="bottom"
-                    sideOffset={0}
-                    className="w-[280px]"
-                  >
-                    {calendarLinks.map((link, index) => (
-                      <Link to={link.url} target="_blank" key={index}>
-                        <DropdownMenuItem className="gap-3">
-                          <link.icon className="!size-5" />
-                          <span>{link.label}</span>
-                        </DropdownMenuItem>
-                      </Link>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
+            <InspectionCard
+              isOwner={isOwner}
+              ownerAddress={listing?.owner_details?.address as string}
+              location={listing?.details?.map?.name}
+            />
           </div>
         </div>
 
         {/* dangerouslySetInnerHTML={{ __html: listing?.details?.map }}  */}
-        <div
-          dangerouslySetInnerHTML={{ __html: listing?.details?.map }}
-          className="-z-0 aspect-[1.4] w-full flex-1 overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl"
-        >
-          {/* <MapView
-            location={listing?.details?.region?.country?.countryName}
-            center={[
-              listing?.details?.location?.latitude,
-              listing?.details?.location?.longitude,
-            ]}
-          /> */}
-        </div>
+        {(listing?.details?.map?.name &&
+          listing?.details?.map?.lat &&
+          listing?.details?.map?.long) ||
+        listing?.details?.map?.lng ? (
+          <div className="-z-0 aspect-[1.4] w-full flex-1 overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl">
+            <MapContainer
+              center={[
+                listing?.details?.map?.lat,
+                listing?.details?.map?.long || listing?.details?.map?.lng,
+              ]}
+              zoom={6}
+              className="h-full w-full"
+              key={[
+                listing?.details?.map?.lat,
+                listing?.details?.map?.long || listing?.details?.map?.lng,
+              ].join(",")}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {/*
+                <TileLayer
+                  attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                />
+
+                <TileLayer
+                  attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                />
+
+                <TileLayer
+                  attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>'
+                  url="https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png"
+                />
+
+                <TileLayer
+                  attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>'
+                  url="https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+                />
+
+                <TileLayer
+                  attribution='Map data: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+                  url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+                />
+                */}
+              <Marker
+                position={[
+                  listing?.details?.map?.lat,
+                  listing?.details?.map?.long || listing?.details?.map?.lng,
+                ]}
+                icon={customIcon}
+              />
+            </MapContainer>
+          </div>
+        ) : (
+          <div
+            dangerouslySetInnerHTML={{ __html: listing?.details?.map }}
+            className="-z-0 aspect-[1.4] w-full flex-1 overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl"
+          ></div>
+        )}
       </div>
 
       <Separator className="my-2 h-px w-full" />
 
       <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:p-10 2xl:flex-row">
         <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-          {listing?.details?.licenseCid.map((_: unknown, _index: number) => (
-            <div
-              key={_index}
-              className="flex items-center gap-4 rounded-2xl bg-secondary p-4"
-            >
-              <div className="flex size-14 items-center justify-center rounded-full bg-background">
-                <PiFolderOpenDuotone className="size-8" />
-              </div>
+          {listing?.details?.licenseCid &&
+            listing?.details?.licenseCid.map((_: unknown, _index: number) => (
+              <div
+                key={_index}
+                className="flex items-center gap-4 rounded-2xl bg-secondary p-4"
+              >
+                <div className="flex size-14 items-center justify-center rounded-full bg-background">
+                  <PiFolderOpenDuotone className="size-8" />
+                </div>
 
-              <div className="flex flex-1 flex-col">
-                <p className="text-base font-medium md:text-lg">
-                  Property License
-                  {/* {license?.path?.replace("./", "").substring(0, 15)} */}
-                </p>
-                {/* <p className="text-sm text-muted-foreground">
-                  PDF - {license?.size}MB
-                </p> */}
-              </div>
+                <div className="flex flex-1 flex-col">
+                  <p className="text-base font-medium md:text-lg">
+                    Property License
+                  </p>
+                </div>
 
-              <div className="ml-auto mr-2">
-                <Link
-                  target="_blank"
-                  to={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.licenseCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-                >
-                  <RxOpenInNewWindow className="size-6" role="button" />
-                </Link>
+                <div className="ml-auto mr-2">
+                  <Link
+                    target="_blank"
+                    to={`${import.meta.env.VITE_PINATA_GATEWAY}/${listing?.details.licenseCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+                  >
+                    <RxOpenInNewWindow className="size-6" role="button" />
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>
@@ -1380,6 +1085,8 @@ const Modal: React.FC<ModalProps> = ({
   onSubmit,
   loading,
 }) => {
+  const navigate = useNavigate();
+
   // Always call hooks at the top level
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
@@ -1445,7 +1152,6 @@ const Modal: React.FC<ModalProps> = ({
           </button>
         </div>
         <div>
-          {" "}
           <div className="flex w-full flex-col gap-10 xl:flex-row xl:items-start">
             <div className="flex w-full flex-col gap-6">
               <div className="w-full overflow-hidden rounded-2xl border bg-secondary">
@@ -1508,25 +1214,50 @@ const Modal: React.FC<ModalProps> = ({
                         return (
                           <tr key={index}>
                             <td className="py-2">
-                              <div className="flex items-center gap-2">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C0D9BF]">
-                                  <img
-                                    src={generateAvatarFromAddress(
-                                      `0x${request.initiator}`,
-                                    )}
-                                    className="h-7 w-7"
-                                    alt=""
-                                  />
+                              <div
+                                role="button"
+                                className="flex w-fit cursor-pointer items-center gap-2"
+                                onClick={() => {
+                                  navigate(
+                                    `/profile?address=${request?.initiator}`,
+                                    {
+                                      state: request?.user,
+                                    },
+                                  );
+                                }}
+                              >
+                                <div className="size-12 rounded-[12px] border p-0.5">
+                                  <div className="size-full rounded-[10px] border bg-[#C0D9BF]">
+                                    <img
+                                      src={generateAvatarFromAddress(
+                                        request.initiator,
+                                      )}
+                                      alt={request.initiator}
+                                      width={48}
+                                      height={48}
+                                      className="rounded-[8px] object-contain"
+                                    />
+                                  </div>
                                 </div>
-                                <p className="text-sm text-[#475467]">
-                                  {truncateAddr(`0x${request.initiator}`)}
-                                </p>
+                                <div className="flex flex-col">
+                                  <div className="flex items-center gap-1.5">
+                                    <p className="text-sm font-medium capitalize text-foreground">
+                                      {request.user?.details.name}
+                                    </p>
+                                    {request.user?.verified && (
+                                      <MdVerified className="mt-px size-4 text-primary" />
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">
+                                    {truncateAddr(request.initiator)}
+                                  </p>
+                                </div>
                               </div>
                             </td>
-                            <td className="py-2 text-sm">
+                            <td className="py-2 text-sm font-medium">
                               {String(index + 1).padStart(2, "0")}
                             </td>
-                            <td className="py-2 text-sm">
+                            <td className="py-2 text-sm font-medium">
                               ${request.price.toLocaleString()}
                             </td>
                           </tr>

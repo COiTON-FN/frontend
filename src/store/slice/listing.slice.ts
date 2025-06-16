@@ -6,7 +6,7 @@ export interface I_LISTING_DETAILS {
   owner?: string;
   email: string;
   phone: string;
-  propertyType: string;
+  propertyType: "building" | "land";
   listingType: "Rent" | "Sale";
   title: string;
   country: string;
@@ -39,24 +39,24 @@ export interface I_LISTING_DETAILS {
   createdAt?: string;
 }
 
-export type ListingTag = "Sold"|"ForSale";
+export type ListingTag = "Sold" | "ForSale";
 
 export type Listing = {
-    id: number,
-     details: any,
-     owner: string,
-     price: number,
-     tag: ListingTag,
-     owner_details:User|undefined
-}
+  id: number;
+  details: any;
+  owner: string;
+  price: number;
+  tag: ListingTag;
+  owner_details: User | undefined;
+};
 
-export type PurchaseRequest =  {
-     listing_id: number,
-     request_id: number,
-     price: number,
-     initiator: string,
-     user?: User
-}
+export type PurchaseRequest = {
+  listing_id: number;
+  request_id: number;
+  price: number;
+  initiator: string;
+  user?: User;
+};
 
 export interface I_LISTING_SLICE {
   id: number;
@@ -68,7 +68,7 @@ export interface I_LISTING_SLICE {
 interface I_LISTING_STATE {
   // approved: I_LISTING_SLICE[];
   // unapproved: I_LISTING_SLICE[];
-  listings:Listing[];
+  listings: Listing[];
   isLoading: boolean;
   error: string | null;
 }
@@ -93,6 +93,6 @@ const listingSlice = createSlice({
   },
 });
 
-export const { setListing,addListing } = listingSlice.actions;
+export const { setListing, addListing } = listingSlice.actions;
 
 export default listingSlice.reducer;

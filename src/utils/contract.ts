@@ -1,4 +1,3 @@
-import { type Abi as ABI } from "starknet";
 import { variables } from "./variables";
 
 export const contract = {
@@ -7,491 +6,713 @@ export const contract = {
   erc721Address: variables.erc721Address as `0x${string}`,
   daoABI: [
     {
-      "type": "impl",
-      "name": "CoitonImpl",
-      "interface_name": "coiton::mods::interfaces::icoiton::ICoiton"
+      type: "impl",
+      name: "CoitonImpl",
+      interface_name: "coiton::mods::interfaces::icoiton::ICoiton",
     },
     {
-      "type": "enum",
-      "name": "coiton::mods::types::UserType",
-      "variants": [
-        { "name": "Individual", "type": "()" },
-        { "name": "Entity", "type": "()" }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "core::byte_array::ByteArray",
-      "members": [
+      type: "enum",
+      name: "coiton::mods::types::UserType",
+      variants: [
         {
-          "name": "data",
-          "type": "core::array::Array::<core::bytes_31::bytes31>"
-        },
-        { "name": "pending_word", "type": "core::felt252" },
-        { "name": "pending_word_len", "type": "core::integer::u32" }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "core::integer::u256",
-      "members": [
-        { "name": "low", "type": "core::integer::u128" },
-        { "name": "high", "type": "core::integer::u128" }
-      ]
-    },
-    {
-      "type": "enum",
-      "name": "core::bool",
-      "variants": [
-        { "name": "False", "type": "()" },
-        { "name": "True", "type": "()" }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "coiton::mods::types::User",
-      "members": [
-        { "name": "id", "type": "core::integer::u256" },
-        { "name": "verified", "type": "core::bool" },
-        { "name": "details", "type": "core::byte_array::ByteArray" },
-        { "name": "user_type", "type": "coiton::mods::types::UserType" },
-        {
-          "name": "address",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        { "name": "registered", "type": "core::bool" }
-      ]
-    },
-    {
-      "type": "enum",
-      "name": "coiton::mods::types::ListingType",
-      "variants": [
-        { "name": "Land", "type": "()" },
-        { "name": "Building", "type": "()" }
-      ]
-    },
-    {
-      "type": "enum",
-      "name": "coiton::mods::types::ListingTag",
-      "variants": [
-        { "name": "Sold", "type": "()" },
-        { "name": "ForSale", "type": "()" }
-      ]
-    },
-    {
-      "type": "enum",
-      "name": "core::option::Option::<coiton::mods::types::User>",
-      "variants": [
-        { "name": "Some", "type": "coiton::mods::types::User" },
-        { "name": "None", "type": "()" }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "coiton::mods::types::Listing",
-      "members": [
-        { "name": "id", "type": "core::integer::u256" },
-        { "name": "details", "type": "core::byte_array::ByteArray" },
-        {
-          "name": "owner",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        { "name": "price", "type": "core::integer::u256" },
-        { "name": "tag", "type": "coiton::mods::types::ListingTag" },
-        {
-          "name": "owner_details",
-          "type": "core::option::Option::<coiton::mods::types::User>"
-        },
-        { "name": "listing_type", "type": "coiton::mods::types::ListingType" }
-      ]
-    },
-    {
-      "type": "enum",
-      "name": "core::option::Option::<core::integer::u256>",
-      "variants": [
-        { "name": "Some", "type": "core::integer::u256" },
-        { "name": "None", "type": "()" }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "coiton::mods::types::PurchaseRequest",
-      "members": [
-        { "name": "listing_id", "type": "core::integer::u256" },
-        { "name": "request_id", "type": "core::integer::u256" },
-        { "name": "price", "type": "core::integer::u256" },
-        {
-          "name": "initiator",
-          "type": "core::starknet::contract_address::ContractAddress"
+          name: "Individual",
+          type: "()",
         },
         {
-          "name": "user",
-          "type": "core::option::Option::<coiton::mods::types::User>"
-        }
-      ]
+          name: "Entity",
+          type: "()",
+        },
+      ],
     },
     {
-      "type": "interface",
-      "name": "coiton::mods::interfaces::icoiton::ICoiton",
-      "items": [
+      type: "struct",
+      name: "core::byte_array::ByteArray",
+      members: [
         {
-          "type": "function",
-          "name": "register",
-          "inputs": [
-            { "name": "user_type", "type": "coiton::mods::types::UserType" },
-            { "name": "details", "type": "core::byte_array::ByteArray" }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
+          name: "data",
+          type: "core::array::Array::<core::bytes_31::bytes31>",
         },
         {
-          "type": "function",
-          "name": "verify_user",
-          "inputs": [
+          name: "pending_word",
+          type: "core::felt252",
+        },
+        {
+          name: "pending_word_len",
+          type: "core::integer::u32",
+        },
+      ],
+    },
+    {
+      type: "struct",
+      name: "core::integer::u256",
+      members: [
+        {
+          name: "low",
+          type: "core::integer::u128",
+        },
+        {
+          name: "high",
+          type: "core::integer::u128",
+        },
+      ],
+    },
+    {
+      type: "enum",
+      name: "core::bool",
+      variants: [
+        {
+          name: "False",
+          type: "()",
+        },
+        {
+          name: "True",
+          type: "()",
+        },
+      ],
+    },
+    {
+      type: "struct",
+      name: "coiton::mods::types::User",
+      members: [
+        {
+          name: "id",
+          type: "core::integer::u256",
+        },
+        {
+          name: "verified",
+          type: "core::bool",
+        },
+        {
+          name: "details",
+          type: "core::byte_array::ByteArray",
+        },
+        {
+          name: "user_type",
+          type: "coiton::mods::types::UserType",
+        },
+        {
+          name: "address",
+          type: "core::starknet::contract_address::ContractAddress",
+        },
+        {
+          name: "registered",
+          type: "core::bool",
+        },
+      ],
+    },
+    {
+      type: "enum",
+      name: "coiton::mods::types::ListingType",
+      variants: [
+        {
+          name: "Land",
+          type: "()",
+        },
+        {
+          name: "Building",
+          type: "()",
+        },
+      ],
+    },
+    {
+      type: "enum",
+      name: "coiton::mods::types::ListingTag",
+      variants: [
+        {
+          name: "Sold",
+          type: "()",
+        },
+        {
+          name: "ForSale",
+          type: "()",
+        },
+      ],
+    },
+    {
+      type: "enum",
+      name: "core::option::Option::<coiton::mods::types::User>",
+      variants: [
+        {
+          name: "Some",
+          type: "coiton::mods::types::User",
+        },
+        {
+          name: "None",
+          type: "()",
+        },
+      ],
+    },
+    {
+      type: "struct",
+      name: "coiton::mods::types::Listing",
+      members: [
+        {
+          name: "id",
+          type: "core::integer::u256",
+        },
+        {
+          name: "details",
+          type: "core::byte_array::ByteArray",
+        },
+        {
+          name: "owner",
+          type: "core::starknet::contract_address::ContractAddress",
+        },
+        {
+          name: "price",
+          type: "core::integer::u256",
+        },
+        {
+          name: "tag",
+          type: "coiton::mods::types::ListingTag",
+        },
+        {
+          name: "owner_details",
+          type: "core::option::Option::<coiton::mods::types::User>",
+        },
+        {
+          name: "listing_type",
+          type: "coiton::mods::types::ListingType",
+        },
+      ],
+    },
+    {
+      type: "enum",
+      name: "core::option::Option::<core::integer::u256>",
+      variants: [
+        {
+          name: "Some",
+          type: "core::integer::u256",
+        },
+        {
+          name: "None",
+          type: "()",
+        },
+      ],
+    },
+    {
+      type: "struct",
+      name: "coiton::mods::types::PurchaseRequest",
+      members: [
+        {
+          name: "listing_id",
+          type: "core::integer::u256",
+        },
+        {
+          name: "request_id",
+          type: "core::integer::u256",
+        },
+        {
+          name: "price",
+          type: "core::integer::u256",
+        },
+        {
+          name: "initiator",
+          type: "core::starknet::contract_address::ContractAddress",
+        },
+        {
+          name: "user",
+          type: "core::option::Option::<coiton::mods::types::User>",
+        },
+      ],
+    },
+    {
+      type: "interface",
+      name: "coiton::mods::interfaces::icoiton::ICoiton",
+      items: [
+        {
+          type: "function",
+          name: "register",
+          inputs: [
             {
-              "name": "address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "get_user",
-          "inputs": [
-            {
-              "name": "address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ],
-          "outputs": [{ "type": "coiton::mods::types::User" }],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "create_listing",
-          "inputs": [
-            {
-              "name": "listing_type",
-              "type": "coiton::mods::types::ListingType"
+              name: "user_type",
+              type: "coiton::mods::types::UserType",
             },
-            { "name": "price", "type": "core::integer::u256" },
-            { "name": "details", "type": "core::byte_array::ByteArray" }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "get_all_listings",
-          "inputs": [],
-          "outputs": [
-            { "type": "core::array::Array::<coiton::mods::types::Listing>" }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "get_listings_by_ids",
-          "inputs": [
             {
-              "name": "ids",
-              "type": "core::array::Array::<core::integer::u256>"
-            }
+              name: "details",
+              type: "core::byte_array::ByteArray",
+            },
           ],
-          "outputs": [
-            { "type": "core::array::Array::<coiton::mods::types::Listing>" }
-          ],
-          "state_mutability": "view"
+          outputs: [],
+          state_mutability: "external",
         },
         {
-          "type": "function",
-          "name": "get_listing",
-          "inputs": [{ "name": "id", "type": "core::integer::u256" }],
-          "outputs": [{ "type": "coiton::mods::types::Listing" }],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "get_user_listings",
-          "inputs": [
+          type: "function",
+          name: "verify_user",
+          inputs: [
             {
-              "name": "address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
+              name: "address",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
           ],
-          "outputs": [
-            { "type": "core::array::Array::<coiton::mods::types::Listing>" }
-          ],
-          "state_mutability": "view"
+          outputs: [],
+          state_mutability: "external",
         },
         {
-          "type": "function",
-          "name": "create_purchase_request",
-          "inputs": [
-            { "name": "listing_id", "type": "core::integer::u256" },
+          type: "function",
+          name: "get_user",
+          inputs: [
             {
-              "name": "bid_price",
-              "type": "core::option::Option::<core::integer::u256>"
-            }
+              name: "address",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
           ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "approve_purchase_request",
-          "inputs": [
-            { "name": "listing_id", "type": "core::integer::u256" },
-            { "name": "request_id", "type": "core::integer::u256" }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "get_listings_with_purchase_requests",
-          "inputs": [
+          outputs: [
             {
-              "name": "address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
+              type: "coiton::mods::types::User",
+            },
           ],
-          "outputs": [
-            { "type": "core::array::Array::<coiton::mods::types::Listing>" }
-          ],
-          "state_mutability": "view"
+          state_mutability: "view",
         },
         {
-          "type": "function",
-          "name": "get_listing_purchase_requests",
-          "inputs": [{ "name": "id", "type": "core::integer::u256" }],
-          "outputs": [
+          type: "function",
+          name: "create_listing",
+          inputs: [
             {
-              "type": "core::array::Array::<coiton::mods::types::PurchaseRequest>"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "get_owner",
-          "inputs": [],
-          "outputs": [
-            { "type": "core::starknet::contract_address::ContractAddress" }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "get_purchase",
-          "inputs": [
-            { "name": "listing_id", "type": "core::integer::u256" },
-            { "name": "request_id", "type": "core::integer::u256" }
-          ],
-          "outputs": [{ "type": "coiton::mods::types::PurchaseRequest" }],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "get_wallet_balance",
-          "inputs": [],
-          "outputs": [{ "type": "core::integer::u256" }],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "set_erc721",
-          "inputs": [
+              name: "listing_type",
+              type: "coiton::mods::types::ListingType",
+            },
             {
-              "name": "address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "set_erc20",
-          "inputs": [
+              name: "price",
+              type: "core::integer::u256",
+            },
             {
-              "name": "address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
+              name: "details",
+              type: "core::byte_array::ByteArray",
+            },
           ],
-          "outputs": [],
-          "state_mutability": "external"
+          outputs: [],
+          state_mutability: "external",
         },
         {
-          "type": "function",
-          "name": "get_erc20",
-          "inputs": [],
-          "outputs": [
-            { "type": "core::starknet::contract_address::ContractAddress" }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "get_erc721",
-          "inputs": [],
-          "outputs": [
-            { "type": "core::starknet::contract_address::ContractAddress" }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "upgrade",
-          "inputs": [
+          type: "function",
+          name: "get_users_by_type",
+          inputs: [
             {
-              "name": "impl_hash",
-              "type": "core::starknet::class_hash::ClassHash"
-            }
+              name: "user_type",
+              type: "coiton::mods::types::UserType",
+            },
           ],
-          "outputs": [],
-          "state_mutability": "external"
+          outputs: [
+            {
+              type: "core::array::Array::<coiton::mods::types::User>",
+            },
+          ],
+          state_mutability: "view",
         },
         {
-          "type": "function",
-          "name": "version",
-          "inputs": [],
-          "outputs": [{ "type": "core::integer::u16" }],
-          "state_mutability": "view"
+          type: "function",
+          name: "get_all_listings",
+          inputs: [],
+          outputs: [
+            {
+              type: "core::array::Array::<coiton::mods::types::Listing>",
+            },
+          ],
+          state_mutability: "view",
         },
         {
-          "type": "function",
-          "name": "withdraw",
-          "inputs": [],
-          "outputs": [],
-          "state_mutability": "external"
-        }
-      ]
+          type: "function",
+          name: "get_listings_by_ids",
+          inputs: [
+            {
+              name: "ids",
+              type: "core::array::Array::<core::integer::u256>",
+            },
+          ],
+          outputs: [
+            {
+              type: "core::array::Array::<coiton::mods::types::Listing>",
+            },
+          ],
+          state_mutability: "view",
+        },
+        {
+          type: "function",
+          name: "get_listing",
+          inputs: [
+            {
+              name: "id",
+              type: "core::integer::u256",
+            },
+          ],
+          outputs: [
+            {
+              type: "coiton::mods::types::Listing",
+            },
+          ],
+          state_mutability: "view",
+        },
+        {
+          type: "function",
+          name: "get_user_listings",
+          inputs: [
+            {
+              name: "address",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+          outputs: [
+            {
+              type: "core::array::Array::<coiton::mods::types::Listing>",
+            },
+          ],
+          state_mutability: "view",
+        },
+        {
+          type: "function",
+          name: "create_purchase_request",
+          inputs: [
+            {
+              name: "listing_id",
+              type: "core::integer::u256",
+            },
+            {
+              name: "bid_price",
+              type: "core::option::Option::<core::integer::u256>",
+            },
+          ],
+          outputs: [],
+          state_mutability: "external",
+        },
+        {
+          type: "function",
+          name: "approve_purchase_request",
+          inputs: [
+            {
+              name: "listing_id",
+              type: "core::integer::u256",
+            },
+            {
+              name: "request_id",
+              type: "core::integer::u256",
+            },
+          ],
+          outputs: [],
+          state_mutability: "external",
+        },
+        {
+          type: "function",
+          name: "get_listings_with_purchase_requests",
+          inputs: [
+            {
+              name: "address",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+          outputs: [
+            {
+              type: "core::array::Array::<coiton::mods::types::Listing>",
+            },
+          ],
+          state_mutability: "view",
+        },
+        {
+          type: "function",
+          name: "update_listing_tag",
+          inputs: [
+            {
+              name: "listing_id",
+              type: "core::integer::u256",
+            },
+            {
+              name: "tag",
+              type: "coiton::mods::types::ListingTag",
+            },
+          ],
+          outputs: [],
+          state_mutability: "external",
+        },
+        {
+          type: "function",
+          name: "get_listing_purchase_requests",
+          inputs: [
+            {
+              name: "id",
+              type: "core::integer::u256",
+            },
+          ],
+          outputs: [
+            {
+              type: "core::array::Array::<coiton::mods::types::PurchaseRequest>",
+            },
+          ],
+          state_mutability: "view",
+        },
+        {
+          type: "function",
+          name: "get_owner",
+          inputs: [],
+          outputs: [
+            {
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+          state_mutability: "view",
+        },
+        {
+          type: "function",
+          name: "get_purchase",
+          inputs: [
+            {
+              name: "listing_id",
+              type: "core::integer::u256",
+            },
+            {
+              name: "request_id",
+              type: "core::integer::u256",
+            },
+          ],
+          outputs: [
+            {
+              type: "coiton::mods::types::PurchaseRequest",
+            },
+          ],
+          state_mutability: "view",
+        },
+        {
+          type: "function",
+          name: "get_wallet_balance",
+          inputs: [],
+          outputs: [
+            {
+              type: "core::integer::u256",
+            },
+          ],
+          state_mutability: "view",
+        },
+        {
+          type: "function",
+          name: "set_erc721",
+          inputs: [
+            {
+              name: "address",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+          outputs: [],
+          state_mutability: "external",
+        },
+        {
+          type: "function",
+          name: "set_erc20",
+          inputs: [
+            {
+              name: "address",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+          outputs: [],
+          state_mutability: "external",
+        },
+        {
+          type: "function",
+          name: "get_erc20",
+          inputs: [],
+          outputs: [
+            {
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+          state_mutability: "view",
+        },
+        {
+          type: "function",
+          name: "get_erc721",
+          inputs: [],
+          outputs: [
+            {
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+          state_mutability: "view",
+        },
+        {
+          type: "function",
+          name: "upgrade",
+          inputs: [
+            {
+              name: "impl_hash",
+              type: "core::starknet::class_hash::ClassHash",
+            },
+          ],
+          outputs: [],
+          state_mutability: "external",
+        },
+        {
+          type: "function",
+          name: "version",
+          inputs: [],
+          outputs: [
+            {
+              type: "core::integer::u16",
+            },
+          ],
+          state_mutability: "view",
+        },
+        {
+          type: "function",
+          name: "withdraw",
+          inputs: [],
+          outputs: [],
+          state_mutability: "external",
+        },
+      ],
     },
     {
-      "type": "constructor",
-      "name": "constructor",
-      "inputs": [
+      type: "constructor",
+      name: "constructor",
+      inputs: [
         {
-          "name": "owner",
-          "type": "core::starknet::contract_address::ContractAddress"
-        }
-      ]
+          name: "owner",
+          type: "core::starknet::contract_address::ContractAddress",
+        },
+      ],
     },
     {
-      "type": "event",
-      "name": "coiton::mods::events::Upgrade",
-      "kind": "struct",
-      "members": [
+      type: "event",
+      name: "coiton::mods::events::Upgrade",
+      kind: "struct",
+      members: [
         {
-          "name": "implementation",
-          "type": "core::starknet::class_hash::ClassHash",
-          "kind": "key"
-        }
-      ]
+          name: "implementation",
+          type: "core::starknet::class_hash::ClassHash",
+          kind: "key",
+        },
+      ],
     },
     {
-      "type": "enum",
-      "name": "coiton::mods::events::UserEventType",
-      "variants": [
-        { "name": "Register", "type": "()" },
-        { "name": "Verify", "type": "()" }
-      ]
+      type: "enum",
+      name: "coiton::mods::events::UserEventType",
+      variants: [
+        {
+          name: "Register",
+          type: "()",
+        },
+        {
+          name: "Verify",
+          type: "()",
+        },
+      ],
     },
     {
-      "type": "event",
-      "name": "coiton::mods::events::User",
-      "kind": "struct",
-      "members": [
-        { "name": "id", "type": "core::integer::u256", "kind": "key" },
+      type: "event",
+      name: "coiton::mods::events::User",
+      kind: "struct",
+      members: [
         {
-          "name": "address",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
+          name: "id",
+          type: "core::integer::u256",
+          kind: "key",
         },
         {
-          "name": "event_type",
-          "type": "coiton::mods::events::UserEventType",
-          "kind": "data"
-        }
-      ]
+          name: "address",
+          type: "core::starknet::contract_address::ContractAddress",
+          kind: "key",
+        },
+        {
+          name: "event_type",
+          type: "coiton::mods::events::UserEventType",
+          kind: "data",
+        },
+      ],
     },
     {
-      "type": "event",
-      "name": "coiton::mods::events::CreateListing",
-      "kind": "struct",
-      "members": [
-        { "name": "id", "type": "core::integer::u256", "kind": "key" },
+      type: "event",
+      name: "coiton::mods::events::CreateListing",
+      kind: "struct",
+      members: [
         {
-          "name": "owner",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
+          name: "id",
+          type: "core::integer::u256",
+          kind: "key",
         },
-        { "name": "price", "type": "core::integer::u256", "kind": "key" }
-      ]
+        {
+          name: "owner",
+          type: "core::starknet::contract_address::ContractAddress",
+          kind: "key",
+        },
+        {
+          name: "price",
+          type: "core::integer::u256",
+          kind: "key",
+        },
+      ],
     },
     {
-      "type": "enum",
-      "name": "coiton::mods::events::PurchaseRequestType",
-      "variants": [
-        { "name": "Create", "type": "()" },
-        { "name": "Approve", "type": "()" }
-      ]
+      type: "enum",
+      name: "coiton::mods::events::PurchaseRequestType",
+      variants: [
+        {
+          name: "Create",
+          type: "()",
+        },
+        {
+          name: "Approve",
+          type: "()",
+        },
+      ],
     },
     {
-      "type": "event",
-      "name": "coiton::mods::events::PurchaseRequest",
-      "kind": "struct",
-      "members": [
-        { "name": "listing_id", "type": "core::integer::u256", "kind": "key" },
-        { "name": "request_id", "type": "core::integer::u256", "kind": "key" },
+      type: "event",
+      name: "coiton::mods::events::PurchaseRequest",
+      kind: "struct",
+      members: [
         {
-          "name": "bid_price",
-          "type": "core::option::Option::<core::integer::u256>",
-          "kind": "data"
+          name: "listing_id",
+          type: "core::integer::u256",
+          kind: "key",
         },
         {
-          "name": "initiator",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
+          name: "request_id",
+          type: "core::integer::u256",
+          kind: "key",
         },
         {
-          "name": "request_type",
-          "type": "coiton::mods::events::PurchaseRequestType",
-          "kind": "data"
-        }
-      ]
+          name: "bid_price",
+          type: "core::option::Option::<core::integer::u256>",
+          kind: "data",
+        },
+        {
+          name: "initiator",
+          type: "core::starknet::contract_address::ContractAddress",
+          kind: "key",
+        },
+        {
+          name: "request_type",
+          type: "coiton::mods::events::PurchaseRequestType",
+          kind: "data",
+        },
+      ],
     },
     {
-      "type": "event",
-      "name": "coiton::Coiton::Event",
-      "kind": "enum",
-      "variants": [
+      type: "event",
+      name: "coiton::Coiton::Event",
+      kind: "enum",
+      variants: [
         {
-          "name": "Upgrade",
-          "type": "coiton::mods::events::Upgrade",
-          "kind": "nested"
+          name: "Upgrade",
+          type: "coiton::mods::events::Upgrade",
+          kind: "nested",
         },
         {
-          "name": "User",
-          "type": "coiton::mods::events::User",
-          "kind": "nested"
+          name: "User",
+          type: "coiton::mods::events::User",
+          kind: "nested",
         },
         {
-          "name": "CreateListing",
-          "type": "coiton::mods::events::CreateListing",
-          "kind": "nested"
+          name: "CreateListing",
+          type: "coiton::mods::events::CreateListing",
+          kind: "nested",
         },
         {
-          "name": "PurchaseRequest",
-          "type": "coiton::mods::events::PurchaseRequest",
-          "kind": "nested"
-        }
-      ]
-    }
-  ] as const satisfies ABI,
+          name: "PurchaseRequest",
+          type: "coiton::mods::events::PurchaseRequest",
+          kind: "nested",
+        },
+      ],
+    },
+  ] as const,
   erc20ABI: [
     {
       type: "impl",
@@ -1024,290 +1245,290 @@ export const contract = {
         },
       ],
     },
-  ] as const satisfies ABI,
+  ] as const,
   erc721ABI: [
     {
-      "type": "impl",
-      "name": "MyTokenImpl",
-      "interface_name": "coiton::mods::interfaces::ierc721::IERC721"
+      type: "impl",
+      name: "MyTokenImpl",
+      interface_name: "coiton::mods::interfaces::ierc721::IERC721",
     },
     {
-      "type": "struct",
-      "name": "core::integer::u256",
-      "members": [
+      type: "struct",
+      name: "core::integer::u256",
+      members: [
         {
-          "name": "low",
-          "type": "core::integer::u128"
+          name: "low",
+          type: "core::integer::u128",
         },
         {
-          "name": "high",
-          "type": "core::integer::u128"
-        }
-      ]
+          name: "high",
+          type: "core::integer::u128",
+        },
+      ],
     },
     {
-      "type": "interface",
-      "name": "coiton::mods::interfaces::ierc721::IERC721",
-      "items": [
+      type: "interface",
+      name: "coiton::mods::interfaces::ierc721::IERC721",
+      items: [
         {
-          "type": "function",
-          "name": "mint_coiton_nft",
-          "inputs": [
+          type: "function",
+          name: "mint_coiton_nft",
+          inputs: [
             {
-              "name": "address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
+              name: "address",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
           ],
-          "outputs": [],
-          "state_mutability": "external"
+          outputs: [],
+          state_mutability: "external",
         },
         {
-          "type": "function",
-          "name": "get_last_minted_id",
-          "inputs": [],
-          "outputs": [
+          type: "function",
+          name: "get_last_minted_id",
+          inputs: [],
+          outputs: [
             {
-              "type": "core::integer::u256"
-            }
+              type: "core::integer::u256",
+            },
           ],
-          "state_mutability": "view"
+          state_mutability: "view",
         },
         {
-          "type": "function",
-          "name": "get_user_token_id",
-          "inputs": [
+          type: "function",
+          name: "get_user_token_id",
+          inputs: [
             {
-              "name": "user",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
+              name: "user",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
           ],
-          "outputs": [
+          outputs: [
             {
-              "type": "core::integer::u256"
-            }
+              type: "core::integer::u256",
+            },
           ],
-          "state_mutability": "view"
+          state_mutability: "view",
         },
         {
-          "type": "function",
-          "name": "get_token_mint_timestamp",
-          "inputs": [
+          type: "function",
+          name: "get_token_mint_timestamp",
+          inputs: [
             {
-              "name": "token_id",
-              "type": "core::integer::u256"
-            }
+              name: "token_id",
+              type: "core::integer::u256",
+            },
           ],
-          "outputs": [
+          outputs: [
             {
-              "type": "core::integer::u64"
-            }
+              type: "core::integer::u64",
+            },
           ],
-          "state_mutability": "view"
+          state_mutability: "view",
         },
         {
-          "type": "function",
-          "name": "get_approved",
-          "inputs": [
+          type: "function",
+          name: "get_approved",
+          inputs: [
             {
-              "name": "token_id",
-              "type": "core::integer::u256"
-            }
+              name: "token_id",
+              type: "core::integer::u256",
+            },
           ],
-          "outputs": [
+          outputs: [
             {
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
+              type: "core::starknet::contract_address::ContractAddress",
+            },
           ],
-          "state_mutability": "view"
+          state_mutability: "view",
         },
         {
-          "type": "function",
-          "name": "approve",
-          "inputs": [
+          type: "function",
+          name: "approve",
+          inputs: [
             {
-              "name": "to",
-              "type": "core::starknet::contract_address::ContractAddress"
+              name: "to",
+              type: "core::starknet::contract_address::ContractAddress",
             },
             {
-              "name": "token_id",
-              "type": "core::integer::u256"
-            }
+              name: "token_id",
+              type: "core::integer::u256",
+            },
           ],
-          "outputs": [],
-          "state_mutability": "external"
+          outputs: [],
+          state_mutability: "external",
         },
         {
-          "type": "function",
-          "name": "transfer_from",
-          "inputs": [
+          type: "function",
+          name: "transfer_from",
+          inputs: [
             {
-              "name": "from",
-              "type": "core::starknet::contract_address::ContractAddress"
+              name: "from",
+              type: "core::starknet::contract_address::ContractAddress",
             },
             {
-              "name": "to",
-              "type": "core::starknet::contract_address::ContractAddress"
+              name: "to",
+              type: "core::starknet::contract_address::ContractAddress",
             },
             {
-              "name": "token_id",
-              "type": "core::integer::u256"
-            }
+              name: "token_id",
+              type: "core::integer::u256",
+            },
           ],
-          "outputs": [],
-          "state_mutability": "external"
+          outputs: [],
+          state_mutability: "external",
         },
         {
-          "type": "function",
-          "name": "owner_of",
-          "inputs": [
+          type: "function",
+          name: "owner_of",
+          inputs: [
             {
-              "name": "token_id",
-              "type": "core::integer::u256"
-            }
+              name: "token_id",
+              type: "core::integer::u256",
+            },
           ],
-          "outputs": [
+          outputs: [
             {
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
+              type: "core::starknet::contract_address::ContractAddress",
+            },
           ],
-          "state_mutability": "view"
-        }
-      ]
+          state_mutability: "view",
+        },
+      ],
     },
     {
-      "type": "constructor",
-      "name": "constructor",
-      "inputs": [
+      type: "constructor",
+      name: "constructor",
+      inputs: [
         {
-          "name": "admin",
-          "type": "core::starknet::contract_address::ContractAddress"
-        }
-      ]
+          name: "admin",
+          type: "core::starknet::contract_address::ContractAddress",
+        },
+      ],
     },
     {
-      "type": "event",
-      "name": "openzeppelin_token::erc721::erc721::ERC721Component::Transfer",
-      "kind": "struct",
-      "members": [
+      type: "event",
+      name: "openzeppelin_token::erc721::erc721::ERC721Component::Transfer",
+      kind: "struct",
+      members: [
         {
-          "name": "from",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
+          name: "from",
+          type: "core::starknet::contract_address::ContractAddress",
+          kind: "key",
         },
         {
-          "name": "to",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
+          name: "to",
+          type: "core::starknet::contract_address::ContractAddress",
+          kind: "key",
         },
         {
-          "name": "token_id",
-          "type": "core::integer::u256",
-          "kind": "key"
-        }
-      ]
+          name: "token_id",
+          type: "core::integer::u256",
+          kind: "key",
+        },
+      ],
     },
     {
-      "type": "event",
-      "name": "openzeppelin_token::erc721::erc721::ERC721Component::Approval",
-      "kind": "struct",
-      "members": [
+      type: "event",
+      name: "openzeppelin_token::erc721::erc721::ERC721Component::Approval",
+      kind: "struct",
+      members: [
         {
-          "name": "owner",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
+          name: "owner",
+          type: "core::starknet::contract_address::ContractAddress",
+          kind: "key",
         },
         {
-          "name": "approved",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
+          name: "approved",
+          type: "core::starknet::contract_address::ContractAddress",
+          kind: "key",
         },
         {
-          "name": "token_id",
-          "type": "core::integer::u256",
-          "kind": "key"
-        }
-      ]
+          name: "token_id",
+          type: "core::integer::u256",
+          kind: "key",
+        },
+      ],
     },
     {
-      "type": "enum",
-      "name": "core::bool",
-      "variants": [
+      type: "enum",
+      name: "core::bool",
+      variants: [
         {
-          "name": "False",
-          "type": "()"
+          name: "False",
+          type: "()",
         },
         {
-          "name": "True",
-          "type": "()"
-        }
-      ]
+          name: "True",
+          type: "()",
+        },
+      ],
     },
     {
-      "type": "event",
-      "name": "openzeppelin_token::erc721::erc721::ERC721Component::ApprovalForAll",
-      "kind": "struct",
-      "members": [
+      type: "event",
+      name: "openzeppelin_token::erc721::erc721::ERC721Component::ApprovalForAll",
+      kind: "struct",
+      members: [
         {
-          "name": "owner",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
+          name: "owner",
+          type: "core::starknet::contract_address::ContractAddress",
+          kind: "key",
         },
         {
-          "name": "operator",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
+          name: "operator",
+          type: "core::starknet::contract_address::ContractAddress",
+          kind: "key",
         },
         {
-          "name": "approved",
-          "type": "core::bool",
-          "kind": "data"
-        }
-      ]
+          name: "approved",
+          type: "core::bool",
+          kind: "data",
+        },
+      ],
     },
     {
-      "type": "event",
-      "name": "openzeppelin_token::erc721::erc721::ERC721Component::Event",
-      "kind": "enum",
-      "variants": [
+      type: "event",
+      name: "openzeppelin_token::erc721::erc721::ERC721Component::Event",
+      kind: "enum",
+      variants: [
         {
-          "name": "Transfer",
-          "type": "openzeppelin_token::erc721::erc721::ERC721Component::Transfer",
-          "kind": "nested"
+          name: "Transfer",
+          type: "openzeppelin_token::erc721::erc721::ERC721Component::Transfer",
+          kind: "nested",
         },
         {
-          "name": "Approval",
-          "type": "openzeppelin_token::erc721::erc721::ERC721Component::Approval",
-          "kind": "nested"
+          name: "Approval",
+          type: "openzeppelin_token::erc721::erc721::ERC721Component::Approval",
+          kind: "nested",
         },
         {
-          "name": "ApprovalForAll",
-          "type": "openzeppelin_token::erc721::erc721::ERC721Component::ApprovalForAll",
-          "kind": "nested"
-        }
-      ]
+          name: "ApprovalForAll",
+          type: "openzeppelin_token::erc721::erc721::ERC721Component::ApprovalForAll",
+          kind: "nested",
+        },
+      ],
     },
     {
-      "type": "event",
-      "name": "openzeppelin_introspection::src5::SRC5Component::Event",
-      "kind": "enum",
-      "variants": []
+      type: "event",
+      name: "openzeppelin_introspection::src5::SRC5Component::Event",
+      kind: "enum",
+      variants: [],
     },
     {
-      "type": "event",
-      "name": "coiton::mods::tokens::erc721::MyToken::Event",
-      "kind": "enum",
-      "variants": [
+      type: "event",
+      name: "coiton::mods::tokens::erc721::MyToken::Event",
+      kind: "enum",
+      variants: [
         {
-          "name": "ERC721Event",
-          "type": "openzeppelin_token::erc721::erc721::ERC721Component::Event",
-          "kind": "flat"
+          name: "ERC721Event",
+          type: "openzeppelin_token::erc721::erc721::ERC721Component::Event",
+          kind: "flat",
         },
         {
-          "name": "SRC5Event",
-          "type": "openzeppelin_introspection::src5::SRC5Component::Event",
-          "kind": "flat"
-        }
-      ]
-    }
-  ] as const satisfies ABI,
+          name: "SRC5Event",
+          type: "openzeppelin_introspection::src5::SRC5Component::Event",
+          kind: "flat",
+        },
+      ],
+    },
+  ] as const,
 };

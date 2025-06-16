@@ -11,7 +11,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -26,19 +25,22 @@ type PhoneInputProps = Omit<
 > &
   Omit<RPNInput.Props<typeof RPNInput.default>, "onChange"> & {
     onChange?: (value: RPNInput.Value) => void;
+    error?: boolean;
   };
 
 const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
   React.forwardRef<React.ElementRef<typeof RPNInput.default>, PhoneInputProps>(
-    ({ className, onChange, ...props }, ref) => {
+    ({ className, error, onChange, ...props }, ref) => {
       return (
         <RPNInput.default
           ref={ref}
           className={cn("flex", className)}
           flagComponent={FlagComponent}
-          countrySelectComponent={CountrySelect}
-          inputComponent={InputComponent}
-          smartCaret={false}
+          countrySelectComponent={(props) => (
+            <CountrySelect {...props} error={error} />
+          )}
+          inputComponent={MemoizedPhoneInput}
+          disabled={props.disabled}
           /**
            * Handles the onChange event.
            *
@@ -48,21 +50,35 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
            *
            * @param {E164Number | undefined} value - The entered value
            */
-          onChange={(value) => onChange?.(value || ("" as RPNInput.Value))}
+          onChange={(value) => onChange?.((value ?? "") as RPNInput.Value)}
           {...props}
         />
       );
-    }
+    },
   );
 PhoneInput.displayName = "PhoneInput";
 
-const InputComponent = React.forwardRef<
-  HTMLInputElement,
-  React.ComponentProps<"input">
->(({ className, ...props }, ref) => (
-  <Input className={cn("!rounded-l-none", className)} {...props} ref={ref} />
-));
-InputComponent.displayName = "InputComponent";
+const CustomPhoneInput = React.forwardRef<HTMLInputElement, any>(
+  ({ className, error, ...props }, ref) => {
+    return (
+      <input
+        ref={ref}
+        className={cn(
+          "flex h-12 w-full rounded-md rounded-l-none border border-neutral-200 bg-background px-4 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 sm:h-14 sm:rounded-xl sm:rounded-l-none md:px-5 md:text-[15px]",
+          className,
+          {
+            "border-destructive focus-visible:ring-destructive": error,
+          },
+        )}
+        disabled={props.disabled}
+        {...props}
+      />
+    );
+  },
+);
+CustomPhoneInput.displayName = "CustomPhoneInput";
+
+const MemoizedPhoneInput = React.memo(CustomPhoneInput);
 
 type CountryEntry = { label: string; value: RPNInput.Country | undefined };
 
@@ -71,6 +87,7 @@ type CountrySelectProps = {
   value: RPNInput.Country;
   options: CountryEntry[];
   onChange: (country: RPNInput.Country) => void;
+  error?: boolean;
 };
 
 const CountrySelect = ({
@@ -78,6 +95,7 @@ const CountrySelect = ({
   value: selectedCountry,
   options: countryList,
   onChange,
+  error,
 }: CountrySelectProps) => {
   return (
     <Popover>
@@ -85,10 +103,11 @@ const CountrySelect = ({
         <div
           className={buttonVariants({
             className: cn(
-              "flex gap-1 rounded-e-none h-12 sm:h-14 rounded-s-md sm:rounded-s-xl border-r-0 px-4 focus:z-10",
+              "flex h-12 gap-1 rounded-e-none rounded-s-md border-r-0 px-4 focus:z-10 sm:h-14 sm:rounded-s-xl",
               {
                 "pointer-events-none select-none opacity-80": disabled,
-              }
+                "!border-destructive": error,
+              },
             ),
             variant: "outline",
           })}
@@ -99,8 +118,8 @@ const CountrySelect = ({
           />
           <ChevronsUpDown
             className={cn(
-              "-mr-2 size-4 opacity-50",
-              disabled ? "hidden" : "opacity-100"
+              "mr-2 size-4 opacity-50",
+              disabled ? "hidden" : "opacity-100",
             )}
           />
         </div>
@@ -121,7 +140,7 @@ const CountrySelect = ({
                       selectedCountry={selectedCountry}
                       onChange={onChange}
                     />
-                  ) : null
+                  ) : null,
                 )}
               </CommandGroup>
             </ScrollArea>
@@ -148,7 +167,7 @@ const CountrySelectOption = ({
       <FlagComponent country={country} countryName={countryName} />
       <span className="flex-1 text-sm">{countryName}</span>
       <span className="text-sm text-foreground/50">{`+${RPNInput.getCountryCallingCode(
-        country
+        country,
       )}`}</span>
       <CheckIcon
         className={`ml-auto h-4 w-6 ${

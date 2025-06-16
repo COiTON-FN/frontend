@@ -1,23 +1,28 @@
+import { Fragment, useCallback, useEffect, useMemo, useRef } from "react";
 import { RouterProvider } from "react-router-dom";
 import { Toaster as SonnerToast } from "./components/ui/sonner";
 import { Toaster as NoticeToast } from "./components/ui/toaster";
 import { routes } from "./routes";
-import { Fragment } from "react/jsx-runtime";
-import { useEffect, useRef } from "react";
+
 import { useAppDispatch, useAppSelector } from "./store";
 import { useContractInstance } from "./hooks/useContractInstance.hook";
+import { byteArrayToString, toHex } from "./lib/starknet/utils";
+import { generateAvatarFromAddress } from "./lib/utils";
+
 import {
-  setHasRegistered,
   setIsWalletConnected,
   setWalletAddress,
+  setHasRegistered,
+  setContractOwner,
 } from "./store/slice/wallet.slice";
-import { toast } from "sonner";
-import { byteArrayToString } from "./lib/starknet/utils";
 import { setCredential, User } from "./store/slice/credential.slice";
-import { Listing, setListing } from "./store/slice/listing.slice";
-import { generateAvatarFromAddress } from "./lib/utils";
+import { setListing, Listing } from "./store/slice/listing.slice";
+import { setUsers } from "./store/slice/users.slice";
+
+import { useWalletHook } from "./hooks/useWallet.hook";
 import { SessionAccountInterface } from "@argent/invisible-sdk";
-import useWalletHook from "./hooks/useWallet.hook";
+import { CairoCustomEnum } from "starknet";
+import { toast } from "sonner";
 
 interface Wallet {
   IsConnected: boolean;
@@ -31,73 +36,99 @@ declare global {
 }
 
 export default function App() {
-  const { walletAddress } = useAppSelector((state) => state.wallet);
   const dispatch = useAppDispatch();
-  const { getArgentWallet } = useWalletHook();
+  const { walletAddress } = useAppSelector((state) => state.wallet);
+
+  const { argentWebWallet } = useWalletHook();
   const { getContractInstance } = useContractInstance();
+
+  const individualEnum = useMemo(
+    () => new CairoCustomEnum({ Individual: {} } as any),
+    [],
+  );
+  const entityEnum = useMemo(
+    () => new CairoCustomEnum({ Entity: {} } as any),
+    [],
+  );
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const formatUser = (user: any): User => ({
+    ...user,
+    address: toHex(user.address),
+    id: Number(user.id),
+    details: byteArrayToString(user.details),
+    user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
+  });
+
+  const fetchListings = useCallback(async () => {
+    const contract = getContractInstance();
+    if (!contract) return;
+    try {
+      const listings = await contract.get_all_listings();
+
+      const structured: Listing[] = listings.map((listing: any) => {
+        const user = listing.owner_details.Some;
+        const userConstruct = formatUser(user);
+
+        return {
+          id: Number(listing.id),
+          owner: toHex(listing.owner),
+          price: Number(listing.price),
+          tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
+          details: byteArrayToString(listing.details),
+          owner_details: userConstruct,
+        };
+      });
+
+      dispatch(setListing(structured));
+    } catch (error) {
+      console.error(error);
+    }
+  }, [dispatch, getContractInstance]);
+
+  const fetchUsers = useCallback(async () => {
+    const contract = getContractInstance();
+    if (!contract) return;
+    try {
+      const [individualsRaw, entitiesRaw] = await Promise.all([
+        contract.get_users_by_type(individualEnum),
+        contract.get_users_by_type(entityEnum),
+      ]);
+
+      const combined = [
+        ...entitiesRaw.map(formatUser),
+        ...individualsRaw.map(formatUser),
+      ];
+      dispatch(setUsers(combined));
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+    }
+  }, [dispatch, entityEnum, getContractInstance, individualEnum]);
 
   useEffect(() => {
     setTimeout(() => {
-      (async function () {
-        try {
-          const contract = getContractInstance();
-          if (!contract) return;
-
-          const listings = await contract.get_all_listings();
-
-          const structured: Listing[] = listings.map((listing: any) => {
-            const user = listing.owner_details.Some;
-
-            const user_construct: User = {
-              ...user,
-              address: BigInt(user.address).toString(16),
-              id: Number(user.id),
-              details: byteArrayToString(user.details),
-              user_type: user.user_type.variant.Entity
-                ? "Entity"
-                : "Individual",
-            };
-            return {
-              id: Number(listing.id),
-              owner: BigInt(listing.owner).toString(16),
-              price: Number(listing.price),
-              tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
-              details: byteArrayToString(listing.details),
-              owner_details: user_construct,
-            };
-          });
-
-          dispatch(setListing(structured));
-        } catch (error) {
-          console.log(error);
-        }
-      })();
-    }, 200);
-  }, [dispatch, getContractInstance]);
-
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+      fetchListings();
+      fetchUsers();
+    }, 10);
+  }, [fetchListings, fetchUsers]);
 
   useEffect(() => {
     const updateWalletAddress = () => {
-      if (!window.Wallet?.IsConnected) {
+      const connected = window.Wallet?.IsConnected;
+      const address = window.Wallet?.Account?.address;
+
+      if (!connected || !address) {
         dispatch(setWalletAddress(null));
         return;
       }
 
-      if (window.Wallet?.Account?.address && !walletAddress) {
-        dispatch(setWalletAddress(window.Wallet.Account.address));
-        dispatch(
-          setCredential({
-            avatar: generateAvatarFromAddress(window.Wallet.Account.address),
-          }),
-        );
-      }
+      dispatch(setWalletAddress(address));
+      dispatch(setCredential({ avatar: generateAvatarFromAddress(address) }));
     };
 
     updateWalletAddress();
 
-    // Start polling only if walletAddress is not set
-    if (!walletAddress) {
+    if (!walletAddress && !intervalRef.current) {
       intervalRef.current = setInterval(updateWalletAddress, 500);
     }
 
@@ -110,6 +141,7 @@ export default function App() {
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
       window.removeEventListener("windowWalletClassChange", handleWalletChange);
     };
@@ -118,56 +150,53 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        const argentWebWallet = getArgentWallet();
         const response = await argentWebWallet.connect();
-
-        if (!response || response === undefined) return null;
-
-        if (response?.account?.getSessionStatus() !== "VALID") {
-          console.log("Session is not valid");
+        if (!response || response.account.getSessionStatus() !== "VALID")
           return;
-        }
 
         window.Wallet = {
-          Account: response?.account,
+          Account: response.account,
           IsConnected: true,
         };
 
         dispatch(setIsWalletConnected(true));
-        dispatch(setWalletAddress(response?.account?.address));
+        dispatch(setWalletAddress(response.account.address));
 
         const event = new Event("windowWalletClassChange");
         window.dispatchEvent(event);
-        console.log({
-          response,
-          callbackData: response?.callbackData,
-          approvalTransactionHash: response?.approvalTransactionHash,
-        });
       } catch (error) {
-        console.error("Failed to connect to Argent Web Wallet", error);
+        const msg = "Failed to connect to Argent Web Wallet";
+        console.error(msg, error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : typeof error === "string"
+              ? error
+              : "Failed to connect to Argent Web Wallet";
+        toast.error(errorMessage);
       }
     })();
-  }, [dispatch, getArgentWallet]);
+  }, [argentWebWallet, dispatch]);
 
   useEffect(() => {
-    (async function () {
+    (async () => {
       try {
         if (!walletAddress) return;
+
         const contract = getContractInstance();
         if (!contract) return;
+
         const user = await contract.get_user(walletAddress);
+        const contractOwner = await contract.get_owner();
+
+        const userConstruct = formatUser(user);
+
         dispatch(setHasRegistered(true));
-        const user_construct: User = {
-          ...user,
-          address: BigInt(user.address).toString(16),
-          id: Number(user.id),
-          details: byteArrayToString(user.details),
-          user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
-        };
-        dispatch(setCredential(user_construct));
+        dispatch(setCredential(userConstruct));
+        dispatch(setContractOwner(toHex(contractOwner)));
       } catch (error) {
-        console.log("Error fetching user credentials: ", error);
-        toast.error("USER_NOT_REGISTERED");
+        console.error("Error fetching user credentials:", error);
+        toast.warning("Looks like you're not registered yet");
       }
     })();
   }, [dispatch, getContractInstance, walletAddress]);

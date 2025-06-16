@@ -10,7 +10,6 @@ import ListingCard from "@/components/shared/listing-card";
 import { useAppSelector } from "@/store";
 import { Listing } from "@/store/slice/listing.slice";
 import { IoMdCopy } from "react-icons/io";
-import InspectionForm from "@/components/shared/inspection-form";
 
 export default function DashboardPage() {
   const { fadeIn } = variants;
@@ -18,18 +17,6 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-4 py-4">
-      <InspectionForm
-        inspectionId="0x025de235bcba49aa753587d4ae45f6d71908db9e2b4152dca1246b80516e88ad"
-        type="create"
-      >
-        <Button>Create Inspection</Button>
-      </InspectionForm>
-      <InspectionForm
-        inspectionId="0x025de235bcba49aa753587d4ae45f6d71908db9e2b4152dca1246b80516e88ad"
-        type="update"
-      >
-        <Button>Update Inspection</Button>
-      </InspectionForm>
       <div className="h-[200px] w-full rounded-2xl bg-gradient-to-l from-[#0D857C] to-[#0EB9AC] p-[1px] sm:h-[240px] md:rounded-3xl">
         <div className="flex size-full overflow-hidden rounded-[inherit] bg-gradient-to-r from-[#056F67] to-[#0AADA1] text-white">
           <div className="lg:px-12">
@@ -85,7 +72,7 @@ export default function DashboardPage() {
       <Separator className="my-2 h-px w-full" />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-        <div className="relative h-max w-full overflow-hidden rounded-2xl border bg-[rgb(251,255,255)] md:h-[422px] md:rounded-3xl">
+        <div className="relative h-max w-full overflow-hidden rounded-2xl border bg-[rgb(251,255,255)] md:h-96 md:rounded-3xl">
           <div className="my-6 flex h-[55px] flex-col px-8 md:px-10">
             <p className="text-2xl font-medium text-primary">Bidding</p>
             <p className="text-base font-normal text-primary">
@@ -96,7 +83,7 @@ export default function DashboardPage() {
           <img src={assets.images.bidLg} className="size-full" />
         </div>
 
-        <div className="relative h-max w-full overflow-hidden rounded-2xl border border-[#056F67] bg-primary md:h-[422px] md:rounded-3xl">
+        <div className="relative h-max w-full overflow-hidden rounded-2xl border border-[#056F67] bg-primary md:h-96 md:rounded-3xl">
           <div className="relative z-[5] my-4 flex h-[55px] items-center justify-between px-8 md:px-10">
             <div className="flex items-center gap-3">
               <span className="size-[7px] rounded-full bg-[#3A9992]" />
@@ -111,7 +98,7 @@ export default function DashboardPage() {
           />
         </div>
 
-        <div className="aspect-[1.3] h-max w-full rounded-2xl bg-gradient-to-bl from-[#FFE692] to-[#B69C46] p-px text-[#9C7800] md:aspect-[1.8] md:h-[422px] md:flex-1 md:rounded-[24px] lg:aspect-auto">
+        <div className="aspect-[1.3] h-max w-full rounded-2xl bg-gradient-to-bl from-[#FFE692] to-[#B69C46] p-px text-[#9C7800] md:aspect-[1.8] md:h-96 md:flex-1 md:rounded-[24px] lg:aspect-auto">
           <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-[inherit] bg-[#FFFCF2] p-6 md:px-10 md:py-12">
             <h2 className="text-[40px] font-normal leading-[50px] md:text-5xl lg:text-6xl lg:leading-[1.2]">
               Dive Deeper into Coiton
@@ -146,7 +133,7 @@ export default function DashboardPage() {
 
       <Separator className="my-2 h-px w-full" />
 
-      <div className="rounded-2xl md:rounded-3xl md:border md:bg-background">
+      <div className="overflow-hidden rounded-2xl md:rounded-3xl md:border md:bg-background">
         {listings.length === 0 ? (
           <div className="mx-auto grid grid-cols-1 gap-4 overflow-y-auto py-6 md:gap-6 md:p-6 lg:grid-cols-2 2xl:grid-cols-3">
             {[...new Array(3)].map((_, _index) => (
@@ -191,8 +178,10 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="mx-auto grid grid-cols-1 gap-4 overflow-y-auto py-6 md:gap-6 md:p-6 lg:grid-cols-2 2xl:grid-cols-3">
-            {listings.slice(0, 3)?.map((listing: Listing) => {
-              return <ListingCard key={listing.id} listing={listing} />;
+            {listings.slice(0, 3)?.map((listing: Listing, index: number) => {
+              return (
+                <ListingCard key={listing.id} listing={listing} index={index} />
+              );
             })}
           </div>
         )}

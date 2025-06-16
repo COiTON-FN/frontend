@@ -1,129 +1,188 @@
 import { z } from "zod";
-import { listingTypes, propertyTypes } from "./constants";
-import { countryOptions } from "@/lib/utils";
 
-// ? CREATE LISTING FORM SCHEMA
-const propertyTypeValues = propertyTypes.map((type) => type.value);
-const countriesValue = countryOptions.map((type) => type.name);
-
-export const createListingSchema = z.object({
-  owner: z.string(),
+export const buildingFormSchema = z.object({
   // 1. Property Basics
-  propertyType: z.enum(propertyTypeValues as [string, ...string[]], {
-    required_error: "Property type is required",
-    message: "Property type is required",
-  }),
-  listingType: z.enum(listingTypes, {
-    required_error: "Listing type is required",
-  }),
-  title: z
-    .string()
-    .min(3, "Title must be at least 3 characters")
-    .max(30, "Title must not exceed 30 characters"),
-  country: z.enum(countriesValue as [string, ...string[]], {
-    required_error: "Country is required",
-  }),
-  location: z
-    .object({
-      id: z.coerce.number(),
-      name: z.coerce.string({ required_error: "Location is required" }),
-      latitude: z.coerce.number(),
-      longitude: z.coerce.number(),
-    })
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  images: z
+    .array(z.custom<File>())
+    .min(1, "Please select at least one image")
+    .max(10, "You can upload a maximum of 10 images")
+    .refine((files) => files.every((file) => file.size <= 5 * 1024 * 1024), {
+      message: "Each image must be less than 5MB",
+      path: ["files"],
+    }),
+  imagesCid: z.array(z.string()).optional(),
+  videos: z
+    .array(z.custom<File>())
+    .max(1, "You can upload a maximum of 1 videos")
     .optional(),
+  videosCid: z.array(z.string()).optional(),
+  description: z.string().min(5, "Description must be at least 5 characters"),
+  propertyType: z.string({ required_error: "Please select a property type" }),
+
+  // 2. Address
+  region: z
+    .tuple(
+      [
+        // Country
+        z.string().min(2, "Country is required"),
+        // State
+        z.string().min(2, "State is required"),
+      ],
+      {
+        required_error: "Please select a country",
+      },
+    )
+    .refine(([country]) => !!country, {
+      message: "Please select a country",
+    }),
+  zip: z
+    .string({ invalid_type_error: "ZIP code must be a number" })
+    .min(1, "ZIP code is required"),
+  landmark: z.string({ required_error: "Landmark is required" }).optional(),
+  area: z
+    .string({ required_error: "Area is required" })
+    .min(2, "Area is required"),
+  map: z.object(
+    {
+      lat: z.coerce.number({ invalid_type_error: "Latitude must be a number" }),
+      lng: z.coerce.number({
+        invalid_type_error: "Longitude must be a number",
+      }),
+      name: z.string().min(1, "Map name is required"),
+    },
+    { required_error: "Please select a location" },
+  ),
+
+  // 3. Details
   price: z.coerce
-    .number({
-      required_error: "Price is required",
-    })
-    .min(1, {
-      message: "Price must be at least $1",
-    }),
-  description: z
-    .string()
-    .min(5, "Description must be at least 5 characters")
-    .max(1000, "Description must not exceed 1000 characters"),
-
-  // 2. Property Features
-  bedrooms: z.coerce.number().min(1, {
-    message: "Must be at least 1",
-  }),
-  bathrooms: z.coerce.number().min(1, {
-    message: "Must be at least 1",
-  }),
-  sizeSqft: z.coerce.number().optional(),
-  landArea: z.coerce.number().optional(),
-  parkingSpaces: z.coerce.number().optional(),
+    .number({ invalid_type_error: "Price must be a number" })
+    .min(1, "Price is required"),
+  rooms: z.coerce
+    .number({ invalid_type_error: "Rooms must be a number" })
+    .min(1, "Number of rooms is required"),
+  bathrooms: z.coerce
+    .number({ invalid_type_error: "Bathrooms must be a number" })
+    .min(1, "Number of bathrooms is required"),
+  bedrooms: z.coerce
+    .number({ invalid_type_error: "Bedrooms must be a number" })
+    .min(1, "Number of bedrooms is required"),
   yearBuilt: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: "Invalid date format",
+    message: "Year built must be a valid date",
   }),
-  amenities: z.array(z.string()).optional(),
+  structureType: z.string({
+    required_error: "Please select a structure type",
+  }),
+  propertySize: z.coerce
+    .number({ invalid_type_error: "Property size must be a number" })
+    .min(1, "Property size is required"),
 
-  // 3. Property Media
-  banner: z
-    .array(z.instanceof(File), {
-      message: "Banner are required",
-    })
-    .min(1, {
-      message: "Banner is required",
-    })
-    .max(1, {
-      message: "Maximum 1 file are allowed",
-    }),
-  bannerCid: z.string().optional(),
-  media: z
-    .array(z.instanceof(File), {
-      message: "Property images are required",
-    })
-    .min(1, {
-      message: "Property images are required",
-    })
-    .max(10, {
-      message: "Maximum 10 files are allowed",
-    }),
-  mediaCid: z.array(z.string()).optional(),
+  // 4. Amenities and Features
+  interior: z
+    .array(z.string())
+    .nonempty("Please select at least one interior feature"),
+  exterior: z
+    .array(z.string())
+    .nonempty("Please select at least one exterior feature"),
+  utilities: z
+    .array(z.string())
+    .nonempty("Please select at least one utility")
+    .optional(),
 
-  // 4. Legal Documents
-  documents: z
-    .array(z.instanceof(File), {
-      message: "Legal document is required",
-    })
-    .min(1, {
-      message: "Minimum of 1 document is required",
-    })
-    .max(5, {
-      message: "Maximum of 5 documents are allowed",
+  // 5. Floor Plan
+  floorPlan: z
+    .array(z.custom<File>(), { required_error: "Floor plan is required" })
+    .min(1, "Please select at least one floor plan file")
+    .max(10, "You can upload a maximum of 10 floor plan files")
+    .refine((files) => files.every((file) => file.size <= 5 * 1024 * 1024), {
+      message: "Each floor plan file must be less than 5MB",
+      path: ["files"],
     }),
-  documentCid: z.array(z.string()).optional(),
+  floorPlanCid: z.array(z.string()).optional(),
+  license: z
+    .array(z.custom<File>(), { required_error: "License is required" })
+    .max(1, "You can upload only 1 license file")
+    .max(3, "You can upload at least 3 license file"),
+  licenseCid: z.array(z.string()).optional(),
 });
 
-export type CREATE_LISTING_SCHEMA = z.infer<typeof createListingSchema>;
+export type BuildingFormSchemaProps = z.infer<typeof buildingFormSchema>;
 
-// ? CREATE PROPOSAL FORM SCHEMA
-export const createProposalSchema = z.object({
-  title: z.coerce
-    .string({
-      required_error: "Title is required.",
-    })
-    .min(2, {
-      message: "Title must be at least 2 characters.",
+export const landFormSchema = z.object({
+  // 1. Property Basics
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  images: z
+    .array(z.custom<File>())
+    .min(1, "Please select at least one image")
+    .max(10, "You can upload a maximum of 10 images")
+    .refine((files) => files.every((file) => file.size <= 5 * 1024 * 1024), {
+      message: "Each image must be less than 5MB",
+      path: ["files"],
     }),
-  description: z.coerce
-    .string({
-      required_error: "Description title is required.",
-    })
-    .min(2, {
-      message: "Description must be at least 2 characters.",
+  imagesCid: z.array(z.string()).optional(),
+  videos: z
+    .array(z.custom<File>())
+    .max(1, "You can upload a maximum of 1 videos")
+    .optional(),
+  videosCid: z.array(z.string()).optional(),
+  description: z.string().min(5, "Description must be at least 5 characters"),
+  propertyType: z.string({ required_error: "Please select a property type" }),
+
+  // 2. Address
+  region: z
+    .tuple(
+      [
+        // Country
+        z.string().min(2, "Country is required"),
+        // State
+        z.string().min(2, "State is required"),
+      ],
+      {
+        required_error: "Please select a country",
+      },
+    )
+    .refine(([country]) => !!country, {
+      message: "Please select a country",
     }),
-  discussion: z.coerce
-    .string({
-      required_error: "Discussion title is required.",
-    })
-    .min(2, {
-      message: "Discussion must be at least 2 characters.",
+  zip: z
+    .string({ invalid_type_error: "ZIP code must be a number" })
+    .min(1, "ZIP code is required"),
+  landmark: z.string({ required_error: "Landmark is required" }).optional(),
+  area: z
+    .string({ required_error: "Area is required" })
+    .min(2, "Area is required"),
+  map: z.object(
+    {
+      lat: z.coerce.number({ invalid_type_error: "Latitude must be a number" }),
+      lng: z.coerce.number({
+        invalid_type_error: "Longitude must be a number",
+      }),
+      name: z.string().min(1, "Map name is required"),
+    },
+    { required_error: "Please select a location" },
+  ),
+
+  landSize: z.coerce
+    .number({ invalid_type_error: "Land size must be a number" })
+    .min(1, "Land size is required"),
+  surveyDescription: z
+    .string()
+    .min(5, "Description must be at least 5 characters"),
+  surveyPlan: z
+    .array(z.custom<File>())
+    .min(1, "Please select at least one image")
+    .max(3, "You can upload a maximum of 3 images")
+    .refine((files) => files.every((file) => file.size <= 5 * 1024 * 1024), {
+      message: "Each image must be less than 5MB",
+      path: ["files"],
     }),
+  surveyPlanCid: z.array(z.string()).optional(),
+  price: z.coerce
+    .number({ invalid_type_error: "Price must be a number" })
+    .min(1, "Price is required"),
 });
 
-export type CREATE_PROPOSAL_SCHEMA = z.infer<typeof createProposalSchema>;
+export type LandFormSchemaProps = z.infer<typeof landFormSchema>;
 
 // ? ONBOARDING SCHEMA
 export const onboardingSchema = z.object({
@@ -132,126 +191,3 @@ export const onboardingSchema = z.object({
 });
 
 export type ONBOARDING_SCHEMA = z.infer<typeof onboardingSchema>;
-
-export const registrationSchema = z.object({
-  isDao: z.coerce.boolean().default(false),
-  name: z
-    .string({ required_error: "Name is required" })
-    .min(2, "Name must be at least 2 characters")
-    .max(30, "Name must not exceed 30 characters"),
-  email: z.coerce
-    .string({ required_error: "Email is required" })
-    .email({ message: "Invalid email address" })
-    .min(3, "Email must be at least 3 characters"),
-  phone: z.object({
-    national: z.coerce
-      .string({ required_error: "Phone number is required" })
-      .min(1, { message: "Phone number is required" }),
-    international: z.coerce.string().optional(),
-  }),
-  region: z.object({
-    country: z
-      .object({
-        countryName: z.coerce
-          .string({ required_error: "Country is required" })
-          .min(1, {
-            message: "Country is required",
-          }),
-        countryCode: z.coerce
-          .string({ required_error: "Country is required" })
-          .min(1, {
-            message: "Country is required",
-          }),
-        countryFlag: z.coerce.string().optional(),
-        countryLat: z.coerce
-          .number({ required_error: "Country is required" })
-          .min(1, {
-            message: "Country is required",
-          }),
-        countryLong: z.coerce
-          .number({ required_error: "Country is required" })
-          .min(1, {
-            message: "Country is required",
-          }),
-      })
-      .refine((data) => data.countryCode !== "", {
-        message: "Country is required",
-        path: ["countryCode"],
-      }),
-    state: z
-      .object({
-        stateName: z.coerce
-          .string({ required_error: "State is required" })
-          .optional(),
-        stateCode: z.coerce
-          .string({ required_error: "State is required" })
-          .optional(),
-        countryCode: z.coerce
-          .string({ required_error: "State is required" })
-          .optional(),
-        stateLat: z.coerce
-          .number({ required_error: "State is required" })
-          .optional(),
-        stateLong: z.coerce
-          .number({ required_error: "State is required" })
-          .optional(),
-      })
-      .optional(),
-    // city: z
-    //   .object({
-    //     cityName: z.coerce
-    //       .string({ required_error: "City is required" })
-    //       .min(1, {
-    //         message: "City is required",
-    //       }),
-    //     stateCode: z.coerce
-    //       .string({ required_error: "City is required" })
-    //       .min(1, {
-    //         message: "City is required",
-    //       }),
-    //     countryCode: z.coerce
-    //       .string({ required_error: "City is required" })
-    //       .min(1, {
-    //         message: "City is required",
-    //       }),
-    //     cityLat: z.coerce
-    //       .number({ required_error: "City is required" })
-    //       .min(1, {
-    //         message: "City is required",
-    //       }),
-    //     cityLong: z.coerce
-    //       .number({ required_error: "City is required" })
-    //       .min(1, {
-    //         message: "City is required",
-    //       }),
-    //   })
-    //   .refine((data) => data.cityName !== "", {
-    //     message: "City is required",
-    //     path: ["cityName"],
-    //   }),
-  }),
-  socials: z
-    .array(
-      z.object({
-        id: z.string(),
-        url: z.string().url("Please enter a valid URL"),
-        type: z.enum([
-          "twitter",
-          "instagram",
-          "telegram",
-          "facebook",
-          "linkedin",
-          "other",
-        ]),
-      }),
-      {
-        required_error: "Please add at least one social media",
-      },
-    )
-    .min(1, "At least one social media is required")
-    .max(6, {
-      message: "You can only add up to 6 social media",
-    }),
-});
-
-export type PROPERTY_MANAGEMENT_SCHEMA = z.infer<typeof registrationSchema>;

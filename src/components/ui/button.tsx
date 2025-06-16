@@ -1,12 +1,11 @@
 import * as React from "react";
 import { motion, MotionProps } from "framer-motion";
-import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Loader } from "lucide-react";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-full text-base font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
@@ -15,17 +14,17 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-background hover:bg-accent text-muted-foreground hover:text-primary",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "text-primary hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-12 px-4 py-2",
-        sm: "h-10 rounded-md px-3",
+        default: "h-11 px-4 py-2",
+        sm: "h-10 rounded-md px-4",
         lg: "h-14 px-8 text-base",
-        icon: "h-12 w-12 p-0",
+        icon: "size-11",
       },
     },
     defaultVariants: {
@@ -42,46 +41,31 @@ export interface ButtonProps
     >,
     MotionProps,
     VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
   isLoading?: boolean;
   txt?: string;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      variant,
-      size,
-      asChild = false,
-      isLoading,
-      txt,
-      children,
-      ...props
-    },
-    ref,
-  ) => {
-    const Comp = asChild ? Slot : motion.button;
+  ({ isLoading, txt, children, className, variant, size, ...props }, ref) => {
     return (
-      <Comp
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 700, damping: 25 }}
         className={cn("gap-2", buttonVariants({ variant, size }), className)}
         ref={ref}
-        disabled={isLoading}
+        disabled={isLoading || props.disabled}
         {...props}
       >
-        {/* @ts-ignore */}
         {isLoading ? (
           <>
             <Loader className="h-4 w-4 animate-spin" />
             {txt}
           </>
         ) : (
-          children
+          (children as React.ReactNode)
         )}
-      </Comp>
+      </motion.button>
     );
   },
 );
