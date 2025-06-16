@@ -1,4 +1,3 @@
-import { type Abi as ABI } from "starknet";
 import { variables } from "./variables";
 
 export const contract = {
@@ -713,7 +712,7 @@ export const contract = {
         },
       ],
     },
-  ] as const satisfies ABI,
+  ] as const,
   erc20ABI: [
     {
       type: "impl",
@@ -1246,7 +1245,7 @@ export const contract = {
         },
       ],
     },
-  ] as const satisfies ABI,
+  ] as const,
   erc721ABI: [
     {
       type: "impl",
@@ -1531,5 +1530,5 @@ export const contract = {
         },
       ],
     },
-  ] as const satisfies ABI,
+  ] as const,
 };

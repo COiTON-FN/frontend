@@ -12,7 +12,7 @@
   font-display: swap;
 }
 
-iframe{
+iframe {
   width: 100%;
   height: 100%;
 }
@@ -237,4 +237,37 @@ body,
 
 .rti--container:focus {
   outline: 1px solid var(--primary);
+}
+
+/* In your global CSS file or within a Tailwind CSS @layer directive */
+.geoapify-autocomplete-input {
+  @apply !flex !h-14 !w-full !rounded-lg !border !border-neutral-200 !bg-background !px-5 !py-2 !text-sm !ring-offset-background placeholder:!text-muted-foreground focus-visible:!outline-none focus-visible:!ring-1 focus-visible:!ring-primary focus-visible:!ring-offset-1 disabled:!cursor-not-allowed disabled:!opacity-50 sm:!rounded-xl md:!text-[15px];
+}
+
+.geoapify-close-button {
+  @apply px-2;
+}
+
+.geoapify-close-button svg {
+  @apply !size-4;
+}
+
+.geoapify-autocomplete-items {
+  @apply !flex !flex-col !overflow-hidden !rounded-xl !border !border-border !bg-popover !text-popover-foreground;
+}
+
+.geoapify-autocomplete-items .geoapify-autocomplete-item {
+  @apply relative flex h-14 cursor-default select-none items-center gap-2 rounded-md px-4 text-base outline-none;
+}
+
+.geoapify-autocomplete-item .icon {
+  @apply !hidden;
+}
+
+.geoapify-autocomplete-item .main-part strong {
+  @apply text-sm font-semibold text-primary sm:text-[15px];
+}
+
+.geoapify-autocomplete-item .secondary-part {
+  @apply !ml-1.5 text-sm !font-normal sm:text-[15px];
 }

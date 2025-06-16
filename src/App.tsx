@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef } from "react";
 import { RouterProvider } from "react-router-dom";
 import { Toaster as SonnerToast } from "./components/ui/sonner";
 import { Toaster as NoticeToast } from "./components/ui/toaster";
@@ -19,7 +19,7 @@ import { setCredential, User } from "./store/slice/credential.slice";
 import { setListing, Listing } from "./store/slice/listing.slice";
 import { setUsers } from "./store/slice/users.slice";
 
-import useWalletHook from "./hooks/useWallet.hook";
+import { useWalletHook } from "./hooks/useWallet.hook";
 import { SessionAccountInterface } from "@argent/invisible-sdk";
 import { CairoCustomEnum } from "starknet";
 import { toast } from "sonner";
@@ -39,11 +39,17 @@ export default function App() {
   const dispatch = useAppDispatch();
   const { walletAddress } = useAppSelector((state) => state.wallet);
 
-  const { getArgentWallet } = useWalletHook();
+  const { argentWebWallet } = useWalletHook();
   const { getContractInstance } = useContractInstance();
 
-  const individualEnum = new CairoCustomEnum({ Individual: {} } as any);
-  const entityEnum = new CairoCustomEnum({ Entity: {} } as any);
+  const individualEnum = useMemo(
+    () => new CairoCustomEnum({ Individual: {} } as any),
+    [],
+  );
+  const entityEnum = useMemo(
+    () => new CairoCustomEnum({ Entity: {} } as any),
+    [],
+  );
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const formatUser = (user: any): User => ({
@@ -54,56 +60,57 @@ export default function App() {
     user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
   });
 
+  const fetchListings = useCallback(async () => {
+    const contract = getContractInstance();
+    if (!contract) return;
+    try {
+      const listings = await contract.get_all_listings();
+
+      const structured: Listing[] = listings.map((listing: any) => {
+        const user = listing.owner_details.Some;
+        const userConstruct = formatUser(user);
+
+        return {
+          id: Number(listing.id),
+          owner: toHex(listing.owner),
+          price: Number(listing.price),
+          tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
+          details: byteArrayToString(listing.details),
+          owner_details: userConstruct,
+        };
+      });
+
+      dispatch(setListing(structured));
+    } catch (error) {
+      console.error(error);
+    }
+  }, [dispatch, getContractInstance]);
+
+  const fetchUsers = useCallback(async () => {
+    const contract = getContractInstance();
+    if (!contract) return;
+    try {
+      const [individualsRaw, entitiesRaw] = await Promise.all([
+        contract.get_users_by_type(individualEnum),
+        contract.get_users_by_type(entityEnum),
+      ]);
+
+      const combined = [
+        ...entitiesRaw.map(formatUser),
+        ...individualsRaw.map(formatUser),
+      ];
+      dispatch(setUsers(combined));
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+    }
+  }, [dispatch, entityEnum, getContractInstance, individualEnum]);
+
   useEffect(() => {
-    const fetchListings = async () => {
-      const contract = getContractInstance();
-      if (!contract) return;
-      try {
-        const listings = await contract.get_all_listings();
-
-        const structured: Listing[] = listings.map((listing: any) => {
-          const user = listing.owner_details.Some;
-          const userConstruct = formatUser(user);
-
-          return {
-            id: Number(listing.id),
-            owner: toHex(listing.owner),
-            price: Number(listing.price),
-            tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
-            details: byteArrayToString(listing.details),
-            owner_details: userConstruct,
-          };
-        });
-
-        dispatch(setListing(structured));
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    const fetchUsers = async () => {
-      const contract = getContractInstance();
-      if (!contract) return;
-      try {
-        const [individualsRaw, entitiesRaw] = await Promise.all([
-          contract.get_users_by_type(individualEnum),
-          contract.get_users_by_type(entityEnum),
-        ]);
-
-        const combined = [
-          ...entitiesRaw.map(formatUser),
-          ...individualsRaw.map(formatUser),
-        ];
-        dispatch(setUsers(combined));
-      } catch (error) {
-        console.error("Failed to fetch users", error);
-      }
-    };
     setTimeout(() => {
       fetchListings();
       fetchUsers();
     }, 10);
-  }, [dispatch, entityEnum, getContractInstance, individualEnum]);
+  }, [fetchListings, fetchUsers]);
 
   useEffect(() => {
     const updateWalletAddress = () => {
@@ -143,7 +150,6 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        const argentWebWallet = getArgentWallet();
         const response = await argentWebWallet.connect();
         if (!response || response.account.getSessionStatus() !== "VALID")
           return;
@@ -159,17 +165,25 @@ export default function App() {
         const event = new Event("windowWalletClassChange");
         window.dispatchEvent(event);
       } catch (error) {
-        console.error("Failed to connect to Argent Web Wallet", error);
+        const msg = "Failed to connect to Argent Web Wallet";
+        console.error(msg, error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : typeof error === "string"
+              ? error
+              : "Failed to connect to Argent Web Wallet";
+        toast.error(errorMessage);
       }
     })();
-  }, [dispatch, getArgentWallet]);
+  }, [argentWebWallet, dispatch]);
 
   useEffect(() => {
     (async () => {
       try {
         if (!walletAddress) return;
 
-        const contract = await getContractInstance();
+        const contract = getContractInstance();
         if (!contract) return;
 
         const user = await contract.get_user(walletAddress);
@@ -179,18 +193,13 @@ export default function App() {
 
         dispatch(setHasRegistered(true));
         dispatch(setCredential(userConstruct));
-        // dispatch(
-        //   setContractOwner(
-        //     "0x025de235bcba49aa753587d4ae45f6d71908db9e2b4152dca1246b80516e88ad",
-        //   ),
-        // );
         dispatch(setContractOwner(toHex(contractOwner)));
       } catch (error) {
         console.error("Error fetching user credentials:", error);
-        toast.error("USER_NOT_REGISTERED");
+        toast.warning("Looks like you're not registered yet");
       }
     })();
-  }, [walletAddress, dispatch, getContractInstance]);
+  }, [dispatch, getContractInstance, walletAddress]);
 
   return (
     <Fragment>

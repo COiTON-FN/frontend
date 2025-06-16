@@ -1,16 +1,28 @@
+import { motion } from "framer-motion";
 import { MdVerified } from "react-icons/md";
 import {
   copyToClipboard,
   generateAvatarFromAddress,
   truncateAddr,
 } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { User } from "@/store/slice/credential.slice";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IoCopyOutline } from "react-icons/io5";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { RootState, useAppSelector } from "@/store";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -19,7 +31,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { RxOpenInNewWindow } from "react-icons/rx";
+import { toast } from "sonner";
 
 function UserCard({ user }: { user: User }) {
   const isVerified = user.verified;
@@ -63,14 +87,191 @@ function UserCard({ user }: { user: User }) {
       </div>
 
       {!isVerified && (
-        <Button
-          variant={"outline"}
-          className="mt-auto !h-auto rounded-md border-primary px-3 py-1 text-xs text-primary"
-        >
-          Verify
-        </Button>
+        <VerifyUserModal user={user}>
+          <Button
+            variant={"outline"}
+            className="mt-auto !h-auto rounded-md border-primary px-3 py-1 text-xs text-primary"
+          >
+            Verify
+          </Button>
+        </VerifyUserModal>
       )}
     </div>
+  );
+}
+
+const verificationSchema = z.object({
+  key: z.string().min(10, {
+    message: "Private key must be at least 10 characters.",
+  }),
+});
+
+function VerifyUserModal({
+  user,
+  children,
+}: {
+  user: User;
+  children: ReactNode;
+}) {
+  const form = useForm<z.infer<typeof verificationSchema>>({
+    resolver: zodResolver(verificationSchema),
+    defaultValues: {
+      key: "",
+    },
+  });
+
+  const {
+    formState: { isSubmitting, errors },
+  } = form;
+
+  async function onSubmit(values: z.infer<typeof verificationSchema>) {
+    await new Promise((r) => setTimeout(r, 1000));
+    console.log(values);
+    toast.success("Account verified successfully");
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-w-md !rounded-2xl">
+        <DialogHeader>
+          <DialogTitle>Account Verification</DialogTitle>
+          <DialogDescription>
+            Please verify ownership of the account below by entering your
+            private key.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="rounded-xl bg-secondary p-4">
+          <div className="mb-4 flex items-end justify-between gap-2 border-b pb-4">
+            <div className="flex items-center gap-3">
+              <div className="size-12 rounded-[12px] border bg-background p-0.5">
+                <div className="size-full rounded-[10px] border bg-background">
+                  <img
+                    src={generateAvatarFromAddress(user?.address)}
+                    alt={user?.details?.name}
+                    width={48}
+                    height={48}
+                    className="size-full rounded-[8px] object-contain"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <p className="text-sm font-medium capitalize text-foreground">
+                  {user?.details.name}
+                </p>
+
+                <p className="text-xs text-muted-foreground">
+                  {truncateAddr(user?.address)}
+                </p>
+              </div>
+            </div>
+
+            <p className="mb-1 text-sm font-medium text-primary">
+              {user?.user_type}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-start justify-between gap-6">
+              <p className="text-sm">Email:</p>
+              <p className="text-sm font-medium text-primary">
+                {user?.details?.email}
+              </p>
+            </div>
+            <div className="flex items-start justify-between gap-6">
+              <p className="text-sm">Country:</p>
+              <p className="text-sm font-medium text-primary">
+                {user?.details?.region?.country?.countryName}
+              </p>
+            </div>
+            <div className="flex items-start justify-between gap-6">
+              <p className="text-sm">Phone:</p>
+              <p className="text-sm font-medium text-primary">
+                {user?.details?.phone?.national}
+              </p>
+            </div>
+          </div>
+
+          {user?.details?.licenseCid && (
+            <div className="mt-4 flex items-start justify-between gap-6 border-t pt-4">
+              <p className="text-sm">License(s)</p>
+
+              <div className="flex items-center gap-4">
+                {user?.details?.licenseCid.map(
+                  (license: string, index: number) => (
+                    <Link
+                      target="_blank"
+                      key={license ?? index}
+                      className="flex size-12 items-center justify-center rounded-xl border bg-background"
+                      to={`${import.meta.env.VITE_PINATA_GATEWAY}/${license}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
+                    >
+                      <RxOpenInNewWindow
+                        className="size-5 text-primary"
+                        role="button"
+                      />
+                    </Link>
+                  ),
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col space-y-6"
+          >
+            <FormField
+              control={form.control}
+              name="key"
+              disabled={isSubmitting}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter your private key"
+                      error={!!errors.key}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    This will be used for verification only and will not be
+                    stored.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button
+                  disabled={isSubmitting}
+                  size={"sm"}
+                  type="button"
+                  variant={"outline"}
+                  className="rounded-lg"
+                >
+                  <span className="text-sm">Cancel</span>
+                </Button>
+              </DialogClose>
+              <Button
+                isLoading={isSubmitting}
+                txt="Verifying..."
+                size={"sm"}
+                type="submit"
+                className="rounded-lg"
+              >
+                <span className="text-sm">Verify Ownership</span>
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -162,7 +363,29 @@ export default function UsersPage() {
               />
             ))
           ) : filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => <UserCard key={user.id} user={user} />)
+            filteredUsers.map((user, index) => (
+              <motion.div
+                variants={{
+                  initial: { opacity: 0, y: 100 },
+                  animate: (index: number) => ({
+                    opacity: 1,
+                    y: 0,
+                    transition: {
+                      delay: 0.05 * index,
+                      duration: 0.9,
+                      type: "spring",
+                    },
+                  }),
+                }}
+                initial="initial"
+                whileInView="animate"
+                viewport={{ once: true }}
+                custom={index}
+                key={user.id ?? index}
+              >
+                <UserCard user={user} />
+              </motion.div>
+            ))
           ) : (
             <p className="col-span-full text-base">
               No users match the filter.

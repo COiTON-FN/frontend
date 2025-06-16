@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa6";
 import { PiTelegramLogoDuotone } from "react-icons/pi";
 import { HiOutlineLink } from "react-icons/hi2";
-import { SOCIAL } from "@/pages/(app)/onboarding/_components/social-input";
+import { SOCIAL } from "@/components/extension/social-input";
 import { User } from "@/store/slice/credential.slice";
 import { MdVerified } from "react-icons/md";
 

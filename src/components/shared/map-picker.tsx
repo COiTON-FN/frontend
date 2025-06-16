@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 const defaultLocation = {
   lat: 9.600036,
@@ -45,16 +46,17 @@ function MapEvents({
 
 interface MapLocation {
   lat: number;
-  long: number;
+  lng: number;
   name: string;
 }
 
 interface MapPickerProps {
+  error?: boolean;
   value: MapLocation;
   onChange: (value: MapLocation) => void;
 }
 
-export function MapPicker({ onChange }: MapPickerProps) {
+export function MapPicker({ onChange, error }: MapPickerProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedLocation, setSelectedLocation] = useState(defaultLocation);
@@ -84,7 +86,7 @@ export function MapPicker({ onChange }: MapPickerProps) {
         setCenter([parseFloat(lat), parseFloat(lon)]);
         onChange({
           lat: location.lat,
-          long: location.lng,
+          lng: location.lng,
           name: display_name,
         });
       }
@@ -113,7 +115,7 @@ export function MapPicker({ onChange }: MapPickerProps) {
           });
           onChange({
             lat: latlng.lat,
-            long: latlng.lng,
+            lng: latlng.lng,
             name,
           });
         } catch (error) {
@@ -130,14 +132,19 @@ export function MapPicker({ onChange }: MapPickerProps) {
       <SheetTrigger asChild>
         <div
           role="button"
-          className="flex h-14 w-full cursor-pointer items-center justify-between rounded-xl border bg-background px-5"
+          className={cn(
+            "flex h-14 w-full cursor-pointer items-center justify-between rounded-xl border bg-background px-5",
+            {
+              "border-destructive": error,
+            },
+          )}
         >
           {selectedLocation.name.toLowerCase() !== "nigeria" ? (
             <p className="truncate text-sm font-normal tracking-wide sm:text-base">
               {selectedLocation.name}
             </p>
           ) : (
-            <p className="flex items-center gap-2.5 text-sm font-normal tracking-wide text-muted-foreground sm:text-base">
+            <p className="flex items-center gap-2.5 text-sm font-normal tracking-wide text-muted-foreground sm:text-[15px]">
               <Search className="!size-5" />
               <span>Search location</span>
             </p>

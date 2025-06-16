@@ -20,7 +20,7 @@ export const routes = createBrowserRouter([
         element: pages.dashboardPage,
       },
       {
-        path: "/profile/:address",
+        path: "/profile",
         element: pages.profilePage,
       },
       {
@@ -36,12 +36,12 @@ export const routes = createBrowserRouter([
         element: pages.listPropertyPage,
       },
       {
-        path: "/listing/:id",
-        element: pages.propertyDetailsPage,
+        path: "/properties",
+        element: pages.listingsPage,
       },
       {
-        path: "/listings",
-        element: pages.listingsPage,
+        path: "/properties/:id",
+        element: pages.propertyDetailsPage,
       },
       {
         path: "/trading",
@@ -62,12 +62,12 @@ export const routes = createBrowserRouter([
         element: pages.onboardingPage,
       },
       {
-        path: "property-management",
-        element: pages.propertyManagementPage,
+        path: "individual",
+        element: pages.individualForm,
       },
       {
-        path: "get-verified",
-        element: pages.getVerifiedPage,
+        path: "entity",
+        element: pages.entityForm,
       },
     ],
   },

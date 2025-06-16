@@ -55,6 +55,8 @@ export default function NewListingsPage() {
             const dt = result.map((res: any) => {
               const user = res?.user?.Some;
 
+              console.log(res);
+
               return {
                 listingId: Number(res?.listing_id),
                 requestId: Number(res?.request_id),
@@ -79,7 +81,7 @@ export default function NewListingsPage() {
           }),
         );
 
-        console.log(data[0]);
+        // console.log(data[0]);
         setMerchants(data[0]);
         setIsLoadingMerchants(false);
       } catch (error) {
@@ -107,21 +109,6 @@ export default function NewListingsPage() {
   return (
     <div className="flex flex-col gap-4 py-4">
       <div className="rounded-2xl md:rounded-3xl md:border md:bg-background">
-        {/* {accountTypes && accountTypes?.length > 0 && (
-          <ListingBoard
-            listingBoardValue={[
-              {
-                placeholder: "Account Type",
-                options: accountTypes,
-              },
-              {
-                placeholder: "Status",
-                options: status as unknown as string[],
-              },
-            ]}
-          />
-        )} */}
-
         <Table className="py-6 md:p-6">
           <TableHeader>
             <TableRow>
@@ -160,7 +147,7 @@ export default function NewListingsPage() {
                   </div>
                 </TableCell>
               </TableRow>
-            ) : merchants ? (
+            ) : merchants?.length > 0 ? (
               merchants.map((merchant, _key) => {
                 const pending =
                   "bg-[#FFFCE4] text-[#725900] border-[#725900]/10";
@@ -170,7 +157,7 @@ export default function NewListingsPage() {
                 return (
                   <TableRow key={_key}>
                     <TableCell className="w-[60px] p-6 text-base font-normal">
-                      #{merchant?.requestId}
+                      #{merchant?.listingId}
                     </TableCell>
                     <TableCell className="p-6 text-base font-normal">
                       <div className="flex items-center gap-2">
@@ -229,7 +216,7 @@ export default function NewListingsPage() {
                         }
                         className="flex items-center gap-2"
                       >
-                        <p className="text-base font-normal">View Profile</p>
+                        <p className="text-base font-normal">View Details</p>
                         <CgArrowTopRight className="size-4" />
                       </div>
                     </TableCell>
@@ -242,7 +229,7 @@ export default function NewListingsPage() {
                   colSpan={6}
                   className="h-24 text-center text-base font-normal tracking-wide"
                 >
-                  No results.
+                  No results found.
                 </TableCell>
               </TableRow>
             )}

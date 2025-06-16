@@ -12,7 +12,7 @@ const MaxWrapper = forwardRef<HTMLElement, React.ComponentProps<"section">>(
         {children}
       </section>
     );
-  }
+  },
 );
 
 MaxWrapper.displayName = "MaxWrapper";

@@ -1,51 +1,87 @@
 import { lcStorage } from "@/lib/utils";
 import {
-  BuildingFormSchemaTypes,
-  LandFormSchemaTypes,
-} from "@/pages/(app)/list-property/list-property.page";
+  BuildingFormSchemaProps,
+  LandFormSchemaProps,
+} from "@/utils/validators";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { openDB } from "idb";
+
+const DB_NAME = "ListingFormDB";
+const STORE_NAME = "files";
+
+export const initDB = async () =>
+  openDB(DB_NAME, 1, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    },
+  });
+
+export const saveFile = async (key: string, file: File[]) => {
+  const db = await initDB();
+  await db.put(STORE_NAME, file, key);
+};
+
+export const getFile = async (key: string): Promise<File[] | null> => {
+  const db = await initDB();
+  const result = await db.get(STORE_NAME, key);
+  return result || null;
+};
+
+export const clearFile = async (key: string) => {
+  const db = await initDB();
+  await db.delete(STORE_NAME, key);
+};
 
 interface FormState {
-  currentStep: number;
-  formData: Partial<BuildingFormSchemaTypes | LandFormSchemaTypes>;
+  formStep: number;
+  formData: Partial<BuildingFormSchemaProps | LandFormSchemaProps>;
 }
 
 const savedFormData =
-  lcStorage.load<Partial<BuildingFormSchemaTypes | LandFormSchemaTypes>>(
+  lcStorage.load<Partial<BuildingFormSchemaProps | LandFormSchemaProps>>(
     "new_listing",
   ) || {};
 
 const initialState: FormState = {
-  currentStep: 1,
+  formStep: 1,
   formData: savedFormData,
 };
 
-const formSlice = createSlice({
+const listProperty = createSlice({
   name: "form",
   initialState,
   reducers: {
-    setCurrentStep: (state, action: PayloadAction<number>) => {
-      state.currentStep = action.payload;
+    setFormStep: (state, action: PayloadAction<number>) => {
+      state.formStep = action.payload;
     },
-    updateFormData: (
+    updateListingFormData: (
       state,
       action: PayloadAction<
-        Partial<BuildingFormSchemaTypes | LandFormSchemaTypes>
+        Partial<BuildingFormSchemaProps | LandFormSchemaProps>
       >,
     ) => {
       state.formData = { ...state.formData, ...action.payload };
-      lcStorage.save<Partial<BuildingFormSchemaTypes | LandFormSchemaTypes>>(
-        "new_listing",
-        state.formData,
-      );
+
+      // @ts-ignore
+      const { images, videos, license, floorPlan, ...serializableData } =
+        state.formData;
+
+      if (images) saveFile("images", images);
+      if (videos) saveFile("videos", videos);
+      if (license) saveFile("license", license);
+      if (floorPlan) saveFile("floorPlan", floorPlan);
+
+      lcStorage.save("new_listing", serializableData);
     },
-    resetForm: (state) => {
-      state.currentStep = 1;
+    resetListingForm: (state) => {
+      state.formStep = 1;
       state.formData = {};
-      lcStorage.clear("new_listing");
     },
   },
 });
 
-export const { setCurrentStep, updateFormData, resetForm } = formSlice.actions;
-export default formSlice.reducer;
+export const { setFormStep, updateListingFormData, resetListingForm } =
+  listProperty.actions;
+export default listProperty.reducer;

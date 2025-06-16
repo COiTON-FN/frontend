@@ -32,8 +32,7 @@ const Latest: FC = () => {
   };
 
   const [activeCard, setActiveCard] = useState(1);
-  const { listings } = useAppSelector(state => state.listing)
-
+  const { listings } = useAppSelector((state) => state.listing);
 
   return (
     <MaxWrapper>
@@ -66,9 +65,13 @@ const Latest: FC = () => {
               amount: 0.7,
             }}
           >
-            <Button onClick={() => {
-              navigate("/listings")
-            }} variant={"black"} className="hidden px-6 md:flex">
+            <Button
+              onClick={() => {
+                navigate("/properties");
+              }}
+              variant={"black"}
+              className="hidden px-6 md:flex"
+            >
               <span>See More</span>{" "}
               <IoMdArrowForward size={22} className="ml-3" />
             </Button>
@@ -126,7 +129,9 @@ const Latest: FC = () => {
 
                   <p className="flex items-center text-base font-medium">
                     <span className="line-clamp-1 flex-1">
-                      {property?.details?.area} - {property?.details?.region?.state?.stateName}, {property?.details?.region?.country?.countryName}
+                      {property?.details?.area} -{" "}
+                      {property?.details?.region?.state?.stateName},{" "}
+                      {property?.details?.region?.country?.countryName}
                     </span>
                   </p>
 

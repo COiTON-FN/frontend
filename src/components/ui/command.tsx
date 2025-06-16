@@ -71,7 +71,7 @@ const CommandEmpty = React.forwardRef<
 >((props, ref) => (
   <CommandPrimitive.Empty
     ref={ref}
-    className="flex aspect-video items-center justify-center text-sm"
+    className="flex aspect-[2.2] items-center justify-center text-base"
     {...props}
   />
 ));

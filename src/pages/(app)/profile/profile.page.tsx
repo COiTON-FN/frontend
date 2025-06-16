@@ -13,10 +13,15 @@ import { User } from "@/store/slice/credential.slice";
 import { Listing } from "@/store/slice/listing.slice";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { RootState, useAppSelector } from "@/store";
-import { SOCIAL } from "../onboarding/_components/social-input";
+import { SOCIAL } from "../../../components/extension/social-input";
 import {
   FaFacebookF,
   FaInstagram,
@@ -29,7 +34,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ListingCard from "@/components/shared/listing-card";
 
 export default function ProfilePage() {
-  const { address } = useParams();
+  const [searchParams] = useSearchParams();
+  const address = searchParams.get("address");
 
   const listings = useAppSelector((state: RootState) => state.listing.listings);
   const [agentListings, setAgentListings] = useState<Listing[]>([]);
@@ -46,38 +52,51 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const state = location?.state;
-    if (state) {
-      setCredential(state);
-    } else {
-      (async function () {
-        try {
-          if (address?.toLowerCase() === connectedAddress) {
-            setCredential(credential);
-            return;
-          }
-          const contract = getContractInstance();
-          if (!contract) return;
-          setIsLoading(true);
-          const user = await contract.get_user(address);
 
-          const user_construct: User = {
-            ...user,
-            address: toHex(user.address),
-            id: Number(user.id),
-            details: byteArrayToString(user.details),
-            user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
-          };
+    (async function () {
+      try {
+        const targetAddress = address || connectedAddress;
 
-          setCredential(user_construct);
-          setIsLoading(false);
-        } catch (error) {
-          console.log("error", error);
-          toast.error("USER_NOT_FOUND");
-          setIsLoading(false);
-          navigate("/dashboard");
+        if (state) {
+          setCredential(state);
+          return;
         }
-      })();
-    }
+
+        if (targetAddress?.toLowerCase() === connectedAddress?.toLowerCase()) {
+          setCredential(credential);
+          return;
+        }
+
+        const contract = getContractInstance();
+        if (!contract) return;
+
+        setIsLoading(true);
+        const user = await contract.get_user(targetAddress);
+
+        console.log(user);
+
+        if (!user) {
+          navigate("/dashboard");
+          return;
+        }
+
+        const user_construct: User = {
+          ...user,
+          address: toHex(user.address),
+          id: Number(user.id),
+          details: byteArrayToString(user.details),
+          user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
+        };
+
+        setCredential(user_construct);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("error", error);
+        toast.error("USER_NOT_FOUND");
+        setIsLoading(false);
+        navigate("/dashboard");
+      }
+    })();
   }, [
     address,
     connectedAddress,
@@ -115,6 +134,7 @@ export default function ProfilePage() {
                   ? "Entity"
                   : "Individual",
               };
+
               return {
                 id: Number(listing.id),
                 owner: toHex(listing.owner),
@@ -142,107 +162,107 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col gap-8 py-4 sm:gap-6">
-      <div className="w-full bg-background sm:rounded-2xl sm:border sm:p-6 lg:p-10">
-        <div className="flex flex-col items-start gap-4 sm:flex-row sm:gap-6">
-          <div className="size-28 rounded-3xl border bg-background p-0.5 sm:p-1 lg:size-32 xl:size-44 xl:rounded-[32px]">
-            <div className="size-full rounded-[20px] border bg-secondary xl:rounded-[30px]">
-              <img
-                src={generateAvatarFromAddress(credential?.address as string)}
-                alt={credential?.details.name}
-                width={176}
-                height={176}
-                className="size-full rounded-[20px] object-contain"
-              />
-            </div>
-          </div>
-
-          <div className="flex h-full flex-col">
-            <div className="flex items-center gap-2 lg:gap-3">
-              <p className="text-xl font-medium capitalize lg:text-2xl">
-                {credential?.details.name}
-              </p>
-              {credential?.verified && (
-                <MdVerified className="size-5 text-primary lg:size-6" />
-              )}
-            </div>
-            <div className="mb-2 mt-1 flex items-center gap-2">
-              <p className="text-sm font-medium lg:text-base">
-                {truncateAddr(credential?.address)}
-              </p>
-              <TbCopy
-                role="button"
-                onClick={() => copyToClipboard(credential?.address as string)}
-                className="size-4 lg:size-5"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <svg
-                viewBox="0 0 26 26"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="size-4 stroke-foreground md:size-5"
-              >
-                <path
-                  d="M9.75 23.8336C10.1398 23.8336 11.5817 23.1756 13.0535 21.8596M13.0535 21.8596C14.3085 20.7373 15.5852 19.1366 16.25 17.0576C17.6944 12.5402 9.02777 17.0576 11.9167 20.8221C12.2721 21.2852 12.655 21.6237 13.0535 21.8596ZM13.0535 21.8596C14.7898 22.8867 16.8254 21.9638 18.2044 20.9025C18.626 20.5782 18.8367 20.416 18.9624 20.4665C19.0883 20.517 19.1618 20.8072 19.3089 21.3877C19.7796 23.2453 21.17 24.7447 22.75 22.3283"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <div className="w-full bg-background sm:rounded-2xl sm:border sm:p-6 lg:p-10 xl:col-span-3">
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:gap-6">
+            <div className="size-28 rounded-3xl border bg-background p-0.5 sm:p-1 lg:size-32 xl:size-44 xl:rounded-[32px]">
+              <div className="size-full rounded-[20px] border bg-secondary xl:rounded-[30px]">
+                <img
+                  src={generateAvatarFromAddress(credential?.address as string)}
+                  alt={credential?.details.name}
+                  width={176}
+                  height={176}
+                  className="size-full rounded-[20px] object-contain"
                 />
-                <path
-                  d="M21.6667 14.0837V8.54861C21.6667 6.69139 21.6667 5.76278 21.3763 5.02113C20.9097 3.82881 19.9227 2.88833 18.6715 2.44362C17.8932 2.16699 16.9187 2.16699 14.9697 2.16699C11.559 2.16699 9.8536 2.16699 8.49156 2.65109C6.3019 3.42932 4.57471 5.07518 3.75802 7.16172C3.25 8.45963 3.25 10.0847 3.25 13.3349V16.1267C3.25 19.4934 3.25 21.1767 4.16834 22.3457C4.43146 22.6806 4.74351 22.9779 5.09499 23.2287C5.49267 23.5123 5.94708 23.7041 6.5 23.8337"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M3.25 13.0003C3.25 11.0059 4.86675 9.38922 6.86111 9.38922C7.58238 9.38922 8.43271 9.5156 9.13398 9.3277C9.75706 9.16073 10.2437 8.67406 10.4107 8.05097C10.5986 7.3497 10.4722 6.49937 10.4722 5.7781C10.4722 3.78374 12.089 2.16699 14.0833 2.16699"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <p className="text-sm font-medium capitalize md:text-base">
-                {credential?.user_type}
-              </p>
+              </div>
             </div>
 
-            <div className="mt-5 flex items-center gap-2 sm:mt-10">
-              {credential?.details?.socials?.map((social: SOCIAL) => {
-                const IconComponent = (() => {
-                  switch (social.type) {
-                    case "twitter":
-                      return FaXTwitter;
-                    case "instagram":
-                      return FaInstagram;
-                    case "telegram":
-                      return PiTelegramLogoDuotone;
-                    case "linkedin":
-                      return FaLinkedin;
-                    case "facebook":
-                      return FaFacebookF;
-                    default:
-                      return HiOutlineLink;
-                  }
-                })();
+            <div className="flex h-full flex-col">
+              <div className="flex items-center gap-2 lg:gap-3">
+                <p className="text-xl font-medium capitalize lg:text-2xl">
+                  {credential?.details.name}
+                </p>
+                {credential?.verified && (
+                  <MdVerified className="size-5 text-primary lg:size-6" />
+                )}
+              </div>
+              <div className="mb-2 mt-1 flex items-center gap-2">
+                <p className="text-sm font-medium lg:text-base">
+                  {truncateAddr(credential?.address)}
+                </p>
+                <TbCopy
+                  role="button"
+                  onClick={() => copyToClipboard(credential?.address as string)}
+                  className="size-4 lg:size-5"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <svg
+                  viewBox="0 0 26 26"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="size-4 stroke-foreground md:size-5"
+                >
+                  <path
+                    d="M9.75 23.8336C10.1398 23.8336 11.5817 23.1756 13.0535 21.8596M13.0535 21.8596C14.3085 20.7373 15.5852 19.1366 16.25 17.0576C17.6944 12.5402 9.02777 17.0576 11.9167 20.8221C12.2721 21.2852 12.655 21.6237 13.0535 21.8596ZM13.0535 21.8596C14.7898 22.8867 16.8254 21.9638 18.2044 20.9025C18.626 20.5782 18.8367 20.416 18.9624 20.4665C19.0883 20.517 19.1618 20.8072 19.3089 21.3877C19.7796 23.2453 21.17 24.7447 22.75 22.3283"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M21.6667 14.0837V8.54861C21.6667 6.69139 21.6667 5.76278 21.3763 5.02113C20.9097 3.82881 19.9227 2.88833 18.6715 2.44362C17.8932 2.16699 16.9187 2.16699 14.9697 2.16699C11.559 2.16699 9.8536 2.16699 8.49156 2.65109C6.3019 3.42932 4.57471 5.07518 3.75802 7.16172C3.25 8.45963 3.25 10.0847 3.25 13.3349V16.1267C3.25 19.4934 3.25 21.1767 4.16834 22.3457C4.43146 22.6806 4.74351 22.9779 5.09499 23.2287C5.49267 23.5123 5.94708 23.7041 6.5 23.8337"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M3.25 13.0003C3.25 11.0059 4.86675 9.38922 6.86111 9.38922C7.58238 9.38922 8.43271 9.5156 9.13398 9.3277C9.75706 9.16073 10.2437 8.67406 10.4107 8.05097C10.5986 7.3497 10.4722 6.49937 10.4722 5.7781C10.4722 3.78374 12.089 2.16699 14.0833 2.16699"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <p className="text-sm font-medium capitalize md:text-base">
+                  {credential?.user_type}
+                </p>
+              </div>
 
-                return (
-                  <Link key={social?.id} to={social?.url} target="_blank">
-                    <Button
-                      variant={"outline"}
-                      size={"icon"}
-                      className="size-10 border-primary text-primary hover:bg-transparent hover:text-primary"
-                    >
-                      <IconComponent className="size-4" />
-                    </Button>
-                  </Link>
-                );
-              })}
+              <div className="mt-5 flex items-center gap-2 sm:mt-10">
+                {credential?.details?.socials?.map((social: SOCIAL) => {
+                  const IconComponent = (() => {
+                    switch (social.type) {
+                      case "twitter":
+                        return FaXTwitter;
+                      case "instagram":
+                        return FaInstagram;
+                      case "telegram":
+                        return PiTelegramLogoDuotone;
+                      case "linkedin":
+                        return FaLinkedin;
+                      case "facebook":
+                        return FaFacebookF;
+                      default:
+                        return HiOutlineLink;
+                    }
+                  })();
+
+                  return (
+                    <Link key={social?.id} to={social?.url} target="_blank">
+                      <Button
+                        variant={"outline"}
+                        size={"icon"}
+                        className="size-10 border-primary text-primary hover:bg-transparent hover:text-primary"
+                      >
+                        <IconComponent className="size-4" />
+                      </Button>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <div className="flex flex-col gap-6 xl:col-span-1">
           <div className="space-y-4 bg-background sm:space-y-6 sm:rounded-2xl sm:border sm:p-6 md:rounded-2xl">
             <p className="text-xl font-medium">Contact Information</p>
@@ -283,14 +303,6 @@ export default function ProfilePage() {
                   {credential?.details?.region?.state?.stateName}
                 </p>
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <p className="text-sm text-muted-foreground sm:text-base">
-                  City:
-                </p>
-                <p className="text-sm font-medium text-foreground sm:text-base">
-                  {credential?.details?.region?.city?.cityName ?? "N/A"}
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -298,7 +310,7 @@ export default function ProfilePage() {
         <div className="h-max w-full space-y-4 bg-background sm:space-y-6 sm:rounded-2xl sm:border sm:p-6 lg:p-8 xl:col-span-2">
           <p className="text-xl font-medium">Agent Listings</p>
 
-          <div className="grid grid-cols-1 gap-4 overflow-y-auto md:gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
             {isFetchingListings ? (
               [...new Array(3)].map((_, _index) => (
                 <div key={_index} className="group rounded-[24px] bg-white">
@@ -335,16 +347,62 @@ export default function ProfilePage() {
             ) : agentListings.length === 0 ? (
               <div className="col-span-2 flex aspect-[2.2] items-center justify-center">
                 <p className="text-base font-medium text-muted-foreground">
-                  {`${credential?.details?.name} has no property`}
+                  {address
+                    ? `${credential?.details?.name} has no property`
+                    : "You don't have any property listed"}
                 </p>
               </div>
             ) : (
-              agentListings.map((listing: Listing) => {
+              agentListings.slice(0, 2).map((listing: Listing) => {
                 return <ListingCard key={listing.id} listing={listing} />;
               })
             )}
           </div>
         </div>
+        {agentListings.length > 2 && (
+          <div className="h-max w-full space-y-4 bg-background sm:space-y-6 sm:rounded-2xl sm:border sm:p-6 lg:p-8 xl:col-span-3">
+            <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2 2xl:grid-cols-3">
+              {isFetchingListings
+                ? [...new Array(3)].map((_, _index) => (
+                    <div key={_index} className="group rounded-[24px] bg-white">
+                      <Skeleton className="relative aspect-[1.6] w-full overflow-hidden rounded-[inherit] bg-secondary" />
+
+                      <div className="flex flex-col gap-4 p-6 md:gap-6">
+                        <Skeleton className="text-xl font-bold leading-none tracking-wide text-primary md:text-2xl" />
+
+                        <div className="flex flex-col gap-2">
+                          <Skeleton className="h-8 w-[90%]" />
+                          <Skeleton className="h-6 w-[50%]" />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex flex-1 items-center justify-start gap-2">
+                            <Skeleton className="size-6 rounded-full" />
+
+                            <Skeleton className="h-6 flex-1" />
+                          </div>
+                          <div className="flex flex-1 items-center justify-center gap-2">
+                            <Skeleton className="size-6 rounded-full" />
+
+                            <Skeleton className="h-6 flex-1" />
+                          </div>
+                          <div className="flex flex-1 items-center justify-end gap-2">
+                            <Skeleton className="size-6 rounded-full" />
+
+                            <Skeleton className="h-6 flex-1" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                : agentListings
+                    .slice(2, agentListings.length)
+                    .map((listing: Listing) => {
+                      return <ListingCard key={listing.id} listing={listing} />;
+                    })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

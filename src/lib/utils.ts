@@ -5,7 +5,7 @@ import countries from "world-countries";
 import { Country, State, City } from "country-state-city";
 import axios from "axios";
 import { variables } from "@/utils/variables";
-import { SOCIAL_TYPES } from "@/pages/(app)/onboarding/_components/social-input";
+import { SOCIAL_TYPES } from "@/components/extension/social-input";
 import { createAvatar } from "@dicebear/core";
 import { pixelArt } from "@dicebear/collection";
 
@@ -31,10 +31,10 @@ export const shuffleArray = <T>(array: T[]): T[] => {
   return shuffledArray;
 };
 
-export function truncateAddr(str: string | undefined, n: number = 6): string {
+export function truncateAddr(str: string | undefined, n: number = 4): string {
   if (!str) return "";
   return str?.length > n
-    ? str.slice(0, n) + "..." + str.slice(str.length - 4)
+    ? str.slice(0, 6) + "..." + str.slice(str.length - n)
     : str;
 }
 

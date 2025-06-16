@@ -1,5 +1,5 @@
 export const variables = {
-  rpcUrl: import.meta.env.VITE_STRK_RPC,
+  rpcUrl: import.meta.env.VITE_STARKNET_NODE_URL,
   starknetTokenAddress: import.meta.env.VITE_STARKNET_TOKEN_ADDRESS,
   daoAddress: import.meta.env.VITE_DEPLOYED_ADDRESS,
   erc20Address: import.meta.env.VITE_ERC20_ADDRESS,
