@@ -18,44 +18,17 @@ const SPRING_OPTIONS = {
   damping: 100,
 };
 
-// const slides = [
-//   {
-//     image:
-//       "https://images.unsplash.com/photo-1505873242700-f289a29e1e0f?q=80&w=3276&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-//     title: "NIKON Café",
-//   },
-//   {
-//     image:
-//       "https://images.unsplash.com/photo-1512915922686-57c11dde9b6b?q=80&w=3273&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-//     title: "Luxury Villa, Banana Island",
-//   },
-//   {
-//     image:
-//       "https://images.unsplash.com/photo-1643297550841-1386b3a10612?q=80&w=3106&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-//     title: "4 Bedroom Duplex, Lekki Phase 1, Lagos",
-//   },
-//   {
-//     image:
-//       "https://images.unsplash.com/photo-1515263487990-61b07816b324?q=80&w=2970&auto=format&fit=crop",
-//     title: "3 Bedroom Apartment, Victoria Island, Lagos",
-//   },
-// ];
-
-
-
-
 export default function Carousel() {
   const { fadeIn } = variants;
   const ref = useRef<HTMLDivElement>(null);
 
-  const { listings } = useAppSelector(state => state.listing)
+  const { listings } = useAppSelector((state) => state.listing);
 
-  let [slides, setSlides] = useState<any[]>([]);
-
+  const [slides, setSlides] = useState<any[]>([]);
 
   useEffect(() => {
     if (listings.length) {
-      let construct = [];
+      const construct = [];
 
       for (let i = 0; i < listings.length; i++) {
         const listing = listings[i];
@@ -63,17 +36,16 @@ export default function Carousel() {
           const image = listing.details.imagesCid[j];
           construct.push({
             title: listing.details.title,
-            image
-          })
+            image,
+          });
         }
-
       }
 
       const shuffled = shuffleArray(construct);
-      console.log(shuffled)
-      setSlides(shuffled)
+      console.log(shuffled);
+      setSlides(shuffled);
     }
-  }, [listings])
+  }, [listings]);
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -140,7 +112,7 @@ export default function Carousel() {
       style={{
         scale: scaleProgress,
       }}
-      className="relative aspect-[1.3] w-full overflow-hidden h-[80vh] rounded-2xl bg-secondary sm:aspect-[1.5] md:rounded-3xl"
+      className="relative aspect-[1.3] w-full overflow-hidden rounded-2xl bg-secondary sm:aspect-[1.5] md:rounded-3xl"
     >
       <motion.div
         drag="x"
