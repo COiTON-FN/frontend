@@ -209,7 +209,8 @@ export function NavMain() {
   const isActive = (path?: string) => path && location.pathname.includes(path);
 
   const filteredLinks = sidebarLinks.filter((link) => {
-    if (link.onlyFor === "Entity" && !credential?.verified) return false;
+    if (link.onlyFor === "Entity" && credential?.user_type !== "Entity")
+      return false;
     return true;
   });
 

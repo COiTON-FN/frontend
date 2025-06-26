@@ -117,7 +117,9 @@ const ProfileCard: FC<ProfileCardProps> = ({ credentialStore }) => {
             Country
           </p>
           <p className="text-sm font-medium sm:text-base md:text-lg">
-            {credentialStore?.details?.region?.country?.countryName}
+            {credentialStore?.details?.region?.country
+              ? credentialStore?.details?.region?.country?.countryName
+              : credentialStore?.details?.region[0]}
           </p>
         </div>
         <div className="flex items-center justify-between">
@@ -125,7 +127,9 @@ const ProfileCard: FC<ProfileCardProps> = ({ credentialStore }) => {
             State
           </p>
           <p className="text-sm font-medium sm:text-base md:text-lg">
-            {credentialStore?.details?.region?.state?.stateName}
+            {credentialStore?.details?.region?.state
+              ? credentialStore?.details?.region?.state?.stateName
+              : credentialStore?.details?.region[1]}
           </p>
         </div>
         <div className="flex items-center justify-between">

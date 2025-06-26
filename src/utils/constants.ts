@@ -136,10 +136,10 @@ export const createListingSteps = [
 ];
 
 export const nav_routes = [
-  { label: "About", path: "/about" },
-  { label: "Token", path: "/token", comingSoon: true },
+  { label: "About", path: "/", comingSoon: true },
+  { label: "Token", path: "/", comingSoon: true },
   { label: "Listings", path: "/properties" },
-  { label: "Blog", path: "/blog" },
+  { label: "Blog", path: "/", comingSoon: true },
 ];
 
 export const footer_routes = [

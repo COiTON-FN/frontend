@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef } from "react";
+import { Fragment, useCallback, useEffect, useRef } from "react";
 import { RouterProvider } from "react-router-dom";
 import { Toaster as SonnerToast } from "./components/ui/sonner";
 import { Toaster as NoticeToast } from "./components/ui/toaster";
@@ -21,7 +21,6 @@ import { setUsers } from "./store/slice/users.slice";
 
 import { useWalletHook } from "./hooks/useWallet.hook";
 import { SessionAccountInterface } from "@argent/invisible-sdk";
-import { CairoCustomEnum } from "starknet";
 import { toast } from "sonner";
 
 interface Wallet {
@@ -41,15 +40,6 @@ export default function App() {
 
   const { argentWebWallet } = useWalletHook();
   const { getContractInstance } = useContractInstance();
-
-  const individualEnum = useMemo(
-    () => new CairoCustomEnum({ Individual: {} } as any),
-    [],
-  );
-  const entityEnum = useMemo(
-    () => new CairoCustomEnum({ Entity: {} } as any),
-    [],
-  );
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const formatUser = (user: any): User => ({
@@ -57,7 +47,12 @@ export default function App() {
     address: toHex(user.address),
     id: Number(user.id),
     details: byteArrayToString(user.details),
-    user_type: user.user_type.variant.Entity ? "Entity" : "Individual",
+    user_type:
+      Number(user.user_type) === 0
+        ? "Individual"
+        : Number(user.user_type) === 1
+          ? "Entity"
+          : "Unknown",
   });
 
   const fetchListings = useCallback(async () => {
@@ -91,19 +86,20 @@ export default function App() {
     if (!contract) return;
     try {
       const [individualsRaw, entitiesRaw] = await Promise.all([
-        contract.get_users_by_type(individualEnum),
-        contract.get_users_by_type(entityEnum),
+        contract.get_users_by_type(0),
+        contract.get_users_by_type(1),
       ]);
 
       const combined = [
         ...entitiesRaw.map(formatUser),
         ...individualsRaw.map(formatUser),
       ];
+
       dispatch(setUsers(combined));
     } catch (error) {
       console.error("Failed to fetch users", error);
     }
-  }, [dispatch, entityEnum, getContractInstance, individualEnum]);
+  }, [dispatch, getContractInstance]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -187,13 +183,18 @@ export default function App() {
         if (!contract) return;
 
         const user = await contract.get_user(walletAddress);
-        const contractOwner = await contract.get_owner();
+        // const contractOwner = await contract.get_owner();
 
         const userConstruct = formatUser(user);
 
         dispatch(setHasRegistered(true));
         dispatch(setCredential(userConstruct));
-        dispatch(setContractOwner(toHex(contractOwner)));
+        // dispatch(setContractOwner(toHex(contractOwner)));
+        dispatch(
+          setContractOwner(
+            "0x025de235bcba49aa753587d4ae45f6d71908db9e2b4152dca1246b80516e88ad",
+          ),
+        );
       } catch (error) {
         console.error("Error fetching user credentials:", error);
         toast.warning("Looks like you're not registered yet");

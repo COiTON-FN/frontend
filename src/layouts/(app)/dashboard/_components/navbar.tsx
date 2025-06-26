@@ -1,39 +1,53 @@
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { LuLogOut } from "react-icons/lu";
 import {
   cn,
   copyToClipboard,
   generateAvatarFromAddress,
   truncateAddr,
 } from "@/lib/utils";
-import { AppDispatch, RootState } from "@/store";
+import { RootState } from "@/store";
 import { ChevronDown, Search } from "lucide-react";
-import { memo, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { Fragment, memo, useEffect } from "react";
+import { useSelector } from "react-redux";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Link, useNavigate } from "react-router-dom";
 import { IoCopyOutline, IoWalletOutline } from "react-icons/io5";
-import { RiUser6Line } from "react-icons/ri";
+import { HiOutlineUser } from "react-icons/hi2";
 import { useWalletHook } from "@/hooks/useWallet.hook";
-import { setSelectedToken } from "@/store/slice/wallet.slice";
 import { MdVerified } from "react-icons/md";
 import MaxWrapper from "@/components/shared/max-wrapper";
 import { useIsMobileHook } from "@/hooks/useMobile.hook";
 import Notifications from "./notifications";
+import { IoInvertMode } from "react-icons/io5";
+import { PiChatsCircle, PiWarningCircle } from "react-icons/pi";
+import { AiOutlineLogout } from "react-icons/ai";
+import { RiLink } from "react-icons/ri";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
 
   const { handleDisconnect, handleConnectWallet, isConnecting } =
     useWalletHook();
@@ -53,7 +67,6 @@ const Navbar = () => {
   const connectWallet = async () => {
     try {
       if (window.Wallet?.IsConnected) return;
-
       await handleConnectWallet();
     } catch (error) {
       console.log(error);
@@ -88,8 +101,8 @@ const Navbar = () => {
                   role="button"
                   className="flex h-full items-center gap-2.5 rounded-full"
                 >
-                  <div className="size-11 rounded-[12px] border p-0.5">
-                    <div className="size-full rounded-[10px] border bg-secondary">
+                  <div className="size-11 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]">
+                    <div className="size-full rounded-full bg-background p-[2.5px]">
                       <img
                         src={generateAvatarFromAddress(
                           credentialStore?.address as string,
@@ -97,25 +110,9 @@ const Navbar = () => {
                         alt={credentialStore?.avatar}
                         width={48}
                         height={48}
-                        className="rounded-[8px] object-contain"
+                        className="rounded-full object-contain"
                       />
                     </div>
-                  </div>
-
-                  <div className="hidden flex-col truncate md:mr-2 md:flex">
-                    <div className="flex flex-1 items-center gap-2">
-                      <p className="line-clamp-1 text-sm font-medium text-foreground transition-colors group-hover:text-primary">
-                        {credentialStore?.details?.name ?? "..."}
-                      </p>
-                      {credentialStore?.verified && (
-                        <MdVerified className="mt-px size-4 text-primary" />
-                      )}
-                    </div>
-                    {walletStore.walletAddress && (
-                      <span className="text-xs font-normal text-muted-foreground">
-                        {truncateAddr(walletStore.walletAddress as string)}
-                      </span>
-                    )}
                   </div>
                   <ChevronDown className="size-4" />
                 </div>
@@ -123,158 +120,176 @@ const Navbar = () => {
 
               <DropdownMenuContent
                 side="bottom"
-                sideOffset={0}
-                className="mr-5 w-[330px] rounded-2xl md:mr-6"
+                sideOffset={-4}
+                className="mr-5 w-[260px] rounded-[18px] p-2 sm:w-[270px] md:mr-6"
               >
-                <DropdownMenuLabel className="flex items-center justify-between gap-4 p-2">
-                  <div className="flex h-full flex-1 items-center gap-2.5 truncate">
-                    <div className="size-11 rounded-[12px] border p-0.5">
-                      <div className="size-full rounded-[10px] border bg-secondary">
-                        <img
-                          src={generateAvatarFromAddress(
-                            credentialStore?.address as string,
-                          )}
-                          alt={credentialStore?.avatar}
-                          width={48}
-                          height={48}
-                          className="rounded-[8px] object-contain"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="line-clamp-1 flex flex-1 flex-col">
-                      <div className="flex flex-1 items-center gap-2">
-                        <p className="line-clamp-1 text-sm font-medium text-foreground transition-colors group-hover:text-primary">
-                          {credentialStore?.details?.name ?? "..."}
-                        </p>
-                        {credentialStore?.verified && (
-                          <MdVerified className="mt-px size-4 text-primary" />
-                        )}
-                      </div>
-                      {walletStore.walletAddress && (
-                        <div className="flex items-center gap-2">
-                          <span className="line-clamp-1 text-xs font-normal text-muted-foreground">
-                            {truncateAddr(walletStore.walletAddress as string)}
-                          </span>
-                          <IoCopyOutline
-                            onClick={() =>
-                              copyToClipboard(
-                                walletStore.walletAddress as string,
-                              )
-                            }
-                            className="size-3"
-                          />
+                {walletStore.hasRegistered && (
+                  <Fragment>
+                    <DropdownMenuLabel className="flex items-center justify-between gap-4 px-2 pt-1">
+                      <div className="flex w-full items-center gap-2.5 rounded-full">
+                        <div className="size-11 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]">
+                          <div className="size-full rounded-full bg-background p-[2.5px]">
+                            <img
+                              src={generateAvatarFromAddress(
+                                credentialStore?.address as string,
+                              )}
+                              alt={credentialStore?.avatar}
+                              width={48}
+                              height={48}
+                              className="rounded-full object-contain"
+                            />
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  </div>
 
-                  <div className="5 flex items-center gap-2">
-                    {walletStore.hasRegistered && (
-                      <DropdownMenuItem asChild>
-                        <Button
-                          onClick={() =>
-                            navigate("/profile", {
-                              state: credentialStore,
-                            })
-                          }
-                          size="icon"
-                          className="size-10 !rounded-[12px]"
-                          variant={"outline"}
-                          title="View Profile"
-                          aria-label="View Profile"
-                          aria-describedby="view-profile"
-                        >
-                          <RiUser6Line className="!size-4" />
-                        </Button>
-                      </DropdownMenuItem>
-                    )}
+                        <div className="line-clamp-1 flex flex-1 flex-col">
+                          <div className="flex flex-1 items-center gap-2">
+                            <p className="line-clamp-1 text-sm font-medium text-foreground transition-colors group-hover:text-primary">
+                              {credentialStore?.details?.name ?? "..."}
+                            </p>
+                            {credentialStore?.verified && (
+                              <MdVerified className="mt-px size-4 text-primary" />
+                            )}
+                          </div>
+                          {walletStore.walletAddress && (
+                            <div className="flex items-center gap-2">
+                              <span className="line-clamp-1 text-xs font-normal text-muted-foreground">
+                                {truncateAddr(
+                                  walletStore.walletAddress as string,
+                                )}
+                              </span>
+                              <IoCopyOutline
+                                onClick={() =>
+                                  copyToClipboard(
+                                    walletStore.walletAddress as string,
+                                  )
+                                }
+                                className="size-3"
+                              />
+                            </div>
+                          )}
+                        </div>
 
-                    <DropdownMenuItem asChild>
-                      <Button
-                        size="icon"
-                        className="size-10 !rounded-[12px]"
-                        variant={"outline"}
-                        onClick={async () => await handleDisconnect()}
-                        title="Disconnect Wallet"
-                        aria-label="Disconnect Wallet"
-                        aria-describedby="disconnect-wallet"
-                      >
-                        <LuLogOut className="!size-4" />
-                      </Button>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            to="https://web.ready.co/"
+                            target="_blank"
+                            title="Argent Profile"
+                            aria-label="Argent Profile"
+                            aria-describedby="argent-profile"
+                            className={buttonVariants({
+                              size: "icon",
+                              className: "!size-9 !rounded-[12px]",
+                              variant: "outline",
+                            })}
+                          >
+                            <RiLink className="!size-4" />
+                          </Link>
+                        </DropdownMenuItem>
+                      </div>
+                    </DropdownMenuLabel>
+
+                    <DropdownMenuSeparator />
+                  </Fragment>
+                )}
+
+                {!walletStore.hasRegistered && (
+                  <Fragment>
+                    <DropdownMenuItem
+                      onClick={() => navigate("/onboarding")}
+                      className="gap-3 !rounded-2xl"
+                    >
+                      <HiOutlineUser className="!size-[19px]" />
+                      <span>Create an Account</span>
                     </DropdownMenuItem>
-                  </div>
-                </DropdownMenuLabel>
+
+                    <DropdownMenuSeparator />
+                  </Fragment>
+                )}
+
+                <DropdownMenuGroup>
+                  {walletStore.hasRegistered && (
+                    <DropdownMenuItem
+                      onClick={() =>
+                        navigate("/profile", {
+                          state: credentialStore,
+                        })
+                      }
+                      className="gap-3 !rounded-2xl"
+                    >
+                      <HiOutlineUser className="!size-[19px]" />
+                      <span>Profile</span>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem
+                    className="gap-3 !rounded-2xl"
+                    asChild
+                    title="Join the Telegram community"
+                  >
+                    <Link
+                      to="https://t.me/COiTONRealEstates"
+                      target="_blank"
+                      title="Join the Telegram community"
+                    >
+                      <PiChatsCircle className="!size-[19px]" />
+                      <span>Community</span>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <Label
+                    htmlFor="mode-toggle"
+                    className={cn(
+                      "relative flex h-11 cursor-pointer select-none items-center gap-3 !rounded-2xl px-3 text-sm font-normal outline-none transition-colors hover:bg-accent hover:text-accent-foreground [&_svg]:shrink-0",
+                      "pointer-events-none opacity-50",
+                    )}
+                    title="Dark theme coming soon"
+                  >
+                    <IoInvertMode className="!size-[19px]" />
+                    <span>Dark Theme</span>
+
+                    <Switch className="ml-auto" id="mode-toggle" />
+                  </Label>
+                </DropdownMenuGroup>
 
                 <DropdownMenuSeparator />
 
-                {walletStore.hasRegistered ? (
-                  <>
-                    <div className="flex flex-col items-center justify-center gap-1 bg-secondary py-6">
-                      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        Token Balance
-                      </p>
-
-                      <div className="flex items-center gap-2.5">
-                        <img
-                          src={
-                            walletStore.selectedToken === "coiton"
-                              ? "/coiton.svg"
-                              : "/starknet.svg"
-                          }
-                          width={20}
-                          height={20}
-                        />
-                        <p className="text-[22px] font-bold">0.00 STRK</p>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem className="gap-3 !rounded-2xl" asChild>
+                    <div>
+                      <PiWarningCircle className="!size-[19px]" />
+                      <span>Help Center</span>
+                    </div>
+                  </DropdownMenuItem>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <div className="relative flex h-11 cursor-pointer select-none items-center gap-3 !rounded-2xl px-3 text-sm text-destructive outline-none transition-colors hover:bg-destructive/5 [&_svg]:shrink-0">
+                        <AiOutlineLogout className="!size-[19px]" />
+                        <span>Sign Out</span>
                       </div>
-                    </div>
-
-                    <DropdownMenuSeparator />
-
-                    <div className="flex items-center justify-between px-4 py-2">
-                      <p className="text-sm font-medium">Switch Token</p>
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className="gap-1 rounded-xl pl-4 pr-3"
-                            size="sm"
-                          >
-                            <span className="text-sm font-normal capitalize">
-                              {walletStore.selectedToken}
-                            </span>
-                            <ChevronDown className="size-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuItem
-                            onClick={() => dispatch(setSelectedToken("coiton"))}
-                          >
-                            Coiton
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              dispatch(setSelectedToken("starknet"))
-                            }
-                          >
-                            Starknet
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center gap-1 py-6">
-                    <Button
-                      className="px-7"
-                      variant={"secondary"}
-                      onClick={async () => navigate("/onboarding")}
-                    >
-                      Create an Account
-                    </Button>
-                  </div>
-                )}
+                    </DialogTrigger>
+                    <DialogContent className="max-w-sm !rounded-3xl !p-6">
+                      <DialogHeader>
+                        <DialogTitle className="mb-1">
+                          Already leaving?
+                        </DialogTitle>
+                        <DialogDescription>
+                          You won't be able to use the dApp to make any
+                          transactions after signing out. Wish to proceed?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter className="mt-4">
+                        <DialogClose asChild>
+                          <Button variant={"outline"}>Cancel</Button>
+                        </DialogClose>
+                        <Button
+                          className="flex-1"
+                          onClick={async () => await handleDisconnect()}
+                        >
+                          Yes, Sign Out
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
@@ -282,7 +297,7 @@ const Navbar = () => {
               size={isMobile ? "icon" : "sm"}
               onClick={connectWallet}
               isLoading={isConnecting}
-              txt="Signing in..."
+              txt={!isMobile ? "Signing in..." : undefined}
               className="rounded-full"
             >
               <IoWalletOutline className="size-5" />

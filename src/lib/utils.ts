@@ -7,7 +7,7 @@ import axios from "axios";
 import { variables } from "@/utils/variables";
 import { SOCIAL_TYPES } from "@/components/extension/social-input";
 import { createAvatar } from "@dicebear/core";
-import { pixelArt } from "@dicebear/collection";
+import { dylan } from "@dicebear/collection";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -58,10 +58,13 @@ export function formatBytes(
   }`;
 }
 
-export async function copyToClipboard(text: string): Promise<void> {
+export async function copyToClipboard(
+  text: string,
+  msg = "Copied to clipboard",
+): Promise<void> {
   try {
     await navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard");
+    toast.success(msg);
   } catch (error) {
     toast.error(
       error instanceof Error
@@ -215,8 +218,12 @@ export function getSocialIcon(type: SOCIAL_TYPES) {
 }
 
 export function generateAvatarFromAddress(address: string) {
-  const avatar = createAvatar(pixelArt, {
+  if (!address)
+    return "https://api.dicebear.com/9.x/dylan/svg?seed=coiton&backgroundColor=29e051,b6e3f4,619eff,ffdfbf,ffd5dc,ffa6e6,d1d4f9,c0aede&randomizeIds=true&mood=angry,confused,happy,hopeful,neutral,superHappy,sad";
+  const avatar = createAvatar(dylan, {
     seed: `address-${address?.toLowerCase()}`,
+    mood: ["happy", "hopeful", "superHappy"],
+    randomizeIds: true,
   });
 
   const svg = avatar.toDataUri();

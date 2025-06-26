@@ -36,7 +36,10 @@ export default function ListPropertyPage() {
   };
 
   React.useEffect(() => {
-    if (!credentialStore?.verified) {
+    if (
+      !credentialStore?.user_type ||
+      credentialStore?.user_type !== "Entity"
+    ) {
       navigate("/dashboard", { replace: true });
     }
   }, [credentialStore, navigate]);

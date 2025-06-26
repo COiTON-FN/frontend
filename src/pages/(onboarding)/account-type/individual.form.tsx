@@ -24,7 +24,6 @@ import LocationSelector from "@/components/extension/location-input";
 import SocialInput from "@/components/extension/social-input";
 import { useWalletHook } from "@/hooks/useWallet.hook";
 import { setCredential, User } from "@/store/slice/credential.slice";
-import { CairoCustomEnum } from "starknet";
 import { stringToByteArray } from "@/lib/starknet/utils";
 import { executeFn } from "@/lib/execute";
 import { contract } from "@/utils/contract";
@@ -122,12 +121,6 @@ export default function IndividualForm() {
   } = form;
 
   React.useEffect(() => {
-    if (credentialStore?.details?.email) {
-      form.setValue("email", credentialStore.details.email);
-    }
-  }, [credentialStore?.details?.email, form]);
-
-  React.useEffect(() => {
     const number = formatPhoneNumber(form.watch("phone.national"));
     form.setValue("phone.international", number);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,7 +132,7 @@ export default function IndividualForm() {
         await handleConnectWallet();
       }
 
-      const userType = new CairoCustomEnum({ Individual: {} });
+      // const userType = new CairoCustomEnum({ Individual: {} });
       const processed_data = { ...formData };
       console.log(processed_data);
       const detailsToBytesArray = stringToByteArray(
@@ -149,7 +142,7 @@ export default function IndividualForm() {
       const result = await executeFn({
         contractAddress: contract.daoAddress,
         entrypoint: "register",
-        calldata: [userType, detailsToBytesArray],
+        calldata: [0, detailsToBytesArray],
       });
 
       if (!result?.success) return;
@@ -242,12 +235,12 @@ export default function IndividualForm() {
               <FormField
                 control={control}
                 name="email"
-                disabled={credentialStore?.details?.email || isSubmitting}
+                disabled={isSubmitting}
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormControl>
                       <Input
-                        disabled={credentialStore?.details?.email}
+                        disabled={isSubmitting}
                         placeholder="Enter your email address"
                         type="email"
                         error={!!errors.email}
@@ -256,8 +249,8 @@ export default function IndividualForm() {
                     </FormControl>
                     <FormMessage />
                     <FormDescription>
-                      It will automatically fill up your email if you are
-                      connected.
+                      Please provide the same email address you used to register
+                      your wallet.
                     </FormDescription>
                   </FormItem>
                 )}

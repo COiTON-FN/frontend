@@ -31,8 +31,6 @@ export async function executeFn({
     },
   ];
 
-  console.log({ calls });
-
   const account = window.Wallet.Account;
 
   if (!account) throw new Error("Wallet not connected!");
@@ -42,7 +40,7 @@ export async function executeFn({
       calls,
     });
 
-    console.log(call);
+    console.log({ call });
 
     console.log("CALLING ENDPOINT");
     const response = await fetch(
