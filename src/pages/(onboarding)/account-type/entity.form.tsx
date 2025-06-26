@@ -35,7 +35,6 @@ import LocationSelector from "@/components/extension/location-input";
 import SocialInput from "@/components/extension/social-input";
 import { useWalletHook } from "@/hooks/useWallet.hook";
 import { setCredential, User } from "@/store/slice/credential.slice";
-import { CairoCustomEnum } from "starknet";
 import { stringToByteArray } from "@/lib/starknet/utils";
 import { executeFn } from "@/lib/execute";
 import { contract } from "@/utils/contract";
@@ -145,12 +144,6 @@ export default function EntityForm() {
   } = form;
 
   React.useEffect(() => {
-    if (credentialStore?.details?.email) {
-      form.setValue("email", credentialStore.details.email);
-    }
-  }, [credentialStore?.details?.email, form]);
-
-  React.useEffect(() => {
     const number = formatPhoneNumber(form.watch("phone.national"));
     form.setValue("phone.international", number);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -166,8 +159,9 @@ export default function EntityForm() {
 
       licenseCid = await onUpload(formData.license);
 
-      const userType = new CairoCustomEnum({ Entity: {} });
+      // const userType = new CairoCustomEnum({ Entity: {} });
       const processed_data = { ...formData, ...{ licenseCid } };
+      console.log(processed_data);
       const detailsToBytesArray = stringToByteArray(
         JSON.stringify(processed_data),
       );
@@ -175,7 +169,7 @@ export default function EntityForm() {
       const result = await executeFn({
         contractAddress: contract.daoAddress,
         entrypoint: "register",
-        calldata: [userType, detailsToBytesArray],
+        calldata: [1, detailsToBytesArray],
       });
 
       if (!result?.success) return;
@@ -268,12 +262,12 @@ export default function EntityForm() {
               <FormField
                 control={control}
                 name="email"
-                disabled={credentialStore?.details?.email || isSubmitting}
+                disabled={isSubmitting}
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormControl>
                       <Input
-                        disabled={credentialStore?.details?.email}
+                        disabled={isSubmitting}
                         placeholder="Enter your email address"
                         type="email"
                         error={!!errors.email}
@@ -282,8 +276,8 @@ export default function EntityForm() {
                     </FormControl>
                     <FormMessage />
                     <FormDescription>
-                      It will automatically fill up your email if you are
-                      connected.
+                      Please provide the same email address you used to register
+                      your wallet.
                     </FormDescription>
                   </FormItem>
                 )}

@@ -94,8 +94,12 @@ export default function BidPage() {
           zip: Number(structured?.details?.zip),
           bidPrice: Number(refinedPurchaseRequest?.price),
           price: Number(structured?.details?.price),
-          state: structured?.details?.region?.state?.stateName,
-          country: structured?.details?.region?.country?.countryName,
+          state: structured?.details?.region?.state
+            ? structured?.details?.region?.state?.stateName
+            : structured?.details?.region[1],
+          country: structured?.details?.region?.country
+            ? structured?.details?.region?.country?.countryName
+            : structured?.details?.region[0],
         };
 
         setListingDetails(snapshotDetails);

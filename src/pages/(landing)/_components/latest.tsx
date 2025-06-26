@@ -130,8 +130,13 @@ const Latest: FC = () => {
                   <p className="flex items-center text-base font-medium">
                     <span className="line-clamp-1 flex-1">
                       {property?.details?.area} -{" "}
-                      {property?.details?.region?.state?.stateName},{" "}
-                      {property?.details?.region?.country?.countryName}
+                      {property?.details?.region?.state
+                        ? property?.details?.region?.state?.stateName
+                        : property?.details?.region[1]}
+                      ,{" "}
+                      {property?.details?.region?.country
+                        ? property?.details?.region?.country?.countryName
+                        : property?.details?.region[0]}
                     </span>
                   </p>
 

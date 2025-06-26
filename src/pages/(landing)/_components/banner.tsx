@@ -143,7 +143,7 @@ const Banner: FC = () => {
               amount: 0.7,
             }}
           >
-            <Link to="/onboarding" className="mt-4 md:mt-6">
+            <Link to="/dashboard" className="mt-4 md:mt-6">
               <Button
                 className="hidden rounded-full sm:inline-flex"
                 size={"lg"}

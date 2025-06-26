@@ -11,7 +11,7 @@ import { z } from "zod";
 import { User } from "@/store/slice/credential.slice";
 import { ReactNode, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { IoCopyOutline } from "react-icons/io5";
+import { IoChevronForwardOutline, IoCopyOutline } from "react-icons/io5";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { RootState, useAppSelector } from "@/store";
@@ -44,31 +44,39 @@ import {
 } from "@/components/ui/dialog";
 import { RxOpenInNewWindow } from "react-icons/rx";
 import { toast } from "sonner";
+import { Phone } from "lucide-react";
 
 function UserCard({ user }: { user: User }) {
   const isVerified = user.verified;
 
   return (
-    <div className="group relative flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-background p-4 shadow transition-shadow">
-      <div className="flex items-center gap-4">
-        <div className="size-16 shrink-0 overflow-hidden rounded-[12px] border p-0.5">
-          <div className="size-full rounded-[10px] border bg-secondary">
+    <div className="group relative rounded-[18px] border bg-background shadow-sm transition-shadow duration-200 hover:shadow-lg">
+      <div className="flex items-start gap-3 border-b p-4">
+        <Link
+          to={`/profile?address=${user?.address}`}
+          className="size-14 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]"
+        >
+          <div className="size-full rounded-full bg-background p-[2.5px]">
             <img
               src={generateAvatarFromAddress(user?.address)}
               alt={user?.details.name}
-              width={56}
-              height={56}
-              className="size-full rounded-[8px] object-contain"
+              width={64}
+              height={64}
+              className="size-full rounded-full object-contain"
             />
           </div>
-        </div>
-        <div className="flex flex-col justify-center">
-          <div className="flex items-center gap-2">
+        </Link>
+
+        <div className="flex flex-1 flex-col justify-center">
+          <Link
+            to={`/profile?address=${user?.address}`}
+            className="flex items-center gap-2"
+          >
             <p className="text-base font-medium text-foreground transition-colors group-hover:text-primary">
               {user.details.name}
             </p>
             {isVerified && <MdVerified className="mt-px size-4 text-primary" />}
-          </div>
+          </Link>
           <p className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
             {truncateAddr(user.address)}{" "}
             <span
@@ -80,22 +88,32 @@ function UserCard({ user }: { user: User }) {
               <IoCopyOutline className="!size-3.5" />
             </span>
           </p>
-          <p className="mt-1 text-xs font-medium text-primary">
-            {user.user_type}
-          </p>
         </div>
+
+        <p className="text-sm font-medium text-primary">{user.user_type}</p>
       </div>
 
-      {!isVerified && (
-        <VerifyUserModal user={user}>
-          <Button
-            variant={"outline"}
-            className="mt-auto !h-auto rounded-md border-primary px-3 py-1 text-xs text-primary"
-          >
-            Verify
-          </Button>
-        </VerifyUserModal>
-      )}
+      <div className="flex items-center justify-between p-4">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Phone className="size-4" />
+          <p className="text-sm font-medium">
+            {user?.details?.phone?.national}
+          </p>
+        </div>
+
+        {!isVerified && (
+          <VerifyUserModal user={user}>
+            <Button
+              size={"sm"}
+              variant={"link"}
+              className="flex h-0 items-center gap-1 p-0 text-primary"
+            >
+              <p className="text-sm font-medium">Verify Agent</p>
+              <IoChevronForwardOutline className="size-4" />
+            </Button>
+          </VerifyUserModal>
+        )}
+      </div>
     </div>
   );
 }
@@ -130,6 +148,23 @@ function VerifyUserModal({
     toast.success("Account verified successfully");
   }
 
+  // const dt = {
+  //   signature: "address", // <call-signature>
+  //   payload: {
+  //     entryPoint: "verify", // <function-name>,
+  //     contractAddress: "0x1111", //<contract-address>,
+  //     calldata: [], // <array of arguments>
+  //   },
+  // };
+
+  // const message = stringToByteArray({JSON.stringify(<payload>)});
+  //   const msgHash = hash.computeHashOnElements(message);
+  //   const signature = ec.starkCurve.sign(msgHash, PRIVATE_KEY);
+
+  // const message = stringToByteArray({JSON.stringify(<payload>)}).split(",");
+  //   const msgHash = hash.computeHashOnElements(message);
+  //   const signature = ec.starkCurve.sign(msgHash, PRIVATE_KEY);
+
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -143,33 +178,42 @@ function VerifyUserModal({
         </DialogHeader>
 
         <div className="rounded-xl bg-secondary p-4">
-          <div className="mb-4 flex items-end justify-between gap-2 border-b pb-4">
-            <div className="flex items-center gap-3">
-              <div className="size-12 rounded-[12px] border bg-background p-0.5">
-                <div className="size-full rounded-[10px] border bg-background">
-                  <img
-                    src={generateAvatarFromAddress(user?.address)}
-                    alt={user?.details?.name}
-                    width={48}
-                    height={48}
-                    className="size-full rounded-[8px] object-contain"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <p className="text-sm font-medium capitalize text-foreground">
-                  {user?.details.name}
-                </p>
-
-                <p className="text-xs text-muted-foreground">
-                  {truncateAddr(user?.address)}
-                </p>
+          <div className="mb-4 flex items-start gap-3 border-b pb-4">
+            <div className="size-14 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]">
+              <div className="size-full rounded-full bg-background p-[2.5px]">
+                <img
+                  src={generateAvatarFromAddress(user?.address)}
+                  alt={user?.details.name}
+                  width={64}
+                  height={64}
+                  className="size-full rounded-full object-contain"
+                />
               </div>
             </div>
 
-            <p className="mb-1 text-sm font-medium text-primary">
-              {user?.user_type}
-            </p>
+            <div className="flex flex-1 flex-col justify-center">
+              <div className="flex items-center gap-2">
+                <p className="text-base font-medium text-foreground transition-colors group-hover:text-primary">
+                  {user.details.name}
+                </p>
+                {user?.verified && (
+                  <MdVerified className="mt-px size-4 text-primary" />
+                )}
+              </div>
+              <p className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
+                {truncateAddr(user.address)}{" "}
+                <span
+                  className="cursor-pointer"
+                  onClick={() => {
+                    copyToClipboard(user.address);
+                  }}
+                >
+                  <IoCopyOutline className="!size-3.5" />
+                </span>
+              </p>
+            </div>
+
+            <p className="text-sm font-medium text-primary">{user.user_type}</p>
           </div>
 
           <div className="flex flex-col gap-2.5">
@@ -182,7 +226,9 @@ function VerifyUserModal({
             <div className="flex items-start justify-between gap-6">
               <p className="text-sm">Country:</p>
               <p className="text-sm font-medium text-primary">
-                {user?.details?.region?.country?.countryName}
+                {user?.details?.region?.country
+                  ? user?.details?.region?.country?.countryName
+                  : user?.details?.region[0]}
               </p>
             </div>
             <div className="flex items-start justify-between gap-6">
@@ -250,10 +296,9 @@ function VerifyUserModal({
               <DialogClose asChild>
                 <Button
                   disabled={isSubmitting}
-                  size={"sm"}
                   type="button"
                   variant={"outline"}
-                  className="rounded-lg"
+                  className="px-6"
                 >
                   <span className="text-sm">Cancel</span>
                 </Button>
@@ -261,9 +306,8 @@ function VerifyUserModal({
               <Button
                 isLoading={isSubmitting}
                 txt="Verifying..."
-                size={"sm"}
                 type="submit"
-                className="rounded-lg"
+                className="flex-1"
               >
                 <span className="text-sm">Verify Ownership</span>
               </Button>
@@ -317,7 +361,7 @@ export default function UsersPage() {
   }, [isContractOwner, navigate]);
 
   return (
-    <div className="flex flex-col gap-8 py-4">
+    <div className="flex flex-col gap-8 py-6">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="w-full max-w-md">
           <Input
@@ -350,10 +394,7 @@ export default function UsersPage() {
         </Select>
       </div>
 
-      <section>
-        <header className="mb-4 text-lg font-semibold capitalize text-primary">
-          {filter === "all" ? "All Users" : `${filter} users`}
-        </header>
+      <section className="overflow-clip">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
           {users.length === 0 ? (
             Array.from({ length: 12 }).map((_, index) => (
@@ -383,7 +424,7 @@ export default function UsersPage() {
                 custom={index}
                 key={user.id ?? index}
               >
-                <UserCard user={user} />
+                <UserCard key={user.id ?? index} user={user} />
               </motion.div>
             ))
           ) : (

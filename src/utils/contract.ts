@@ -11,20 +11,6 @@ export const contract = {
       interface_name: "coiton::mods::interfaces::icoiton::ICoiton",
     },
     {
-      type: "enum",
-      name: "coiton::mods::types::UserType",
-      variants: [
-        {
-          name: "Individual",
-          type: "()",
-        },
-        {
-          name: "Entity",
-          type: "()",
-        },
-      ],
-    },
-    {
       type: "struct",
       name: "core::byte_array::ByteArray",
       members: [
@@ -32,180 +18,99 @@ export const contract = {
           name: "data",
           type: "core::array::Array::<core::bytes_31::bytes31>",
         },
-        {
-          name: "pending_word",
-          type: "core::felt252",
-        },
-        {
-          name: "pending_word_len",
-          type: "core::integer::u32",
-        },
+        { name: "pending_word", type: "core::felt252" },
+        { name: "pending_word_len", type: "core::integer::u32" },
       ],
     },
     {
       type: "struct",
       name: "core::integer::u256",
       members: [
-        {
-          name: "low",
-          type: "core::integer::u128",
-        },
-        {
-          name: "high",
-          type: "core::integer::u128",
-        },
+        { name: "low", type: "core::integer::u128" },
+        { name: "high", type: "core::integer::u128" },
       ],
     },
     {
       type: "enum",
       name: "core::bool",
       variants: [
-        {
-          name: "False",
-          type: "()",
-        },
-        {
-          name: "True",
-          type: "()",
-        },
+        { name: "False", type: "()" },
+        { name: "True", type: "()" },
       ],
     },
     {
       type: "struct",
       name: "coiton::mods::types::User",
       members: [
-        {
-          name: "id",
-          type: "core::integer::u256",
-        },
-        {
-          name: "verified",
-          type: "core::bool",
-        },
-        {
-          name: "details",
-          type: "core::byte_array::ByteArray",
-        },
-        {
-          name: "user_type",
-          type: "coiton::mods::types::UserType",
-        },
+        { name: "id", type: "core::integer::u256" },
+        { name: "verified", type: "core::bool" },
+        { name: "details", type: "core::byte_array::ByteArray" },
+        { name: "user_type", type: "core::integer::u8" },
         {
           name: "address",
           type: "core::starknet::contract_address::ContractAddress",
         },
-        {
-          name: "registered",
-          type: "core::bool",
-        },
+        { name: "registered", type: "core::bool" },
       ],
     },
     {
       type: "enum",
       name: "coiton::mods::types::ListingType",
       variants: [
-        {
-          name: "Land",
-          type: "()",
-        },
-        {
-          name: "Building",
-          type: "()",
-        },
+        { name: "Land", type: "()" },
+        { name: "Building", type: "()" },
       ],
     },
     {
       type: "enum",
       name: "coiton::mods::types::ListingTag",
       variants: [
-        {
-          name: "Sold",
-          type: "()",
-        },
-        {
-          name: "ForSale",
-          type: "()",
-        },
+        { name: "Sold", type: "()" },
+        { name: "ForSale", type: "()" },
       ],
     },
     {
       type: "enum",
       name: "core::option::Option::<coiton::mods::types::User>",
       variants: [
-        {
-          name: "Some",
-          type: "coiton::mods::types::User",
-        },
-        {
-          name: "None",
-          type: "()",
-        },
+        { name: "Some", type: "coiton::mods::types::User" },
+        { name: "None", type: "()" },
       ],
     },
     {
       type: "struct",
       name: "coiton::mods::types::Listing",
       members: [
-        {
-          name: "id",
-          type: "core::integer::u256",
-        },
-        {
-          name: "details",
-          type: "core::byte_array::ByteArray",
-        },
+        { name: "id", type: "core::integer::u256" },
+        { name: "details", type: "core::byte_array::ByteArray" },
         {
           name: "owner",
           type: "core::starknet::contract_address::ContractAddress",
         },
-        {
-          name: "price",
-          type: "core::integer::u256",
-        },
-        {
-          name: "tag",
-          type: "coiton::mods::types::ListingTag",
-        },
+        { name: "price", type: "core::integer::u256" },
+        { name: "tag", type: "coiton::mods::types::ListingTag" },
         {
           name: "owner_details",
           type: "core::option::Option::<coiton::mods::types::User>",
         },
-        {
-          name: "listing_type",
-          type: "coiton::mods::types::ListingType",
-        },
+        { name: "listing_type", type: "coiton::mods::types::ListingType" },
       ],
     },
     {
       type: "enum",
       name: "core::option::Option::<core::integer::u256>",
       variants: [
-        {
-          name: "Some",
-          type: "core::integer::u256",
-        },
-        {
-          name: "None",
-          type: "()",
-        },
+        { name: "Some", type: "core::integer::u256" },
+        { name: "None", type: "()" },
       ],
     },
     {
       type: "struct",
       name: "coiton::mods::types::PurchaseRequest",
       members: [
-        {
-          name: "listing_id",
-          type: "core::integer::u256",
-        },
-        {
-          name: "request_id",
-          type: "core::integer::u256",
-        },
-        {
-          name: "price",
-          type: "core::integer::u256",
-        },
+        { name: "listing_id", type: "core::integer::u256" },
+        { name: "request_id", type: "core::integer::u256" },
+        { name: "price", type: "core::integer::u256" },
         {
           name: "initiator",
           type: "core::starknet::contract_address::ContractAddress",
@@ -224,14 +129,8 @@ export const contract = {
           type: "function",
           name: "register",
           inputs: [
-            {
-              name: "user_type",
-              type: "coiton::mods::types::UserType",
-            },
-            {
-              name: "details",
-              type: "core::byte_array::ByteArray",
-            },
+            { name: "user_type", type: "core::integer::u8" },
+            { name: "details", type: "core::byte_array::ByteArray" },
           ],
           outputs: [],
           state_mutability: "external",
@@ -257,11 +156,7 @@ export const contract = {
               type: "core::starknet::contract_address::ContractAddress",
             },
           ],
-          outputs: [
-            {
-              type: "coiton::mods::types::User",
-            },
-          ],
+          outputs: [{ type: "coiton::mods::types::User" }],
           state_mutability: "view",
         },
         {
@@ -272,14 +167,8 @@ export const contract = {
               name: "listing_type",
               type: "coiton::mods::types::ListingType",
             },
-            {
-              name: "price",
-              type: "core::integer::u256",
-            },
-            {
-              name: "details",
-              type: "core::byte_array::ByteArray",
-            },
+            { name: "price", type: "core::integer::u256" },
+            { name: "details", type: "core::byte_array::ByteArray" },
           ],
           outputs: [],
           state_mutability: "external",
@@ -287,16 +176,9 @@ export const contract = {
         {
           type: "function",
           name: "get_users_by_type",
-          inputs: [
-            {
-              name: "user_type",
-              type: "coiton::mods::types::UserType",
-            },
-          ],
+          inputs: [{ name: "user_type", type: "core::integer::u8" }],
           outputs: [
-            {
-              type: "core::array::Array::<coiton::mods::types::User>",
-            },
+            { type: "core::array::Array::<coiton::mods::types::User>" },
           ],
           state_mutability: "view",
         },
@@ -305,9 +187,7 @@ export const contract = {
           name: "get_all_listings",
           inputs: [],
           outputs: [
-            {
-              type: "core::array::Array::<coiton::mods::types::Listing>",
-            },
+            { type: "core::array::Array::<coiton::mods::types::Listing>" },
           ],
           state_mutability: "view",
         },
@@ -321,26 +201,15 @@ export const contract = {
             },
           ],
           outputs: [
-            {
-              type: "core::array::Array::<coiton::mods::types::Listing>",
-            },
+            { type: "core::array::Array::<coiton::mods::types::Listing>" },
           ],
           state_mutability: "view",
         },
         {
           type: "function",
           name: "get_listing",
-          inputs: [
-            {
-              name: "id",
-              type: "core::integer::u256",
-            },
-          ],
-          outputs: [
-            {
-              type: "coiton::mods::types::Listing",
-            },
-          ],
+          inputs: [{ name: "id", type: "core::integer::u256" }],
+          outputs: [{ type: "coiton::mods::types::Listing" }],
           state_mutability: "view",
         },
         {
@@ -353,9 +222,7 @@ export const contract = {
             },
           ],
           outputs: [
-            {
-              type: "core::array::Array::<coiton::mods::types::Listing>",
-            },
+            { type: "core::array::Array::<coiton::mods::types::Listing>" },
           ],
           state_mutability: "view",
         },
@@ -363,10 +230,7 @@ export const contract = {
           type: "function",
           name: "create_purchase_request",
           inputs: [
-            {
-              name: "listing_id",
-              type: "core::integer::u256",
-            },
+            { name: "listing_id", type: "core::integer::u256" },
             {
               name: "bid_price",
               type: "core::option::Option::<core::integer::u256>",
@@ -379,14 +243,8 @@ export const contract = {
           type: "function",
           name: "approve_purchase_request",
           inputs: [
-            {
-              name: "listing_id",
-              type: "core::integer::u256",
-            },
-            {
-              name: "request_id",
-              type: "core::integer::u256",
-            },
+            { name: "listing_id", type: "core::integer::u256" },
+            { name: "request_id", type: "core::integer::u256" },
           ],
           outputs: [],
           state_mutability: "external",
@@ -401,9 +259,7 @@ export const contract = {
             },
           ],
           outputs: [
-            {
-              type: "core::array::Array::<coiton::mods::types::Listing>",
-            },
+            { type: "core::array::Array::<coiton::mods::types::Listing>" },
           ],
           state_mutability: "view",
         },
@@ -411,14 +267,8 @@ export const contract = {
           type: "function",
           name: "update_listing_tag",
           inputs: [
-            {
-              name: "listing_id",
-              type: "core::integer::u256",
-            },
-            {
-              name: "tag",
-              type: "coiton::mods::types::ListingTag",
-            },
+            { name: "listing_id", type: "core::integer::u256" },
+            { name: "tag", type: "coiton::mods::types::ListingTag" },
           ],
           outputs: [],
           state_mutability: "external",
@@ -426,12 +276,7 @@ export const contract = {
         {
           type: "function",
           name: "get_listing_purchase_requests",
-          inputs: [
-            {
-              name: "id",
-              type: "core::integer::u256",
-            },
-          ],
+          inputs: [{ name: "id", type: "core::integer::u256" }],
           outputs: [
             {
               type: "core::array::Array::<coiton::mods::types::PurchaseRequest>",
@@ -444,9 +289,7 @@ export const contract = {
           name: "get_owner",
           inputs: [],
           outputs: [
-            {
-              type: "core::starknet::contract_address::ContractAddress",
-            },
+            { type: "core::starknet::contract_address::ContractAddress" },
           ],
           state_mutability: "view",
         },
@@ -454,31 +297,17 @@ export const contract = {
           type: "function",
           name: "get_purchase",
           inputs: [
-            {
-              name: "listing_id",
-              type: "core::integer::u256",
-            },
-            {
-              name: "request_id",
-              type: "core::integer::u256",
-            },
+            { name: "listing_id", type: "core::integer::u256" },
+            { name: "request_id", type: "core::integer::u256" },
           ],
-          outputs: [
-            {
-              type: "coiton::mods::types::PurchaseRequest",
-            },
-          ],
+          outputs: [{ type: "coiton::mods::types::PurchaseRequest" }],
           state_mutability: "view",
         },
         {
           type: "function",
           name: "get_wallet_balance",
           inputs: [],
-          outputs: [
-            {
-              type: "core::integer::u256",
-            },
-          ],
+          outputs: [{ type: "core::integer::u256" }],
           state_mutability: "view",
         },
         {
@@ -510,9 +339,7 @@ export const contract = {
           name: "get_erc20",
           inputs: [],
           outputs: [
-            {
-              type: "core::starknet::contract_address::ContractAddress",
-            },
+            { type: "core::starknet::contract_address::ContractAddress" },
           ],
           state_mutability: "view",
         },
@@ -521,9 +348,7 @@ export const contract = {
           name: "get_erc721",
           inputs: [],
           outputs: [
-            {
-              type: "core::starknet::contract_address::ContractAddress",
-            },
+            { type: "core::starknet::contract_address::ContractAddress" },
           ],
           state_mutability: "view",
         },
@@ -543,11 +368,7 @@ export const contract = {
           type: "function",
           name: "version",
           inputs: [],
-          outputs: [
-            {
-              type: "core::integer::u16",
-            },
-          ],
+          outputs: [{ type: "core::integer::u16" }],
           state_mutability: "view",
         },
         {
@@ -585,14 +406,8 @@ export const contract = {
       type: "enum",
       name: "coiton::mods::events::UserEventType",
       variants: [
-        {
-          name: "Register",
-          type: "()",
-        },
-        {
-          name: "Verify",
-          type: "()",
-        },
+        { name: "Register", type: "()" },
+        { name: "Verify", type: "()" },
       ],
     },
     {
@@ -600,11 +415,7 @@ export const contract = {
       name: "coiton::mods::events::User",
       kind: "struct",
       members: [
-        {
-          name: "id",
-          type: "core::integer::u256",
-          kind: "key",
-        },
+        { name: "id", type: "core::integer::u256", kind: "key" },
         {
           name: "address",
           type: "core::starknet::contract_address::ContractAddress",
@@ -622,35 +433,21 @@ export const contract = {
       name: "coiton::mods::events::CreateListing",
       kind: "struct",
       members: [
-        {
-          name: "id",
-          type: "core::integer::u256",
-          kind: "key",
-        },
+        { name: "id", type: "core::integer::u256", kind: "key" },
         {
           name: "owner",
           type: "core::starknet::contract_address::ContractAddress",
           kind: "key",
         },
-        {
-          name: "price",
-          type: "core::integer::u256",
-          kind: "key",
-        },
+        { name: "price", type: "core::integer::u256", kind: "key" },
       ],
     },
     {
       type: "enum",
       name: "coiton::mods::events::PurchaseRequestType",
       variants: [
-        {
-          name: "Create",
-          type: "()",
-        },
-        {
-          name: "Approve",
-          type: "()",
-        },
+        { name: "Create", type: "()" },
+        { name: "Approve", type: "()" },
       ],
     },
     {
@@ -658,16 +455,8 @@ export const contract = {
       name: "coiton::mods::events::PurchaseRequest",
       kind: "struct",
       members: [
-        {
-          name: "listing_id",
-          type: "core::integer::u256",
-          kind: "key",
-        },
-        {
-          name: "request_id",
-          type: "core::integer::u256",
-          kind: "key",
-        },
+        { name: "listing_id", type: "core::integer::u256", kind: "key" },
+        { name: "request_id", type: "core::integer::u256", kind: "key" },
         {
           name: "bid_price",
           type: "core::option::Option::<core::integer::u256>",
