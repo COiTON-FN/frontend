@@ -267,11 +267,11 @@ export default function BuildingStepOne({
                   value={field.value}
                   onValueChange={(files) => {
                     const validFiles = files.filter(
-                      (file) => file.size <= 7 * 1024 * 1024,
+                      (file) => file.size <= 50 * 1024 * 1024,
                     );
                     if (validFiles.length !== files.length) {
                       form.setError("videos", {
-                        message: "Some files exceed the 7MB size limit",
+                        message: "Some files exceed the 50MB size limit",
                       });
                       return;
                     }
@@ -300,10 +300,10 @@ export default function BuildingStepOne({
                           <span className="cursor-pointer font-semibold text-primary underline">
                             Video
                           </span>{" "}
-                          here (optional)
+                          here
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Or click to browse (max 1 files, up to 5MB each)
+                          Or click to browse (max 1 files, up to 50MB each)
                         </p>
                       </div>
                     </FileUploadTrigger>

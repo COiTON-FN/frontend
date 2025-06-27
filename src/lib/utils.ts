@@ -8,6 +8,8 @@ import { variables } from "@/utils/variables";
 import { SOCIAL_TYPES } from "@/components/extension/social-input";
 import { createAvatar } from "@dicebear/core";
 import { dylan } from "@dicebear/collection";
+import { byteArrayToString, toHex } from "./starknet/utils";
+import { User } from "@/store/slice/credential.slice";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -230,3 +232,16 @@ export function generateAvatarFromAddress(address: string) {
 
   return svg;
 }
+
+export const formatUser = (user: any): User => ({
+  ...user,
+  address: toHex(user.address),
+  id: Number(user.id),
+  details: byteArrayToString(user.details),
+  user_type:
+    Number(user.user_type) === 0
+      ? "Individual"
+      : Number(user.user_type) === 1
+        ? "Entity"
+        : "Unknown",
+});

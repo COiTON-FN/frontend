@@ -46,7 +46,7 @@ const Review: FC = () => {
                 once: true,
                 amount: 0.7,
               }}
-              className="font-normal leading-[80px] text-[#032724]"
+              className="font-normal leading-[80px] text-primary"
             >
               What Our Users Say
             </motion.h2>
@@ -151,7 +151,7 @@ const MobileReviewCard = ({
 
   return (
     <motion.div
-      className="flex h-[400px] w-[330px] origin-bottom items-center justify-center rounded-3xl border-2 border-[#c4c0c0] bg-background hover:cursor-grab active:cursor-grabbing md:h-[430px] md:w-[350px]"
+      className="flex h-[400px] w-[330px] origin-bottom items-center justify-center rounded-3xl border-2 border-gray-900 bg-background hover:cursor-grab active:cursor-grabbing md:h-[430px] md:w-[350px]"
       style={{
         gridRow: 1,
         gridColumn: 1,

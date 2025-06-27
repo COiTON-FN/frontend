@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BiLeaf } from "react-icons/bi";
 import { Listing } from "@/store/slice/listing.slice";
-import { cn } from "@/lib/utils";
+import { cn, formatUser } from "@/lib/utils";
 import { toast } from "sonner";
 import { variables } from "@/utils/variables";
 import { useAppSelector } from "@/store";
@@ -66,15 +66,7 @@ export default function BidPage() {
         const initiatorDetails = await contract.get_user(
           refinedPurchaseRequest?.initiator,
         );
-        const initiator: User = {
-          ...initiatorDetails,
-          address: toHex(initiatorDetails?.address),
-          id: Number(initiatorDetails?.id),
-          details: byteArrayToString(initiatorDetails?.details),
-          user_type: initiatorDetails?.user_type.variant.Entity
-            ? "Entity"
-            : "Individual",
-        };
+        const initiator = formatUser(initiatorDetails);
 
         setInitiator(initiator);
 

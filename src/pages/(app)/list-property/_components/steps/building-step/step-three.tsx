@@ -266,7 +266,7 @@ export default function BuildingStepThree() {
                 <Input
                   {...field}
                   type="text"
-                  placeholder="What is the structure type? (optional)"
+                  placeholder="What is the structure type?"
                   error={!!errors?.structureType}
                 />
               </FormControl>

@@ -1,5 +1,4 @@
 import { variables } from "@/utils/variables";
-import { toast } from "sonner";
 import { Calldata, CallData, RawArgs } from "starknet";
 
 interface WriteTransactionProps {
@@ -25,24 +24,21 @@ export async function executeFn({
     {
       contractAddress,
       entrypoint,
-      calldata: CallData.compile({
-        ...calldata,
-      }),
+      calldata: CallData.compile({ ...calldata }),
     },
   ];
 
   const account = window.Wallet.Account;
-
-  if (!account) throw new Error("Wallet not connected!");
+  if (!account) throw new Error("Execution aborted: Wallet is not connected.");
 
   try {
-    const call = await account?.getOutsideExecutionPayload({
-      calls,
-    });
+    console.log(
+      "Attempting to execute entrypoint(s):",
+      calls.map((c) => c.entrypoint).join(", "),
+    );
 
-    console.log({ call });
+    const call = await account.getOutsideExecutionPayload({ calls });
 
-    console.log("CALLING ENDPOINT");
     const response = await fetch(
       `${variables.renderEndpoint}/contract/execute`,
       {
@@ -55,18 +51,21 @@ export async function executeFn({
         redirect: "follow",
       },
     );
-
-    console.log("ENDPOINT CALLED");
-
     const result: TransactionResponseProps = await response.json();
 
     if (!result?.success) {
-      toast.error(result?.message);
-      throw new Error(result?.message);
+      const message =
+        result.message ||
+        "Unknown error occurred during transaction execution.";
+      throw new Error(message);
     }
 
     return result;
   } catch (error: any) {
-    console.error("EXECUTE FN ERROR: ", error);
+    const errMsg =
+      error?.message ||
+      "Unexpected error occurred while executing contract function.";
+    console.error("Execution aborted:", errMsg);
+    throw new Error(errMsg);
   }
 }

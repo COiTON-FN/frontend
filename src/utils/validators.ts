@@ -14,8 +14,7 @@ export const buildingFormSchema = z.object({
   imagesCid: z.array(z.string()).optional(),
   videos: z
     .array(z.custom<File>())
-    .max(1, "You can upload a maximum of 1 videos")
-    .optional(),
+    .max(1, "You can upload a maximum of 1 videos"),
   videosCid: z.array(z.string()).optional(),
   description: z.string().min(5, "Description must be at least 5 characters"),
   propertyType: z.string({ required_error: "Please select a property type" }),
@@ -122,8 +121,7 @@ export const landFormSchema = z.object({
   imagesCid: z.array(z.string()).optional(),
   videos: z
     .array(z.custom<File>())
-    .max(1, "You can upload a maximum of 1 videos")
-    .optional(),
+    .max(1, "You can upload a maximum of 1 videos"),
   videosCid: z.array(z.string()).optional(),
   description: z.string().min(5, "Description must be at least 5 characters"),
   propertyType: z.string({ required_error: "Please select a property type" }),
