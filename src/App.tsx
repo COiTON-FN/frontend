@@ -7,7 +7,7 @@ import { routes } from "./routes";
 import { useAppDispatch, useAppSelector } from "./store";
 import { useContractInstance } from "./hooks/useContractInstance.hook";
 import { byteArrayToString, toHex } from "./lib/starknet/utils";
-import { generateAvatarFromAddress } from "./lib/utils";
+import { formatUser, generateAvatarFromAddress } from "./lib/utils";
 
 import {
   setIsWalletConnected,
@@ -15,7 +15,7 @@ import {
   setHasRegistered,
   setContractOwner,
 } from "./store/slice/wallet.slice";
-import { setCredential, User } from "./store/slice/credential.slice";
+import { setCredential } from "./store/slice/credential.slice";
 import { setListing, Listing } from "./store/slice/listing.slice";
 import { setUsers } from "./store/slice/users.slice";
 
@@ -41,19 +41,6 @@ export default function App() {
   const { argentWebWallet } = useWalletHook();
   const { getContractInstance } = useContractInstance();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const formatUser = (user: any): User => ({
-    ...user,
-    address: toHex(user.address),
-    id: Number(user.id),
-    details: byteArrayToString(user.details),
-    user_type:
-      Number(user.user_type) === 0
-        ? "Individual"
-        : Number(user.user_type) === 1
-          ? "Entity"
-          : "Unknown",
-  });
 
   const fetchListings = useCallback(async () => {
     const contract = getContractInstance();
@@ -204,7 +191,7 @@ export default function App() {
 
   return (
     <Fragment>
-      <SonnerToast richColors theme="light" />
+      <SonnerToast richColors theme="dark" />
       <NoticeToast />
       <RouterProvider router={routes} />
     </Fragment>

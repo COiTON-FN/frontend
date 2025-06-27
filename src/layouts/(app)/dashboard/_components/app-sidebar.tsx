@@ -170,7 +170,7 @@ const sidebarLinks = [
 const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="p-4 md:p-6">
+      <SidebarHeader className="py-4 md:p-6">
         <SidebarMenu className="px-2 py-2 md:px-4">
           <SidebarMenuItem>
             <Link className="flex w-max items-center gap-3" to="/">

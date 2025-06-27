@@ -12,8 +12,13 @@ import {
 } from "@/components/ui/table";
 // import ListingBoard from "@/components/shared/listing-board";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
-import { byteArrayToString, toHex } from "@/lib/starknet/utils";
-import { cn, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
+import { toHex } from "@/lib/starknet/utils";
+import {
+  cn,
+  formatUser,
+  generateAvatarFromAddress,
+  truncateAddr,
+} from "@/lib/utils";
 import { RootState, useAppSelector } from "@/store";
 import { Loader } from "lucide-react";
 import { MdVerified } from "react-icons/md";
@@ -55,25 +60,14 @@ export default function NewListingsPage() {
             const dt = result.map((res: any) => {
               const user = res?.user?.Some;
 
-              console.log(res);
+              const user_construct = formatUser(user);
 
               return {
                 listingId: Number(res?.listing_id),
                 requestId: Number(res?.request_id),
                 price: Number(res?.price),
                 initiator: toHex(res?.initiator),
-                user: user
-                  ? {
-                      address: toHex(user.address),
-                      id: Number(user.id),
-                      details: byteArrayToString(user.details),
-                      registered: user.registered,
-                      verified: user.verified,
-                      user_type: user.user_type?.variant?.Entity
-                        ? "Entity"
-                        : "Individual",
-                    }
-                  : null,
+                user: user ? user_construct : null,
               };
             });
 

@@ -26,12 +26,10 @@ const Notifications = () => {
       <PopoverContent
         sideOffset={8}
         align={isMobile ? "center" : "end"}
-        className="mr-6 w-96 md:mr-0"
+        className="mr-6 w-80 md:mr-0 md:w-96"
       >
         <div className="flex aspect-video items-center justify-center">
-          <p className="text-muted-foreground">
-            Notifications feature coming soon.
-          </p>
+          <p className="text-muted-foreground">Feature coming soon.</p>
         </div>
       </PopoverContent>
     </Popover>

@@ -349,6 +349,7 @@ export default function BuildingStepFive() {
                     field.onChange(validFiles);
                   }}
                   accept="application/pdf"
+                  multiple
                 >
                   <FileUploadDropzone>
                     <FileUploadTrigger

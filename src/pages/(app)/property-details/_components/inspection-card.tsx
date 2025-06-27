@@ -254,21 +254,19 @@ const InspectionCard: FC<InspectionCardProps> = ({
   }, [handleFetchInspection, ownerAddress]);
 
   if (isFetchingInspection)
-    return (
-      <Skeleton className="aspect-video flex-1 rounded-md border sm:rounded-xl" />
-    );
+    return <Skeleton className="aspect-video flex-1 rounded-2xl border" />;
 
   if (!inspectionData && !isOwner)
     return (
-      <div className="flex aspect-video flex-1 flex-col items-center justify-center gap-16 rounded-md border p-6 sm:rounded-xl sm:p-8">
-        <p className="text-xl font-normal text-muted-foreground">
-          No inspection scheduled.
+      <div className="flex aspect-video flex-1 flex-col items-center justify-center gap-16 rounded-2xl border p-6 sm:p-8">
+        <p className="text-base font-normal text-muted-foreground">
+          No Inspection Scheduled.
         </p>
       </div>
     );
 
   return (
-    <div className="flex flex-1 flex-col gap-10 rounded-md border p-6 sm:rounded-xl sm:p-8">
+    <div className="flex flex-1 flex-col gap-10 rounded-2xl border p-6 sm:p-8">
       <div className="flex flex-col gap-7">
         <p className="text-xl font-medium">
           {inspectionData?.data?.title ?? "Inspection Schedule"}
@@ -286,7 +284,7 @@ const InspectionCard: FC<InspectionCardProps> = ({
 
           <p className="mt-4 text-muted-foreground">
             {inspectionData?.data?.location ??
-              "You may either choose a place right away or let it utilise the property location."}
+              "You may either choose a place right away or let it utilize the property location."}
           </p>
         </div>
       </div>

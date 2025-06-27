@@ -48,7 +48,7 @@ const Latest: FC = () => {
             }}
             className="flex flex-col gap-2 md:gap-0"
           >
-            <h2 className="font-normal text-[#032724] md:leading-[80px]">
+            <h2 className="font-normal text-primary md:leading-[80px]">
               Latest Updates
             </h2>
             <p className="text-base text-muted-foreground md:text-lg">

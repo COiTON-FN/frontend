@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import {
   copyToClipboard,
+  formatUser,
   generateAvatarFromAddress,
   truncateAddr,
 } from "@/lib/utils";
@@ -61,15 +62,7 @@ export default function ProfilePage() {
           return;
         }
 
-        const user_construct: User = {
-          ...user,
-          address: toHex(user.address),
-          id: Number(user.id),
-          details: byteArrayToString(user.details),
-          user_type: user.user_type.variant?.Entity ? "Entity" : "Individual",
-        };
-
-        setCredential(user_construct);
+        setCredential(formatUser(user));
       } catch (error) {
         console.error("Error fetching user profile:", error);
         setCredential(null);
@@ -98,15 +91,7 @@ export default function ProfilePage() {
             const structured: Listing[] = listings.map((listing: any) => {
               const user = listing.owner_details.Some;
 
-              const user_construct: User = {
-                ...user,
-                address: toHex(user.address),
-                id: Number(user.id),
-                details: byteArrayToString(user.details),
-                user_type: user.user_type.variant.Entity
-                  ? "Entity"
-                  : "Individual",
-              };
+              const user_construct = formatUser(user);
 
               return {
                 id: Number(listing.id),
@@ -271,7 +256,7 @@ export default function ProfilePage() {
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-evenly lg:gap-0 lg:divide-x">
               <div className="flex flex-1 sm:items-center sm:justify-center">
                 <div className="flex max-w-sm flex-1 flex-col gap-2 md:pl-6 lg:gap-4">
-                  <p className="text-lg font-medium lg:text-xl">
+                  <p className="text-base font-semibold uppercase md:text-lg">
                     Contact Information
                   </p>
 
@@ -293,7 +278,9 @@ export default function ProfilePage() {
               </div>
               <div className="flex flex-1 sm:items-center sm:justify-center">
                 <div className="flex max-w-sm flex-1 flex-col gap-2 md:pl-6 lg:gap-4">
-                  <p className="text-lg font-medium lg:text-xl">Location</p>
+                  <p className="text-base font-semibold uppercase md:text-lg">
+                    Location
+                  </p>
 
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-3">
@@ -324,7 +311,9 @@ export default function ProfilePage() {
         </div>
 
         <div className="w-full space-y-6 border-t bg-background py-6 sm:rounded-2xl sm:border sm:border-t-0 sm:p-6 md:rounded-3xl lg:space-y-10 lg:p-10">
-          <p className="text-lg font-medium lg:text-xl">Agent Listings</p>
+          <p className="text-lg font-semibold uppercase lg:text-xl">
+            Agent Listings
+          </p>
 
           <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2 2xl:grid-cols-3">
             {isFetchingListings ? (

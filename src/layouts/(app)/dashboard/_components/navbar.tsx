@@ -22,15 +22,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Link, useNavigate } from "react-router-dom";
 import { IoCopyOutline, IoWalletOutline } from "react-icons/io5";
 import { HiOutlineUser } from "react-icons/hi2";
@@ -45,6 +45,7 @@ import { AiOutlineLogout } from "react-icons/ai";
 import { RiLink } from "react-icons/ri";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -69,7 +70,12 @@ const Navbar = () => {
       if (window.Wallet?.IsConnected) return;
       await handleConnectWallet();
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      if (error instanceof Error) {
+        toast.info(error.message);
+      } else {
+        toast.info(String(error));
+      }
     }
   };
 
@@ -114,6 +120,31 @@ const Navbar = () => {
                       />
                     </div>
                   </div>
+
+                  <div className="mr-2 line-clamp-1 hidden flex-1 flex-col md:flex">
+                    <div className="flex flex-1 items-center gap-2">
+                      <p className="line-clamp-1 text-sm font-medium text-foreground transition-colors group-hover:text-primary">
+                        {credentialStore?.details?.name?.split(" ")[0] ?? "..."}
+                      </p>
+                      {credentialStore?.verified && (
+                        <MdVerified className="mt-px size-4 text-primary" />
+                      )}
+                    </div>
+                    {walletStore.walletAddress && (
+                      <div className="flex items-center gap-2">
+                        <span className="line-clamp-1 text-xs font-normal text-muted-foreground">
+                          {truncateAddr(walletStore.walletAddress as string)}
+                        </span>
+                        <IoCopyOutline
+                          onClick={() =>
+                            copyToClipboard(walletStore.walletAddress as string)
+                          }
+                          className="size-3"
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   <ChevronDown className="size-4" />
                 </div>
               </DropdownMenuTrigger>
@@ -239,7 +270,7 @@ const Navbar = () => {
                     htmlFor="mode-toggle"
                     className={cn(
                       "relative flex h-11 cursor-pointer select-none items-center gap-3 !rounded-2xl px-3 text-sm font-normal outline-none transition-colors hover:bg-accent hover:text-accent-foreground [&_svg]:shrink-0",
-                      "pointer-events-none opacity-50",
+                      // "pointer-events-none opacity-50",
                     )}
                     title="Dark theme coming soon"
                   >
@@ -259,36 +290,38 @@ const Navbar = () => {
                       <span>Help Center</span>
                     </div>
                   </DropdownMenuItem>
-                  <Dialog>
-                    <DialogTrigger asChild>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
                       <div className="relative flex h-11 cursor-pointer select-none items-center gap-3 !rounded-2xl px-3 text-sm text-destructive outline-none transition-colors hover:bg-destructive/5 [&_svg]:shrink-0">
                         <AiOutlineLogout className="!size-[19px]" />
                         <span>Sign Out</span>
                       </div>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-sm !rounded-3xl !p-6">
-                      <DialogHeader>
-                        <DialogTitle className="mb-1">
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="max-w-sm !rounded-3xl !p-6">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="mb-1">
                           Already leaving?
-                        </DialogTitle>
-                        <DialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                           You won't be able to use the dApp to make any
                           transactions after signing out. Wish to proceed?
-                        </DialogDescription>
-                      </DialogHeader>
-                      <DialogFooter className="mt-4">
-                        <DialogClose asChild>
-                          <Button variant={"outline"}>Cancel</Button>
-                        </DialogClose>
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter className="mt-4">
+                        <AlertDialogCancel asChild>
+                          <Button variant={"outline"} className="px-6">
+                            Cancel
+                          </Button>
+                        </AlertDialogCancel>
                         <Button
                           className="flex-1"
                           onClick={async () => await handleDisconnect()}
                         >
-                          Yes, Sign Out
+                          Yes, Sign Out!
                         </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -297,10 +330,10 @@ const Navbar = () => {
               size={isMobile ? "icon" : "sm"}
               onClick={connectWallet}
               isLoading={isConnecting}
-              txt={!isMobile ? "Signing in..." : undefined}
+              txt={!isMobile ? "Please wait..." : undefined}
               className="rounded-full"
             >
-              <IoWalletOutline className="size-5" />
+              <IoWalletOutline className="size-4" />
               <span className={cn(isMobile && "sr-only")}>Sign In</span>
             </Button>
           )}

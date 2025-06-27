@@ -297,7 +297,7 @@ export default function LandStepOne({
                           <span className="cursor-pointer font-semibold text-primary underline">
                             Video
                           </span>{" "}
-                          here (optional)
+                          here
                         </p>
                         <p className="text-xs text-muted-foreground">
                           Or click to browse (max 1 files, up to 50MB each)

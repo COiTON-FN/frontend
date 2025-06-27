@@ -128,12 +128,10 @@ export default function OnboardingPage() {
                               {type.sub}
                             </p>
 
-                            <p className="ml-auto mt-3 flex w-max items-center gap-2 font-medium text-primary">
+                            <p className="ml-auto mt-3 flex w-max items-center gap-1.5 font-medium text-primary">
                               {type.isAvailable ? (
                                 <>
-                                  <span className="text-sm">
-                                    Start Onboarding
-                                  </span>
+                                  <span className="text-sm">Get Started</span>
                                   <ArrowRight className="size-4" />
                                 </>
                               ) : (

@@ -32,7 +32,7 @@ const Header: FC = () => {
 
   const getInTouch = (
     <Button variant={"black"} className="h-12 rounded-full px-6 font-medium">
-      Launch App
+      Launch dApp
     </Button>
   );
 
@@ -90,18 +90,18 @@ const Header: FC = () => {
                         />
                       </svg>
 
-                      <span className="cursor-pointer px-2 text-lg font-medium capitalize leading-none text-primary">
+                      <span className="cursor-pointer px-2 text-lg font-medium capitalize leading-none text-primary transition-colors duration-200 dark:text-muted-foreground dark:hover:text-foreground">
                         {label}
                       </span>
                     </div>
                   ) : !comingSoon && isActive ? (
-                    <span className="cursor-pointer px-2 text-lg font-medium capitalize leading-none text-primary">
+                    <span className="cursor-pointer px-2 text-lg font-medium capitalize leading-none text-primary transition-colors duration-200 dark:text-muted-foreground dark:hover:text-foreground">
                       {label}
                     </span>
                   ) : (
                     <Link
                       to={path}
-                      className="cursor-pointer px-2 text-lg font-medium capitalize leading-none text-primary"
+                      className="cursor-pointer px-2 text-lg font-medium capitalize leading-none text-primary transition-colors duration-200 dark:text-muted-foreground dark:hover:text-foreground"
                     >
                       {label}
                     </Link>
@@ -109,7 +109,7 @@ const Header: FC = () => {
 
                   <span
                     className={cn(
-                      "absolute -bottom-1 size-1 -translate-x-1/2 rounded-lg bg-primary transition-all duration-300",
+                      "absolute -bottom-1 size-1 -translate-x-1/2 rounded-lg bg-primary transition-all duration-300 dark:bg-foreground sm:-bottom-2 sm:size-1.5",
                       {
                         "left-0 opacity-0 group-hover:left-1/2 group-hover:opacity-100":
                           !isActive,
@@ -123,37 +123,42 @@ const Header: FC = () => {
           )}
         </ul>
 
-        <div className="hidden w-full max-w-40 items-center justify-end md:flex lg:max-w-44">
-          {renderBtn}
-        </div>
+        <div className="flex w-44 items-center justify-end">
+          <div className="hidden items-center justify-end md:flex">
+            {renderBtn}
+          </div>
 
-        <div className="flex md:hidden">
-          <Sheet>
-            <SheetTrigger>
-              <FiMenu className="size-6 cursor-pointer" />
-              <span className="sr-only">Menu</span>
-            </SheetTrigger>
-            <SheetContent className="flex flex-col justify-between">
-              <SheetHeader className="mt-12">
-                {nav_routes.map((route) => (
-                  <SheetClose
-                    className="group relative !mt-0 w-full border-b border-border/50 px-2 py-3 text-left outline-none last:border-b-0 focus:outline-none"
-                    key={route.path}
-                    onClick={() => navigate(route.path)}
-                  >
-                    <p className="text-left text-base font-medium capitalize text-primary md:text-lg">
-                      {route.label}
-                    </p>
+          <div className="flex md:hidden">
+            <Sheet>
+              <SheetTrigger>
+                <FiMenu className="size-6 cursor-pointer" />
+                <span className="sr-only">Menu</span>
+              </SheetTrigger>
+              <SheetContent className="flex flex-col justify-between">
+                <SheetHeader className="mt-12">
+                  {nav_routes.map((route) => (
+                    <SheetClose
+                      className="group relative !mt-0 w-full border-b border-border/50 px-2 py-3 text-left outline-none last:border-b-0 focus:outline-none"
+                      key={route.path}
+                      onClick={() => navigate(route.path)}
+                    >
+                      <p className="flex items-end justify-between text-left text-base font-medium capitalize text-primary md:text-lg">
+                        <span>{route.label}</span>
+                        {route.comingSoon && (
+                          <span className="text-xs italic">Coming Soon</span>
+                        )}
+                      </p>
+                    </SheetClose>
+                  ))}
+                </SheetHeader>
+                <SheetFooter className="mt-auto">
+                  <SheetClose asChild className="flex flex-col">
+                    {renderBtn}
                   </SheetClose>
-                ))}
-              </SheetHeader>
-              <SheetFooter className="mt-auto">
-                <SheetClose asChild className="flex flex-col">
-                  {renderBtn}
-                </SheetClose>
-              </SheetFooter>
-            </SheetContent>
-          </Sheet>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </MaxWrapper>
     </header>
