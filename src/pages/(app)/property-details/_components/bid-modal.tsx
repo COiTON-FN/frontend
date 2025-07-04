@@ -48,7 +48,7 @@ export const BidModal: FC<BidModalProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
-  const { getErc20Instance } = useContractInstance();
+  const { getErc20Instance, getWalletProviderContract } = useContractInstance();
   const { argentWebWallet, handleConnectWallet } = useWalletHook();
 
   const { hasRegistered } = useAppSelector((state: RootState) => state.wallet);
@@ -176,11 +176,15 @@ export const BidModal: FC<BidModalProps> = ({
         contract.daoAddress,
       );
 
-      if ((bidPrice || listing.price) > Number(allowance)) {
+      const bidValue = parseUnits((bidPrice || listing.price).toString()).toLocaleString("fullwide", { useGrouping: false });
+      if (Number(bidValue) > Number(allowance)) {
         await handleConnect({
-          approval: (bidPrice || listing.price).toString(),
+          approval: bidValue,
         });
       }
+
+
+      const contract_ = getWalletProviderContract();
 
       const result = await executeFn({
         contractAddress: contract.daoAddress,
@@ -189,6 +193,7 @@ export const BidModal: FC<BidModalProps> = ({
           listing.id,
           new CairoOption(CairoOptionVariant.Some, bidPrice || listing.price),
         ],
+        contract: contract_
       });
 
       if (!result?.success) return;
@@ -249,20 +254,19 @@ export const BidModal: FC<BidModalProps> = ({
                       $
                       {purchaseRequests.length > 0
                         ? purchaseRequests
-                            .sort((a, b) => b.price - a.price)[0]
-                            .price.toLocaleString()
+                          .sort((a, b) => b.price - a.price)[0]
+                          .price.toLocaleString()
                         : listing?.price.toLocaleString()}
                     </span>
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={`$${
-                        purchaseRequests.length > 0
-                          ? purchaseRequests
-                              .sort((a, b) => b.price - a.price)[0]
-                              .price.toLocaleString()
-                          : listing?.price.toLocaleString()
-                      }`}
+                      placeholder={`$${purchaseRequests.length > 0
+                        ? purchaseRequests
+                          .sort((a, b) => b.price - a.price)[0]
+                          .price.toLocaleString()
+                        : listing?.price.toLocaleString()
+                        }`}
                       type="number"
                       disabled={isSubmitting}
                       error={!!errors.bid}
