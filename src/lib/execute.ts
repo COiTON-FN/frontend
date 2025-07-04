@@ -1,8 +1,7 @@
 import { variables } from "@/utils/variables";
-import { Calldata, CallData, Contract, RawArgs } from "starknet";
+import { Calldata, Contract, RawArgs } from "starknet";
 
 interface WriteTransactionProps {
-  contractAddress: string;
   entrypoint: string;
   calldata: RawArgs | Calldata | undefined;
   contract?: Contract;
@@ -17,29 +16,20 @@ interface TransactionResponseProps {
 }
 
 export async function executeFn({
-  contractAddress,
   entrypoint,
   calldata,
   contract,
 }: WriteTransactionProps) {
-  const calls = [
-    {
-      contractAddress,
-      entrypoint,
-      calldata: CallData.compile({ ...calldata }),
-    },
-  ];
-
   const account = window.Wallet.Account;
   if (!account) throw new Error("Execution aborted: Wallet is not connected.");
 
   if (!contract) throw new Error("Execution aborted: Wallet is not connected.");
 
   try {
-    console.log(
-      "Attempting to execute entrypoint(s):",
-      calls.map((c) => c.entrypoint).join(", "),
-    );
+    // console.log(
+    //   "Attempting to execute entrypoint(s):",
+    //   calls.map((c) => c.entrypoint).join(", "),
+    // );
     const call = contract!.populate(entrypoint, calldata);
 
     const outsideExecutionPayload = await account.getOutsideExecutionPayload({

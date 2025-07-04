@@ -187,7 +187,7 @@ export const BidModal: FC<BidModalProps> = ({
       const contract_ = getWalletProviderContract();
 
       const result = await executeFn({
-        contractAddress: contract.daoAddress,
+        // contractAddress: contract.daoAddress,
         entrypoint: "create_purchase_request",
         calldata: [
           listing.id,
