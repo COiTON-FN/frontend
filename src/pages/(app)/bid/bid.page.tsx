@@ -39,7 +39,7 @@ export default function BidPage() {
   const [isApproving, setIsApproving] = useState(false);
   const { walletAddress } = useAppSelector((state) => state.wallet);
 
-  const { getContractInstance, getErc721Instance } = useContractInstance();
+  const { getContractInstance, getErc721Instance, getWalletProviderContract } = useContractInstance();
 
   useEffect(() => {
     (async () => {
@@ -112,7 +112,7 @@ export default function BidPage() {
       const erc721 = getErc721Instance();
       const contractInstance = getContractInstance();
       const approvedAddress = await erc721!.get_approved(listingId);
-
+      const contract_ = getWalletProviderContract();
       if (approvedAddress !== walletAddress) {
         const approve_call = erc721!.populate("approve", [
           variables.daoAddress,
@@ -120,9 +120,10 @@ export default function BidPage() {
         ]);
 
         const result = await executeFn({
-          contractAddress: approve_call.contractAddress,
+          // contractAddress: approve_call.contractAddress,
           entrypoint: approve_call.entrypoint,
           calldata: approve_call.calldata,
+          contract: contract_
         });
 
         if (!result?.success) return;
@@ -134,9 +135,11 @@ export default function BidPage() {
       ]);
 
       const result = await executeFn({
-        contractAddress: call.contractAddress,
+        // contractAddress: call.contractAddress,
         entrypoint: call.entrypoint,
         calldata: call.calldata,
+        contract: contract_
+
       });
 
       if (!result?.success) {

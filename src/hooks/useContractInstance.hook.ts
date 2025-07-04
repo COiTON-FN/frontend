@@ -1,6 +1,13 @@
 import { contract } from "@/utils/contract";
 import { useCallback } from "react";
-import { Contract, RpcProvider, Abi, constants } from "starknet";
+import { toast } from "sonner";
+import {
+  Contract,
+  RpcProvider,
+  Abi,
+  constants,
+  AccountInterface,
+} from "starknet";
 
 const envName = import.meta.env.VITE_ENV_NAME as "mainnet" | "sepolia";
 const isMainnet = envName === "mainnet";
@@ -56,6 +63,21 @@ export const useContractInstance = () => {
     [],
   );
 
+  const getWalletProviderContract = () => {
+    if (!window.Wallet?.Account || !window.Wallet?.IsConnected) {
+      toast.error("Wallet not connected!");
+      return;
+    }
+
+    const contract = new Contract(
+      daoABI,
+      daoAddress,
+      window.Wallet.Account as unknown as AccountInterface,
+    );
+
+    return contract;
+  };
+
   const getContractInstance = useCallback(() => {
     const contract = rpcProviderContractInstance(daoABI, daoAddress);
 
@@ -78,5 +100,6 @@ export const useContractInstance = () => {
     getContractInstance,
     getErc20Instance,
     getErc721Instance,
+    getWalletProviderContract,
   };
 };

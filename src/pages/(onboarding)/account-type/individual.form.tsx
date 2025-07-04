@@ -26,8 +26,9 @@ import { useWalletHook } from "@/hooks/useWallet.hook";
 import { setCredential, User } from "@/store/slice/credential.slice";
 import { stringToByteArray } from "@/lib/starknet/utils";
 import { executeFn } from "@/lib/execute";
-import { contract } from "@/utils/contract";
+// import { contract } from "@/utils/contract";
 import { setHasRegistered } from "@/store/slice/wallet.slice";
+import { useContractInstance } from "@/hooks/useContractInstance.hook";
 
 const individualFormSchema = z.object({
   name: z
@@ -91,7 +92,7 @@ export default function IndividualForm() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { handleConnectWallet } = useWalletHook();
-
+  const { getWalletProviderContract } = useContractInstance();
   const walletStore = useAppSelector((state: RootState) => state.wallet);
   const credentialStore = useAppSelector(
     (state: RootState) => state.credential.credential,
@@ -138,11 +139,14 @@ export default function IndividualForm() {
       const detailsToBytesArray = stringToByteArray(
         JSON.stringify(processed_data),
       );
+      const contract_ = getWalletProviderContract();
+
 
       const result = await executeFn({
-        contractAddress: contract.daoAddress,
+        // contractAddress: contract.daoAddress,
         entrypoint: "register",
         calldata: [0, detailsToBytesArray],
+        contract: contract_
       });
 
       if (!result?.success) return;
