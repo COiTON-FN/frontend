@@ -7,6 +7,7 @@ import { RootState, useAppDispatch, useAppSelector } from "@/store";
 import { clearFile } from "@/store/slice/new-listing.slice";
 import { lcStorage } from "@/lib/utils";
 import { resetForm } from "@/store/slice/onboarding.slice";
+import { SEO } from "@/components/shared/seo";
 
 export default function ListPropertyPage() {
   const navigate = useNavigate();
@@ -45,31 +46,35 @@ export default function ListPropertyPage() {
   }, [credentialStore, navigate]);
 
   return (
-    <div className="relative flex flex-col gap-4 py-4">
-      <div className="flex h-full w-full flex-1 flex-col rounded-2xl md:rounded-3xl md:border md:bg-background">
-        {!typeParam && (
-          <PropertyType
-            setSelectedType={setSelectedType}
-            selectedType={selectedType}
-            handleResetType={handleResetType}
-          />
-        )}
+    <React.Fragment>
+      <SEO page="listProperty" />
 
-        {typeParam && typeParam === "land" && (
-          <LandForm
-            selectedType={selectedType}
-            handleResetType={handleResetType}
-          />
-        )}
+      <div className="relative flex flex-col gap-4 py-4">
+        <div className="flex h-full w-full flex-1 flex-col rounded-2xl md:rounded-3xl md:border md:bg-background">
+          {!typeParam && (
+            <PropertyType
+              setSelectedType={setSelectedType}
+              selectedType={selectedType}
+              handleResetType={handleResetType}
+            />
+          )}
 
-        {typeParam && typeParam === "building" && (
-          <BuildingForm
-            selectedType={selectedType}
-            handleResetType={handleResetType}
-          />
-        )}
+          {typeParam && typeParam === "land" && (
+            <LandForm
+              selectedType={selectedType}
+              handleResetType={handleResetType}
+            />
+          )}
+
+          {typeParam && typeParam === "building" && (
+            <BuildingForm
+              selectedType={selectedType}
+              handleResetType={handleResetType}
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </React.Fragment>
   );
 }
 

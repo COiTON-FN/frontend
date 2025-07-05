@@ -48,7 +48,7 @@ export const BidModal: FC<BidModalProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
-  const { getErc20Instance } = useContractInstance();
+  const { getErc20Instance, getWalletProviderContract } = useContractInstance();
   const { argentWebWallet, handleConnectWallet } = useWalletHook();
 
   const { hasRegistered } = useAppSelector((state: RootState) => state.wallet);
@@ -176,19 +176,25 @@ export const BidModal: FC<BidModalProps> = ({
         contract.daoAddress,
       );
 
-      if ((bidPrice || listing.price) > Number(allowance)) {
+      const bidValue = parseUnits(
+        (bidPrice || listing.price).toString(),
+      ).toLocaleString("fullwide", { useGrouping: false });
+      if (Number(bidValue) > Number(allowance)) {
         await handleConnect({
-          approval: (bidPrice || listing.price).toString(),
+          approval: bidValue,
         });
       }
 
+      const contract_ = getWalletProviderContract();
+
       const result = await executeFn({
-        contractAddress: contract.daoAddress,
+        // contractAddress: contract.daoAddress,
         entrypoint: "create_purchase_request",
         calldata: [
           listing.id,
           new CairoOption(CairoOptionVariant.Some, bidPrice || listing.price),
         ],
+        contract: contract_,
       });
 
       if (!result?.success) return;

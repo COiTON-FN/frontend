@@ -24,14 +24,6 @@ export const routes = createBrowserRouter([
         element: pages.profilePage,
       },
       {
-        path: "/approve",
-        element: pages.approveBidPage,
-      },
-      {
-        path: "/requests",
-        element: pages.requestsPage,
-      },
-      {
         path: "/list-property",
         element: pages.listPropertyPage,
       },

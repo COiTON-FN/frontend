@@ -22,8 +22,8 @@ import {
   updateListingFormData,
 } from "@/store/slice/new-listing.slice";
 import LocationSelector from "@/components/extension/location-input";
-import MapPicker from "@/components/shared/map-picker";
 import { cn } from "@/lib/utils";
+import { LocationField } from "@/components/shared/location-field";
 
 export default function BuildingStepTwo() {
   const dispatch = useAppDispatch();
@@ -57,6 +57,16 @@ export default function BuildingStepTwo() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = form;
+
+  const handleLocationChange = (map: LocationData | null) => {
+    if (map) {
+      form.setValue("map", map);
+      form.clearErrors("map");
+    } else {
+      form.setValue("map", undefined as any);
+      form.trigger("map");
+    }
+  };
 
   async function onSubmit(formData: Partial<BuildingFormSchemaProps>) {
     dispatch(setFormStep(currentStep + 1));
@@ -187,32 +197,13 @@ export default function BuildingStepTwo() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="map"
-          disabled={isSubmitting}
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormControl>
-                <div className="flex items-center gap-2">
-                  <MapPicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    error={!!errors?.map}
-                  />
-                </div>
-              </FormControl>
-              {errors.map && (
-                <p
-                  className={cn(
-                    "text-sm font-medium text-red-500 dark:text-red-900",
-                  )}
-                >
-                  {errors?.map?.message}
-                </p>
-              )}
-            </FormItem>
-          )}
+
+        <LocationField
+          placeholder="Select Location"
+          value={form.watch("map") || null}
+          onChange={handleLocationChange}
+          error={form.formState.errors.map?.message}
+          required
         />
       </div>
 

@@ -170,18 +170,13 @@ export default function App() {
         if (!contract) return;
 
         const user = await contract.get_user(walletAddress);
-        // const contractOwner = await contract.get_owner();
+        const contractOwner = await contract.get_owner();
 
         const userConstruct = formatUser(user);
 
         dispatch(setHasRegistered(true));
         dispatch(setCredential(userConstruct));
-        // dispatch(setContractOwner(toHex(contractOwner)));
-        dispatch(
-          setContractOwner(
-            "0x025de235bcba49aa753587d4ae45f6d71908db9e2b4152dca1246b80516e88ad",
-          ),
-        );
+        dispatch(setContractOwner(toHex(contractOwner)));
       } catch (error) {
         console.error("Error fetching user credentials:", error);
         toast.warning("Looks like you're not registered yet");

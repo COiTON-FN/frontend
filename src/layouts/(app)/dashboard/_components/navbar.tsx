@@ -268,10 +268,8 @@ const Navbar = () => {
 
                   <Label
                     htmlFor="mode-toggle"
-                    className={cn(
-                      "relative flex h-11 cursor-pointer select-none items-center gap-3 !rounded-2xl px-3 text-sm font-normal outline-none transition-colors hover:bg-accent hover:text-accent-foreground [&_svg]:shrink-0",
-                      // "pointer-events-none opacity-50",
-                    )}
+                    aria-disabled={true}
+                    className="relative flex h-11 cursor-pointer select-none items-center gap-3 !rounded-2xl px-3 text-sm font-normal outline-none transition-colors hover:bg-accent hover:text-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:shrink-0"
                     title="Dark theme coming soon"
                   >
                     <IoInvertMode className="!size-[19px]" />
