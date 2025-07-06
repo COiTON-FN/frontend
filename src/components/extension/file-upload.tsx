@@ -427,10 +427,10 @@ const FileUploadRoot = React.forwardRef<HTMLDivElement, FileUploadRootProps>(
 
           if (propsRef.current.accept) {
             const acceptTypes = propsRef.current.accept
-              .split(",")
+              ?.split(",")
               .map((t) => t.trim());
             const fileType = file.type;
-            const fileExtension = `.${file.name.split(".").pop()}`;
+            const fileExtension = `.${file.name?.split(".").pop()}`;
 
             if (
               !acceptTypes.some(
@@ -983,7 +983,7 @@ function formatBytes(bytes: number) {
 
 function getFileIcon(file: File) {
   const type = file.type;
-  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  const extension = file.name?.split(".").pop()?.toLowerCase() ?? "";
 
   if (type.startsWith("video/")) {
     return <PiFileVideo className="!size-7" />;

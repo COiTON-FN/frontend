@@ -115,8 +115,8 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
           <Dialog.DialogTitle>Confirm Bid Approval</Dialog.DialogTitle>
           <Dialog.DialogDescription>
             By approving{" "}
-            <strong>{request.user?.details.name.split(" ")[0]}'s</strong> offer
-            of{" "}
+            <strong>{request.user?.details?.name?.split(" ")[0]}'s</strong>{" "}
+            offer of{" "}
             <strong>
               {
                 new Intl.NumberFormat("en-US", {
@@ -124,7 +124,7 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
                   currency: "USD",
                 })
                   .format(request.price)
-                  .split(".")[0]
+                  ?.split(".")[0]
               }
             </strong>
             , you agree to transfer the property to the following wallet

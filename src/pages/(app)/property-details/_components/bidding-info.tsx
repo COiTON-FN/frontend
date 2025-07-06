@@ -119,7 +119,7 @@ const baseColumns: ColumnDef<PurchaseRequest>[] = [
                   {user?.details.name}
                 </span>
                 <span className="sm:hidden md:flex xl:hidden">
-                  {user?.details.name.split(" ")[0]}
+                  {user?.details?.name?.split(" ")[0]}
                 </span>
               </p>
               {user?.verified && (
@@ -176,7 +176,7 @@ const baseColumns: ColumnDef<PurchaseRequest>[] = [
         currency: "USD",
       })
         .format(amount)
-        .split(".")[0];
+        ?.split(".")[0];
 
       return <div className="text-right font-medium">{formatted}</div>;
     },
