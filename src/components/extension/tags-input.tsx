@@ -73,7 +73,7 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
     const handlePaste = React.useCallback(
       (e: React.ClipboardEvent<HTMLInputElement>) => {
         e.preventDefault();
-        const tags = e.clipboardData.getData("text").split(SPLITTER_REGEX);
+        const tags = e.clipboardData.getData("text")?.split(SPLITTER_REGEX);
         const newValue = [...(value ?? [])];
         tags.forEach((item) => {
           const parsedItem = item.replace(FORMATTING_REGEX, "").trim();
