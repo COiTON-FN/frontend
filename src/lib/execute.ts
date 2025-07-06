@@ -27,6 +27,7 @@ export async function executeFn({
 
   try {
     console.log("Attempting to execute entrypoint:", entrypoint);
+
     const call = contract!.populate(entrypoint, calldata);
 
     const outsideExecutionPayload = await account.getOutsideExecutionPayload({
