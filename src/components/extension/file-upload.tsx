@@ -438,7 +438,7 @@ const FileUploadRoot = React.forwardRef<HTMLDivElement, FileUploadRootProps>(
                   type === fileType ||
                   type === fileExtension ||
                   (type.includes("/*") &&
-                    fileType.startsWith(type.replace("/*", "/"))),
+                    fileType?.startsWith(type.replace("/*", "/"))),
               )
             ) {
               rejectionMessage = "File type not accepted";
@@ -985,16 +985,16 @@ function getFileIcon(file: File) {
   const type = file.type;
   const extension = file.name?.split(".").pop()?.toLowerCase() ?? "";
 
-  if (type.startsWith("video/")) {
+  if (type?.startsWith("video/")) {
     return <PiFileVideo className="!size-7" />;
   }
 
-  if (type.startsWith("audio/")) {
+  if (type?.startsWith("audio/")) {
     return <PiFileAudio className="!size-7" />;
   }
 
   if (
-    type.startsWith("text/") ||
+    type?.startsWith("text/") ||
     ["txt", "md", "rtf", "pdf"].includes(extension)
   ) {
     return <PiFileDoc className="!size-7" />;
@@ -1028,7 +1028,7 @@ function getFileIcon(file: File) {
 
   if (
     ["exe", "msi", "app", "apk", "deb", "rpm"].includes(extension) ||
-    type.startsWith("application/")
+    type?.startsWith("application/")
   ) {
     return <LuFileCog className="!size-7" />;
   }
