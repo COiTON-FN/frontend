@@ -97,11 +97,16 @@ export const useWalletHook = () => {
   };
 
   const handleDisconnect = async () => {
-    await argentWebWallet.clearSession();
-    dispatch(setCurrentConnector(null));
-    dispatch(setIsWalletConnected(false));
-    dispatch(setCredential(null));
-    window.Wallet = { Account: undefined, IsConnected: false };
+    try {
+      await argentWebWallet.clearSession();
+
+      dispatch(setCurrentConnector(null));
+      dispatch(setIsWalletConnected(false));
+      dispatch(setCredential(null));
+      window.Wallet = { Account: undefined, IsConnected: false };
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return {

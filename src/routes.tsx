@@ -36,6 +36,10 @@ export const routes = createBrowserRouter([
         element: pages.propertyDetailsPage,
       },
       {
+        path: "/about",
+        element: pages.aboutPage,
+      },
+      {
         path: "/trading",
         element: pages.tradingPage,
       },

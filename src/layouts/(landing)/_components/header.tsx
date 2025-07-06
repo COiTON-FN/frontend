@@ -90,18 +90,18 @@ const Header: FC = () => {
                         />
                       </svg>
 
-                      <span className="cursor-pointer px-2 text-lg font-medium capitalize leading-none text-primary transition-colors duration-200 dark:text-muted-foreground dark:hover:text-foreground">
+                      <span className="cursor-pointer px-2 text-lg font-normal capitalize leading-none text-primary transition-colors duration-200 dark:text-muted-foreground dark:hover:text-foreground">
                         {label}
                       </span>
                     </div>
                   ) : !comingSoon && isActive ? (
-                    <span className="cursor-pointer px-2 text-lg font-medium capitalize leading-none text-primary transition-colors duration-200 dark:text-muted-foreground dark:hover:text-foreground">
+                    <span className="cursor-pointer px-2 text-lg font-normal capitalize leading-none text-primary transition-colors duration-200 dark:text-muted-foreground dark:hover:text-foreground">
                       {label}
                     </span>
                   ) : (
                     <Link
                       to={path}
-                      className="cursor-pointer px-2 text-lg font-medium capitalize leading-none text-primary transition-colors duration-200 dark:text-muted-foreground dark:hover:text-foreground"
+                      className="cursor-pointer px-2 text-lg font-normal capitalize leading-none text-primary transition-colors duration-200 dark:text-muted-foreground dark:hover:text-foreground"
                     >
                       {label}
                     </Link>
@@ -142,7 +142,7 @@ const Header: FC = () => {
                       key={route.path}
                       onClick={() => navigate(route.path)}
                     >
-                      <p className="flex items-end justify-between text-left text-base font-medium capitalize text-primary md:text-lg">
+                      <p className="flex items-end justify-between text-left text-base font-medium capitalize text-primary transition dark:text-muted-foreground dark:hover:text-foreground md:text-lg">
                         <span>{route.label}</span>
                         {route.comingSoon && (
                           <span className="text-xs italic">Coming Soon</span>

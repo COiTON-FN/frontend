@@ -7,7 +7,6 @@ import {
 } from "@/lib/utils";
 import { Phone } from "lucide-react";
 import { MdVerified } from "react-icons/md";
-import { TbCopy } from "react-icons/tb";
 import { MdAlternateEmail } from "react-icons/md";
 import { byteArrayToString, toHex } from "@/lib/starknet/utils";
 import { User } from "@/store/slice/credential.slice";
@@ -29,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ListingCard from "@/components/shared/listing-card";
 import { RiLink } from "react-icons/ri";
 import { SEO } from "@/components/shared/seo";
+import { ClipboardCopy } from "@/components/shared/clipboard-copy";
 
 export default function ProfilePage() {
   const [searchParams] = useSearchParams();
@@ -165,18 +165,14 @@ export default function ProfilePage() {
                         <MdVerified className="size-5 text-primary lg:size-6" />
                       )}
                     </div>
-                    <div className="mb-2 mt-1 flex items-center gap-2">
-                      <p className="text-sm font-medium lg:text-base">
+                    <ClipboardCopy
+                      value={credential?.address}
+                      className="mb-2 mt-1 text-muted-foreground"
+                    >
+                      <p className="text-sm lg:text-base">
                         {truncateAddr(credential?.address)}
                       </p>
-                      <TbCopy
-                        role="button"
-                        onClick={() =>
-                          copyToClipboard(credential?.address as string)
-                        }
-                        className="size-4 lg:size-5"
-                      />
-                    </div>
+                    </ClipboardCopy>
                     <div className="mb-4 flex items-center gap-2">
                       <svg
                         viewBox="0 0 26 26"
@@ -248,9 +244,12 @@ export default function ProfilePage() {
 
                   <Button
                     variant={"outline"}
-                    onClick={() => {
+                    onClick={async () => {
                       const url = `${window.location.origin}/profile?address=${credential?.address}`;
-                      copyToClipboard(url, "Profile URL copied to clipboard!");
+                      await copyToClipboard(
+                        url,
+                        "Profile URL copied to clipboard!",
+                      );
                     }}
                   >
                     <RiLink className="size-[18px]" />
@@ -318,7 +317,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="w-full space-y-6 border-t bg-background py-6 sm:rounded-2xl sm:border sm:border-t-0 sm:p-6 md:rounded-3xl lg:space-y-10 lg:p-10">
+          <div className="w-full space-y-6 border-t bg-background py-6 sm:rounded-2xl sm:border sm:p-6 md:rounded-3xl lg:space-y-10 lg:p-10">
             <p className="text-lg font-semibold uppercase lg:text-xl">
               Agent Listings
             </p>

@@ -66,7 +66,7 @@ const ListingCard = ({
               {listing.tag === "ForSale" ? "For Sale" : "Sold Out"}
             </span>
           </div>
-          <div className="absolute bottom-4 left-4 flex items-center gap-1.5 rounded-full border bg-white px-3.5 py-1.5">
+          <div className="absolute bottom-4 left-4 flex items-center gap-1.5 rounded-full border bg-background px-3.5 py-1.5">
             {details?.propertyType === "land" ? (
               <PiIslandDuotone className="size-4" />
             ) : (
@@ -77,14 +77,14 @@ const ListingCard = ({
             </span>
           </div>
           <div className="absolute bottom-4 right-4 flex items-center gap-2">
-            <div className="flex h-6 items-center gap-1.5 rounded-full border bg-white px-2.5">
+            <div className="flex h-6 items-center gap-1.5 rounded-full border bg-background px-2.5">
               <FaRegImages className="size-4" />
               <span className="text-[13px] font-medium capitalize">
                 {details.imagesCid.length ?? 0}
               </span>
             </div>
             {details?.videosCid && (
-              <div className="flex h-6 items-center gap-1.5 rounded-full border bg-white px-2">
+              <div className="flex h-6 items-center gap-1.5 rounded-full border bg-background px-2">
                 <PiVideo className="size-5" />
               </div>
             )}

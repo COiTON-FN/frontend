@@ -2,12 +2,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import {
-  cn,
-  copyToClipboard,
-  generateAvatarFromAddress,
-  truncateAddr,
-} from "@/lib/utils";
+import { cn, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { RootState } from "@/store";
 import { ChevronDown, Search } from "lucide-react";
 import { Fragment, memo, useEffect } from "react";
@@ -22,17 +17,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Link, useNavigate } from "react-router-dom";
-import { IoCopyOutline, IoWalletOutline } from "react-icons/io5";
+import { IoWalletOutline } from "react-icons/io5";
 import { HiOutlineUser } from "react-icons/hi2";
 import { useWalletHook } from "@/hooks/useWallet.hook";
 import { MdVerified } from "react-icons/md";
@@ -46,8 +41,14 @@ import { RiLink } from "react-icons/ri";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { ClipboardCopy } from "@/components/shared/clipboard-copy";
+import { useTheme } from "@/components/provider/theme.provider";
 
 const Navbar = () => {
+  const { theme, setTheme } = useTheme();
+
+  const isDark = theme === "dark";
+
   const navigate = useNavigate();
 
   const { handleDisconnect, handleConnectWallet, isConnecting } =
@@ -80,7 +81,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="sticky left-0 top-0 z-30 h-20 w-full border-b border-[#EAECF0] bg-background/80 backdrop-blur-xl sm:bg-background sm:backdrop-blur-0">
+    <div className="sticky left-0 top-0 z-30 h-20 w-full border-b border-[#EAECF0] bg-background/80 backdrop-blur-xl dark:border-border sm:bg-background sm:backdrop-blur-0">
       <MaxWrapper className="flex h-full items-center gap-6">
         <div className="flex h-full w-full max-w-sm items-center gap-3 xl:max-w-md">
           <SidebarTrigger className="rounded-full" />
@@ -121,30 +122,6 @@ const Navbar = () => {
                     </div>
                   </div>
 
-                  <div className="mr-2 line-clamp-1 hidden flex-1 flex-col md:flex">
-                    <div className="flex flex-1 items-center gap-2">
-                      <p className="line-clamp-1 text-sm font-medium text-foreground transition-colors group-hover:text-primary">
-                        {credentialStore?.details?.name?.split(" ")[0] ?? "..."}
-                      </p>
-                      {credentialStore?.verified && (
-                        <MdVerified className="mt-px size-4 text-primary" />
-                      )}
-                    </div>
-                    {walletStore.walletAddress && (
-                      <div className="flex items-center gap-2">
-                        <span className="line-clamp-1 text-xs font-normal text-muted-foreground">
-                          {truncateAddr(walletStore.walletAddress as string)}
-                        </span>
-                        <IoCopyOutline
-                          onClick={() =>
-                            copyToClipboard(walletStore.walletAddress as string)
-                          }
-                          className="size-3"
-                        />
-                      </div>
-                    )}
-                  </div>
-
                   <ChevronDown className="size-4" />
                 </div>
               </DropdownMenuTrigger>
@@ -182,21 +159,18 @@ const Navbar = () => {
                             )}
                           </div>
                           {walletStore.walletAddress && (
-                            <div className="flex items-center gap-2">
-                              <span className="line-clamp-1 text-xs font-normal text-muted-foreground">
+                            <ClipboardCopy
+                              size={14}
+                              className="gap-1"
+                              value={walletStore.walletAddress}
+                              message="Wallet address copied successfully"
+                            >
+                              <span className="line-clamp-1 text-xs text-muted-foreground">
                                 {truncateAddr(
                                   walletStore.walletAddress as string,
                                 )}
                               </span>
-                              <IoCopyOutline
-                                onClick={() =>
-                                  copyToClipboard(
-                                    walletStore.walletAddress as string,
-                                  )
-                                }
-                                className="size-3"
-                              />
-                            </div>
+                            </ClipboardCopy>
                           )}
                         </div>
 
@@ -268,14 +242,18 @@ const Navbar = () => {
 
                   <Label
                     htmlFor="mode-toggle"
-                    aria-disabled={true}
-                    className="relative flex h-11 cursor-pointer select-none items-center gap-3 !rounded-2xl px-3 text-sm font-normal outline-none transition-colors hover:bg-accent hover:text-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:shrink-0"
-                    title="Dark theme coming soon"
+                    className="relative flex h-11 cursor-pointer select-none items-center gap-3 rounded-2xl px-3 text-sm font-normal outline-none transition-colors hover:bg-accent hover:text-accent-foreground dark:hover:bg-neutral-900 dark:hover:text-foreground"
                   >
-                    <IoInvertMode className="!size-[19px]" />
+                    <IoInvertMode className="size-[19px]" />
                     <span>Dark Theme</span>
-
-                    <Switch className="ml-auto" id="mode-toggle" />
+                    <Switch
+                      id="mode-toggle"
+                      checked={isDark}
+                      onCheckedChange={(value) =>
+                        setTheme(value ? "dark" : "light")
+                      }
+                      className="ml-auto"
+                    />
                   </Label>
                 </DropdownMenuGroup>
 
@@ -288,38 +266,38 @@ const Navbar = () => {
                       <span>Help Center</span>
                     </div>
                   </DropdownMenuItem>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                  <Dialog>
+                    <DialogTrigger asChild>
                       <div className="relative flex h-11 cursor-pointer select-none items-center gap-3 !rounded-2xl px-3 text-sm text-destructive outline-none transition-colors hover:bg-destructive/5 [&_svg]:shrink-0">
                         <AiOutlineLogout className="!size-[19px]" />
                         <span>Sign Out</span>
                       </div>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="max-w-sm !rounded-3xl !p-6">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="mb-1">
+                    </DialogTrigger>
+                    <DialogContent className="max-w-sm !rounded-3xl !p-6">
+                      <DialogHeader>
+                        <DialogTitle className="mb-1">
                           Already leaving?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
+                        </DialogTitle>
+                        <DialogDescription>
                           You won't be able to use the dApp to make any
                           transactions after signing out. Wish to proceed?
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter className="mt-4">
-                        <AlertDialogCancel asChild>
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter className="mt-4">
+                        <DialogClose asChild>
                           <Button variant={"outline"} className="px-6">
                             Cancel
                           </Button>
-                        </AlertDialogCancel>
+                        </DialogClose>
                         <Button
                           className="flex-1"
                           onClick={async () => await handleDisconnect()}
                         >
                           Yes, Sign Out!
                         </Button>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>

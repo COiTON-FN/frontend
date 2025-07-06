@@ -12,7 +12,10 @@ export const siteConfig = {
       title: "Properties",
     },
     trade: {
-      title: "Coming Soon",
+      title: "Trading",
+    },
+    about: {
+      title: "About Us",
     },
     listProperty: {
       title: "Add Property",
@@ -32,6 +35,10 @@ export const siteConfig = {
   url: import.meta.env.VITE_BASE_URL,
   social: {
     twitter: "https://x.com/COiTON",
+    instagram: "https://www.instagram.com/_coiton",
+    linkedin: "https://www.linkedin.com/in/coiton-nigeria-b59b6831a/",
+    facebook: "",
+    youtube: "",
   },
   handle: "@COiTON",
 };

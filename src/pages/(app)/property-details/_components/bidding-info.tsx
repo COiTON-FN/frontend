@@ -272,7 +272,7 @@ export const BiddingInfo: React.FC<BiddingInfoProps> = ({
   }, [table]);
 
   return (
-    <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:rounded-3xl md:p-10">
+    <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:rounded-3xl md:p-10">
       <div className="flex flex-col gap-4 sm:mb-4 sm:flex-row sm:items-center sm:gap-6">
         <div className="flex flex-col">
           <p className="text-base font-semibold uppercase md:text-lg">
@@ -325,7 +325,7 @@ export const BiddingInfo: React.FC<BiddingInfoProps> = ({
         </div>
       </div>
 
-      <div className="rounded-2xl border">
+      <div className="overflow-hidden rounded-2xl border dark:sm:bg-neutral-950">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -380,7 +380,7 @@ export const BiddingInfo: React.FC<BiddingInfoProps> = ({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-80 text-center"
                 >
                   No results.
                 </TableCell>

@@ -61,7 +61,7 @@ export const Details: React.FC<DetailsProps> = ({
   const { hasRegistered } = useAppSelector((state: RootState) => state.wallet);
 
   return (
-    <div className="flex flex-1 flex-col gap-10 rounded-md sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:rounded-3xl md:p-10">
+    <div className="flex flex-1 flex-col gap-10 rounded-md sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:rounded-3xl md:p-10">
       <div className="flex flex-col gap-6 sm:flex-row sm:justify-between md:flex-col lg:flex-row lg:gap-[54px]">
         <div className="flex flex-col gap-4">
           <p className="flex flex-col gap-2">

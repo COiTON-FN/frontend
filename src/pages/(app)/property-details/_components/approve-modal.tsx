@@ -9,7 +9,7 @@ import { variables } from "@/utils/variables";
 import { executeFn } from "@/lib/execute";
 import { toast } from "sonner";
 import { Form } from "@/components/ui/form";
-import * as AlertDialog from "@/components/ui/alert-dialog";
+import * as Dialog from "@/components/ui/dialog";
 import { truncateAddr } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { BiLeaf } from "react-icons/bi";
@@ -108,16 +108,12 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
   }, [form, request.initiator, request.listing_id, request.request_id]);
 
   return (
-    <AlertDialog.AlertDialog open={openModal} onOpenChange={setOpenModal}>
-      <AlertDialog.AlertDialogTrigger asChild>
-        {children}
-      </AlertDialog.AlertDialogTrigger>
-      <AlertDialog.AlertDialogContent className="max-w-sm !rounded-3xl">
-        <AlertDialog.AlertDialogHeader>
-          <AlertDialog.AlertDialogTitle>
-            Confirm Bid Approval
-          </AlertDialog.AlertDialogTitle>
-          <AlertDialog.AlertDialogDescription>
+    <Dialog.Dialog open={openModal} onOpenChange={setOpenModal}>
+      <Dialog.DialogTrigger asChild>{children}</Dialog.DialogTrigger>
+      <Dialog.DialogContent className="max-w-sm !rounded-3xl">
+        <Dialog.DialogHeader>
+          <Dialog.DialogTitle>Confirm Bid Approval</Dialog.DialogTitle>
+          <Dialog.DialogDescription>
             By approving{" "}
             <strong>{request.user?.details.name.split(" ")[0]}'s</strong> offer
             of{" "}
@@ -134,16 +130,16 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
             , you agree to transfer the property to the following wallet
             address: <strong>{truncateAddr(request.user?.address, 10)}</strong>{" "}
             <br /> <br /> Please confirm to proceed with this transaction.
-          </AlertDialog.AlertDialogDescription>
-        </AlertDialog.AlertDialogHeader>
+          </Dialog.DialogDescription>
+        </Dialog.DialogHeader>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="mt-2 flex flex-col gap-4"
           >
-            <AlertDialog.AlertDialogFooter>
-              <AlertDialog.AlertDialogCancel
+            <Dialog.DialogFooter>
+              <Dialog.DialogClose
                 disabled={form.formState.isSubmitting}
                 asChild
               >
@@ -154,7 +150,7 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
                 >
                   Cancel
                 </Button>
-              </AlertDialog.AlertDialogCancel>
+              </Dialog.DialogClose>
 
               <Button
                 isLoading={form.formState.isSubmitting}
@@ -165,10 +161,10 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
                 <BiLeaf className="size-4" />
                 <span>Yes! Approve Request</span>
               </Button>
-            </AlertDialog.AlertDialogFooter>
+            </Dialog.DialogFooter>
           </form>
         </Form>
-      </AlertDialog.AlertDialogContent>
-    </AlertDialog.AlertDialog>
+      </Dialog.DialogContent>
+    </Dialog.Dialog>
   );
 };

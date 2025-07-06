@@ -42,7 +42,6 @@ export default function Carousel() {
       }
 
       const shuffled = shuffleArray(construct);
-      console.log(shuffled);
       setSlides(shuffled);
     }
   }, [listings]);
@@ -112,7 +111,7 @@ export default function Carousel() {
       style={{
         scale: scaleProgress,
       }}
-      className="relative aspect-[1.3] w-full overflow-hidden rounded-2xl bg-secondary sm:aspect-[1.5] md:rounded-3xl"
+      className="relative aspect-[1.6] w-full overflow-hidden rounded-2xl border border-transparent bg-secondary dark:border-border dark:bg-neutral-800 md:rounded-3xl"
     >
       <motion.div
         drag="x"
@@ -147,24 +146,24 @@ export default function Carousel() {
       <div className="pointer-events-none absolute bottom-0 left-0 flex size-full flex-col justify-end">
         <div className="h-[262px] bg-gradient-to-b from-transparent to-black/80 p-6 text-primary-foreground md:p-12">
           <div className="mt-auto flex size-full items-end justify-between">
-            <p className="w-[210px] text-base md:w-[317px] md:text-2xl lg:text-[23px]">
+            <p className="w-[210px] text-sm sm:text-base md:w-[317px] md:text-2xl lg:text-[23px]">
               {slides[imgIndex]?.title}
             </p>
 
             <div className="pointer-events-auto hidden items-center gap-4 sm:flex">
               <Button
                 size={"icon"}
-                className="border border-white bg-transparent"
+                className="border border-white bg-transparent dark:border-neutral-500"
                 onClick={handlePrevSlide}
               >
-                <MoveLeft size={20} />
+                <MoveLeft className="size-4" />
               </Button>
               <Button
                 size={"icon"}
-                className="border border-white bg-transparent"
+                className="border border-white bg-transparent dark:border-neutral-500"
                 onClick={handleNextSlide}
               >
-                <MoveRight size={20} />
+                <MoveRight className="size-4" />
               </Button>
             </div>
           </div>

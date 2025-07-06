@@ -23,7 +23,7 @@ const Indicator = ({
           <div className="flex flex-col items-center gap-2">
             <div
               className={cn(
-                "flex size-16 items-center justify-center rounded-full border border-[#EAECF0] bg-background",
+                "flex size-16 items-center justify-center rounded-full border bg-background",
                 {
                   "bg-primary text-background": _index + 1 < currentStep,
                 },
@@ -35,7 +35,7 @@ const Indicator = ({
                 <Icon className="size-6 text-primary" />
               )}
             </div>
-            <span className="h-3 w-[2px] rounded-[2px] bg-[#EAECF0] group-last:hidden" />
+            <span className="h-3 w-[2px] rounded-[2px] bg-secondary group-last:hidden" />
           </div>
 
           <div className="mt-2 flex flex-col">

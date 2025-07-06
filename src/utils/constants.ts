@@ -136,7 +136,7 @@ export const createListingSteps = [
 ];
 
 export const nav_routes = [
-  { label: "About", path: "/", comingSoon: true },
+  { label: "About", path: "/about" },
   { label: "Token", path: "/", comingSoon: true },
   { label: "Listings", path: "/properties" },
   { label: "Blog", path: "/", comingSoon: true },

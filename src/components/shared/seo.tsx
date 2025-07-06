@@ -89,7 +89,13 @@ export const SEO: React.FC<SEOProps> = ({
           name: siteConfig.sitemap.default.title,
           description: siteConfig.sitemap.default.description,
           url: siteConfig.url,
-          sameAs: [siteConfig.social.twitter],
+          sameAs: [
+            siteConfig.social.twitter,
+            siteConfig.social.facebook,
+            siteConfig.social.linkedin,
+            siteConfig.social.youtube,
+            siteConfig.social.instagram,
+          ],
         })}
       </script>
     </Helmet>

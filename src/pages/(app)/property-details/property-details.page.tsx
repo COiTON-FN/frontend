@@ -14,7 +14,6 @@ import { RxOpenInNewWindow } from "react-icons/rx";
 import { byteArrayToString, toHex } from "@/lib/starknet/utils";
 import { Fragment, useEffect, useState } from "react";
 import {
-  copyToClipboard,
   formatDate,
   formatUser,
   generateAvatarFromAddress,
@@ -27,19 +26,13 @@ import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
 import { RootState, useAppSelector } from "@/store";
 import { RiUser6Line } from "react-icons/ri";
 import InspectionCard from "./_components/inspection-card";
-import { MapContainer, Marker, TileLayer } from "react-leaflet";
-import { Icon } from "leaflet";
+
 import { MdVerified } from "react-icons/md";
-import { IoCopyOutline } from "react-icons/io5";
 import { BiddingInfo } from "./_components/bidding-info";
 import { Details } from "./_components/details";
 import { SEO } from "@/components/shared/seo";
-
-const customIcon = new Icon({
-  iconUrl: "/marker.svg",
-  iconSize: [35, 51],
-  iconAnchor: [12, 41],
-});
+import { ClipboardCopy } from "@/components/shared/clipboard-copy";
+import { ListingMap } from "./_components/listing-map";
 
 export default function PropertyDetailsPage() {
   const [listing, setListing] = useState<Listing | null>(null);
@@ -248,7 +241,7 @@ export default function PropertyDetailsPage() {
         <Separator className="my-2 h-px w-full" />
 
         {/* INTERIOR, OUTDOOR & UTILITIES DETAILS */}
-        <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:rounded-3xl md:p-10 2xl:flex-row">
+        <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:rounded-3xl md:p-10 2xl:flex-row">
           <div className="grid w-full grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-20 lg:grid-cols-3">
             <div className="flex flex-col gap-6">
               <p className="text-base font-medium">Interior Details</p>
@@ -298,7 +291,7 @@ export default function PropertyDetailsPage() {
         <Separator className="my-2 h-px w-full" />
 
         {/* FLOOR PLANS AND VIDEO */}
-        <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:rounded-3xl md:p-10 2xl:flex-row">
+        <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:rounded-3xl md:p-10 2xl:flex-row">
           <div className="grid grid-cols-1 gap-10 xl:grid-cols-2">
             {listing?.details?.videosCid?.length && (
               <div className="aspect-video flex-1 bg-secondary">
@@ -335,9 +328,9 @@ export default function PropertyDetailsPage() {
         <Separator className="my-2 h-px w-full" />
 
         {/* AGENT DETAILS & MAP */}
-        <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:rounded-3xl md:p-10 2xl:flex-row">
-          <div className="flex w-full flex-col gap-6 sm:max-w-full xl:max-w-full xl:flex-row 2xl:max-w-lg 2xl:flex-col">
-            <div className="flex flex-1 flex-col gap-7 rounded-2xl border p-6 sm:p-8">
+        <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:rounded-3xl md:p-10">
+          <div className="flex w-full flex-row gap-6">
+            <div className="flex flex-1 flex-col gap-7 rounded-2xl border bg-background p-6 dark:bg-neutral-950 sm:p-8">
               <div className="flex flex-col gap-3">
                 <p className="text-xl font-medium">Property Agent</p>
 
@@ -365,19 +358,14 @@ export default function PropertyDetailsPage() {
                         <MdVerified className="mt-px size-4 text-primary" />
                       )}
                     </div>
-                    <p className="flex items-center gap-2 text-xs text-muted-foreground sm:text-sm">
-                      {truncateAddr(listing?.owner_details?.address)}{" "}
-                      <span
-                        className="cursor-pointer"
-                        onClick={() => {
-                          copyToClipboard(
-                            listing?.owner_details?.address as string,
-                          );
-                        }}
-                      >
-                        <IoCopyOutline className="size-3 sm:!size-3.5" />
+                    <ClipboardCopy
+                      value={listing?.owner_details?.address || ""}
+                      message="Agent address copied successfully"
+                    >
+                      <span className="text-xs text-muted-foreground sm:text-sm">
+                        {truncateAddr(listing?.owner_details?.address)}
                       </span>
-                    </p>
+                    </ClipboardCopy>
                   </div>
 
                   <p className="ml-auto flex items-center gap-2 text-xs font-medium text-primary sm:text-sm">
@@ -394,7 +382,7 @@ export default function PropertyDetailsPage() {
                 }}
                 size={"lg"}
                 disabled={isOwner}
-                className="rounded-full"
+                className="mt-auto rounded-full"
               >
                 {isOwner ? (
                   <span>No action needed</span>
@@ -414,80 +402,18 @@ export default function PropertyDetailsPage() {
             />
           </div>
 
-          {/* dangerouslySetInnerHTML={{ __html: listing?.details?.map }}  */}
-          {(listing?.details?.map?.name &&
-            listing?.details?.map?.lat &&
-            listing?.details?.map?.long) ||
-          listing?.details?.map?.lng ? (
-            <div className="-z-0 aspect-[1.4] w-full flex-1 overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl md:rounded-3xl">
-              <MapContainer
-                center={[
-                  listing?.details?.map?.lat,
-                  listing?.details?.map?.long || listing?.details?.map?.lng,
-                ]}
-                zoom={6}
-                className="h-full w-full"
-                key={[
-                  listing?.details?.map?.lat,
-                  listing?.details?.map?.long || listing?.details?.map?.lng,
-                ].join(",")}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {/*
-                <TileLayer
-                  attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                />
-
-                <TileLayer
-                  attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                />
-
-                <TileLayer
-                  attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>'
-                  url="https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png"
-                />
-
-                <TileLayer
-                  attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>'
-                  url="https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
-                />
-
-                <TileLayer
-                  attribution='Map data: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
-                  url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-                />
-                */}
-                <Marker
-                  position={[
-                    listing?.details?.map?.lat,
-                    listing?.details?.map?.long || listing?.details?.map?.lng,
-                  ]}
-                  icon={customIcon}
-                />
-              </MapContainer>
-            </div>
-          ) : (
-            <div
-              dangerouslySetInnerHTML={{ __html: listing?.details?.map }}
-              className="-z-0 aspect-[1.4] w-full flex-1 overflow-hidden rounded-xl border bg-secondary sm:rounded-2xl md:rounded-3xl"
-            ></div>
-          )}
+          <ListingMap listing={listing} />
         </div>
 
         <Separator className="my-2 h-px w-full" />
 
-        <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-[#F9FAFB] sm:p-6 md:rounded-3xl md:p-10 2xl:flex-row">
+        <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:rounded-3xl md:p-10 2xl:flex-row">
           <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
             {listing?.details?.licenseCid &&
               listing?.details?.licenseCid.map((_: unknown, _index: number) => (
                 <div
                   key={_index}
-                  className="flex items-center gap-4 rounded-2xl bg-secondary p-4"
+                  className="flex items-center gap-4 rounded-2xl border bg-secondary p-4 dark:bg-neutral-950"
                 >
                   <div className="flex size-14 items-center justify-center rounded-full bg-background">
                     <PiFolderOpenDuotone className="size-8" />

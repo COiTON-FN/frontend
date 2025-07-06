@@ -15,7 +15,7 @@ import { SEO } from "@/components/shared/seo";
 
 export default function DashboardPage() {
   const { fadeIn } = variants;
-  const { listings } = useAppSelector((state) => state.listing);
+  const { listings, isLoading } = useAppSelector((state) => state.listing);
 
   return (
     <React.Fragment>
@@ -77,7 +77,7 @@ export default function DashboardPage() {
         <Separator className="my-2 h-px w-full" />
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-          <div className="relative h-max w-full overflow-hidden rounded-2xl border bg-[rgb(251,255,255)] md:h-96 md:rounded-3xl">
+          <div className="relative h-max w-full overflow-hidden rounded-2xl border bg-[rgb(251,255,255)] dark:bg-background md:h-96 md:rounded-3xl">
             <div className="my-6 flex h-[55px] flex-col px-8 md:px-10">
               <p className="text-2xl font-medium text-primary">Bidding</p>
               <p className="text-base font-normal text-primary">
@@ -88,11 +88,11 @@ export default function DashboardPage() {
             <img src={assets.images.bidLg} className="size-full" />
           </div>
 
-          <div className="relative h-max w-full overflow-hidden rounded-2xl border border-[#056F67] bg-primary md:h-96 md:rounded-3xl">
+          <div className="dark-[#3A9992] relative h-max w-full overflow-hidden rounded-2xl border border-[#056F67] bg-primary md:h-96 md:rounded-3xl">
             <div className="relative z-[5] my-4 flex h-[55px] items-center justify-between px-8 md:px-10">
               <div className="flex items-center gap-3">
                 <span className="size-[7px] rounded-full bg-[#3A9992]" />
-                <p className="text-2xl font-medium text-background">Trading</p>
+                <p className="text-2xl font-medium text-white">Trading</p>
               </div>
               <p className="text-sm text-[#0EC0B2]">Coming Soon</p>
             </div>
@@ -104,8 +104,8 @@ export default function DashboardPage() {
           </div>
 
           <div className="aspect-[1.3] h-max w-full rounded-2xl bg-gradient-to-bl from-[#FFE692] to-[#B69C46] p-px text-[#9C7800] md:aspect-[1.8] md:h-96 md:flex-1 md:rounded-[24px] lg:aspect-auto">
-            <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-[inherit] bg-[#FFFCF2] p-6 md:px-10 md:py-12">
-              <h2 className="text-[40px] font-normal leading-[50px] md:text-5xl lg:text-6xl lg:leading-[1.2]">
+            <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-[inherit] bg-[#FFFCF2] p-6 dark:bg-neutral-950 md:px-10 md:py-12">
+              <h2 className="text-[40px] font-normal leading-[50px] md:text-5xl lg:leading-[1.1]">
                 Dive Deeper into Coiton
               </h2>
 
@@ -138,11 +138,14 @@ export default function DashboardPage() {
 
         <Separator className="my-2 h-px w-full" />
 
-        <div className="overflow-x-clip rounded-2xl md:rounded-3xl md:border md:bg-background">
-          {listings.length === 0 ? (
+        <div className="rounded-2xl md:rounded-3xl md:border md:bg-background">
+          {isLoading ? (
             <div className="mx-auto grid grid-cols-1 gap-4 overflow-y-auto py-6 md:gap-6 md:p-6 lg:grid-cols-2 2xl:grid-cols-3">
               {[...new Array(3)].map((_, _index) => (
-                <div key={_index} className="group rounded-[24px] bg-white">
+                <div
+                  key={_index}
+                  className="group rounded-[24px] bg-white dark:bg-neutral-900"
+                >
                   <Skeleton className="relative aspect-[1.6] w-full overflow-hidden rounded-[inherit] bg-secondary" />
 
                   <div className="flex flex-col gap-4 p-6 md:gap-6">

@@ -9,6 +9,7 @@ import HomePage from "./(landing)/home.page";
 import UsersPage from "./(app)/users/users.page";
 import IndividualForm from "./(onboarding)/account-type/individual.form";
 import EntityForm from "./(onboarding)/account-type/entity.form";
+import AboutPage from "./(app)/about/about.page";
 
 export const pages = {
   dashboardPage: <DashboardPage />,
@@ -18,6 +19,7 @@ export const pages = {
   tradingPage: <TradingPage />,
   propertyDetailsPage: <PropertyDetailsPage />,
   usersPage: <UsersPage />,
+  aboutPage: <AboutPage />,
 
   onboardingPage: <OnboardingPage />,
   // onboardings

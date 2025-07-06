@@ -1,17 +1,13 @@
 import { motion } from "framer-motion";
 import { MdVerified } from "react-icons/md";
-import {
-  copyToClipboard,
-  generateAvatarFromAddress,
-  truncateAddr,
-} from "@/lib/utils";
+import { generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { User } from "@/store/slice/credential.slice";
 import { Fragment, ReactNode, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { IoChevronForwardOutline, IoCopyOutline } from "react-icons/io5";
+import { IoChevronForwardOutline } from "react-icons/io5";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { RootState, useAppSelector } from "@/store";
@@ -46,6 +42,7 @@ import { RxOpenInNewWindow } from "react-icons/rx";
 import { toast } from "sonner";
 import { Phone } from "lucide-react";
 import { SEO } from "@/components/shared/seo";
+import { ClipboardCopy } from "@/components/shared/clipboard-copy";
 // import { contract } from "@/utils/contract";
 // import { stringToByteArray } from "@/lib/starknet/utils";
 // import { BigNumberish, ec, hash } from "starknet";
@@ -59,7 +56,7 @@ function UserCard({ user }: { user: User }) {
       <div className="flex items-start gap-3 border-b p-4">
         <Link
           to={`/profile?address=${user?.address}`}
-          className="size-14 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]"
+          className="size-12 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]"
         >
           <div className="size-full rounded-full bg-background p-[2.5px]">
             <img
@@ -82,17 +79,13 @@ function UserCard({ user }: { user: User }) {
             </p>
             {isVerified && <MdVerified className="mt-px size-4 text-primary" />}
           </Link>
-          <p className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
-            {truncateAddr(user.address)}{" "}
-            <span
-              className="cursor-pointer"
-              onClick={() => {
-                copyToClipboard(user.address);
-              }}
-            >
-              <IoCopyOutline className="!size-3.5" />
-            </span>
-          </p>
+          <ClipboardCopy
+            value={user.address}
+            className="text-sm font-medium text-muted-foreground"
+            size={14}
+          >
+            {truncateAddr(user.address)}
+          </ClipboardCopy>
         </div>
 
         <p className="text-sm font-medium text-primary">{user.user_type}</p>
@@ -193,9 +186,9 @@ function VerifyUserModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-xl bg-secondary p-4">
+        <div className="rounded-xl bg-secondary p-4 dark:bg-neutral-900">
           <div className="mb-4 flex items-start gap-3 border-b pb-4">
-            <div className="size-14 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]">
+            <div className="size-12 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]">
               <div className="size-full rounded-full bg-background p-[2.5px]">
                 <img
                   src={generateAvatarFromAddress(user?.address)}
@@ -216,17 +209,13 @@ function VerifyUserModal({
                   <MdVerified className="mt-px size-4 text-primary" />
                 )}
               </div>
-              <p className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
-                {truncateAddr(user.address)}{" "}
-                <span
-                  className="cursor-pointer"
-                  onClick={() => {
-                    copyToClipboard(user.address);
-                  }}
-                >
-                  <IoCopyOutline className="!size-3.5" />
-                </span>
-              </p>
+              <ClipboardCopy
+                value={user.address}
+                className="text-xs font-medium text-muted-foreground"
+                size={14}
+              >
+                {truncateAddr(user.address)}
+              </ClipboardCopy>
             </div>
 
             <p className="text-sm font-medium text-primary">{user.user_type}</p>
@@ -413,7 +402,7 @@ export default function UsersPage() {
           </Select>
         </div>
 
-        <section className="overflow-clip">
+        <section>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
             {users.length === 0 ? (
               Array.from({ length: 12 }).map((_, index) => (
