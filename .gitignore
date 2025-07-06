@@ -25,4 +25,5 @@ dist-ssr
 
 
 .env
-.txt
+bun.lockb
+package-lock.json

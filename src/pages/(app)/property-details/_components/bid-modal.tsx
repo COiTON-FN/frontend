@@ -4,15 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -124,7 +124,7 @@ export const BidModal: FC<BidModalProps> = ({
     const bidPrice = values.bid;
 
     if (bidPrice < (listing?.price ?? 0)) {
-      toast.info("Bid is too low");
+      toast.warning("Bid is too low");
       return;
     }
 
@@ -156,7 +156,7 @@ export const BidModal: FC<BidModalProps> = ({
             credential?.address.toLowerCase(),
         ).length > 0
       ) {
-        toast.info("Bid has already been created");
+        toast.warning("Bid has already been created");
         return;
       }
 
@@ -176,13 +176,14 @@ export const BidModal: FC<BidModalProps> = ({
         contract.daoAddress,
       );
 
-      const bidValue = parseUnits((bidPrice || listing.price).toString()).toLocaleString("fullwide", { useGrouping: false });
+      const bidValue = parseUnits(
+        (bidPrice || listing.price).toString(),
+      ).toLocaleString("fullwide", { useGrouping: false });
       if (Number(bidValue) > Number(allowance)) {
         await handleConnect({
           approval: bidValue,
         });
       }
-
 
       const contract_ = getWalletProviderContract();
 
@@ -193,7 +194,7 @@ export const BidModal: FC<BidModalProps> = ({
           listing.id,
           new CairoOption(CairoOptionVariant.Some, bidPrice || listing.price),
         ],
-        contract: contract_
+        contract: contract_,
       });
 
       if (!result?.success) return;
@@ -217,6 +218,7 @@ export const BidModal: FC<BidModalProps> = ({
 
       setIsSubmitSuccessful(true);
     } catch (error) {
+      setIsSubmitSuccessful(false);
       console.error(error);
       if (error instanceof Error) {
         toast.error(error.message);
@@ -227,16 +229,16 @@ export const BidModal: FC<BidModalProps> = ({
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
-      <AlertDialogContent className="max-w-sm !rounded-3xl">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Agreement Info</AlertDialogTitle>
-          <AlertDialogDescription>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-w-sm !rounded-3xl">
+        <DialogHeader>
+          <DialogTitle>Agreement Info</DialogTitle>
+          <DialogDescription>
             Review property details, buyer offers, and initiate a purchase
             agreement based on current bids.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <Form {...form}>
           <form
@@ -254,19 +256,20 @@ export const BidModal: FC<BidModalProps> = ({
                       $
                       {purchaseRequests.length > 0
                         ? purchaseRequests
-                          .sort((a, b) => b.price - a.price)[0]
-                          .price.toLocaleString()
+                            .sort((a, b) => b.price - a.price)[0]
+                            .price.toLocaleString()
                         : listing?.price.toLocaleString()}
                     </span>
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={`$${purchaseRequests.length > 0
-                        ? purchaseRequests
-                          .sort((a, b) => b.price - a.price)[0]
-                          .price.toLocaleString()
-                        : listing?.price.toLocaleString()
-                        }`}
+                      placeholder={`$${
+                        purchaseRequests.length > 0
+                          ? purchaseRequests
+                              .sort((a, b) => b.price - a.price)[0]
+                              .price.toLocaleString()
+                          : listing?.price.toLocaleString()
+                      }`}
                       type="number"
                       disabled={isSubmitting}
                       error={!!errors.bid}
@@ -277,8 +280,8 @@ export const BidModal: FC<BidModalProps> = ({
                 </FormItem>
               )}
             />
-            <AlertDialogFooter>
-              <AlertDialogCancel asChild>
+            <DialogFooter>
+              <DialogClose asChild>
                 <Button
                   disabled={isSubmitting}
                   variant="outline"
@@ -286,7 +289,7 @@ export const BidModal: FC<BidModalProps> = ({
                 >
                   Cancel
                 </Button>
-              </AlertDialogCancel>
+              </DialogClose>
 
               <Button
                 isLoading={isSubmitting}
@@ -296,10 +299,10 @@ export const BidModal: FC<BidModalProps> = ({
               >
                 Initiate Agreement
               </Button>
-            </AlertDialogFooter>
+            </DialogFooter>
           </form>
         </Form>
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogContent>
+    </Dialog>
   );
 };

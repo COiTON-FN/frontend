@@ -773,7 +773,7 @@ const FileUploadDropzone = React.forwardRef<
       {...dropzoneProps}
       ref={forwardedRef}
       className={cn(
-        "relative flex select-none flex-col items-center justify-center gap-2 rounded-xl border p-6 outline-none transition-colors hover:border-dashed hover:bg-accent/30 focus-visible:border-ring/50 data-[disabled]:pointer-events-none data-[dragging]:border-primary/30 data-[invalid]:border-destructive data-[dragging]:bg-accent/30 data-[invalid]:ring-destructive/20",
+        "relative flex select-none flex-col items-center justify-center gap-2 rounded-xl border p-6 outline-none transition-colors hover:border-dashed hover:bg-accent/30 focus-visible:border-ring/50 data-[disabled]:pointer-events-none data-[dragging]:border-primary/30 data-[invalid]:border-destructive data-[dragging]:bg-accent/30 data-[dragging]:bg-neutral-900 data-[invalid]:ring-destructive/20 dark:hover:bg-neutral-900",
         className,
       )}
       onClick={onClick}

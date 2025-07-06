@@ -138,7 +138,7 @@ const Flows: FC = () => {
       </MaxWrapper>
       <MaxWrapper className="hidden gap-[37px] lg:flex">
         {/* Sticky section */}
-        <div className="sticky top-32 flex h-[396px] w-full max-w-[682px] flex-col overflow-y-clip">
+        <div className="sticky top-32 flex h-[396px] w-full max-w-[682px] flex-col overflow-y-clip rounded-3xl">
           {activeFlow.children}
         </div>
 

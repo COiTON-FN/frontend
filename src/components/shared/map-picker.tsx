@@ -1,7 +1,13 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Search } from "lucide-react";
 import { LatLng, Icon } from "leaflet";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 import {
@@ -38,16 +44,25 @@ function MapEvents({
 }) {
   useMapEvents({
     click: (e) => {
+      console.log("Map clicked at:", e.latlng);
       onLocationSet(e.latlng);
     },
   });
   return null;
 }
 
+function FixMapResize() {
+  const map = useMap();
+  useEffect(() => {
+    map.invalidateSize();
+  }, [map]);
+  return null;
+}
+
 interface MapLocation {
   lat: number;
   lng: number;
-  name: string;
+  name?: string;
 }
 
 interface MapPickerProps {
@@ -83,12 +98,8 @@ export function MapPicker({ onChange, error }: MapPickerProps) {
           name: display_name,
         };
         setSelectedLocation(location);
-        setCenter([parseFloat(lat), parseFloat(lon)]);
-        onChange({
-          lat: location.lat,
-          lng: location.lng,
-          name: display_name,
-        });
+        setCenter([location.lat, location.lng]);
+        onChange(location);
       }
     } catch (error) {
       console.error("Error searching location:", error);
@@ -105,19 +116,16 @@ export function MapPicker({ onChange, error }: MapPickerProps) {
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`,
           );
           const data = await response.json();
-
           const name = data.display_name || "Unknown location";
 
-          setSelectedLocation({
+          const newLocation = {
             lat: latlng.lat,
             lng: latlng.lng,
             name,
-          });
-          onChange({
-            lat: latlng.lat,
-            lng: latlng.lng,
-            name,
-          });
+          };
+
+          setSelectedLocation(newLocation);
+          onChange(newLocation);
         } catch (error) {
           console.error("Error fetching location name:", error);
         }
@@ -183,19 +191,21 @@ export function MapPicker({ onChange, error }: MapPickerProps) {
             </Button>
           </div>
 
-          <div className="aspect-[1.4] overflow-hidden rounded-lg border">
+          <div className="aspect-[1.4] h-[300px] w-full overflow-hidden rounded-lg border">
             <MapContainer
               center={center}
               zoom={6}
               className="h-full w-full"
-              key={center.join(",")}
+              scrollWheelZoom={true}
             >
+              <FixMapResize />
               <TileLayer
                 attribution='&copy; <a href="https://carto.com/">CARTO</a>'
                 url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
               />
               <MapEvents onLocationSet={handleMapClick} />
               <Marker
+                key={`${selectedLocation.lat}-${selectedLocation.lng}`}
                 position={[selectedLocation.lat, selectedLocation.lng]}
                 icon={customIcon}
               />
@@ -212,13 +222,13 @@ export function MapPicker({ onChange, error }: MapPickerProps) {
             <div className="flex flex-col">
               <p className="text-sm font-normal text-primary">Latitude:</p>
               <p className="text-sm font-medium text-muted-foreground">
-                {selectedLocation.lat.toFixed(6)}
+                {selectedLocation.lat}
               </p>
             </div>
             <div className="flex flex-col">
               <p className="text-sm font-normal text-primary">Longitude:</p>
               <p className="text-sm font-medium text-muted-foreground">
-                {selectedLocation.lng.toFixed(6)}
+                {selectedLocation.lng}
               </p>
             </div>
           </div>
@@ -233,4 +243,5 @@ export function MapPicker({ onChange, error }: MapPickerProps) {
     </Sheet>
   );
 }
+
 export default MapPicker;

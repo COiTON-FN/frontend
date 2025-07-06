@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { RouterProvider } from "react-router-dom";
 import { Toaster as SonnerToast } from "./components/ui/sonner";
 import { Toaster as NoticeToast } from "./components/ui/toaster";
@@ -22,6 +22,7 @@ import { setUsers } from "./store/slice/users.slice";
 import { useWalletHook } from "./hooks/useWallet.hook";
 import { SessionAccountInterface } from "@argent/invisible-sdk";
 import { toast } from "sonner";
+import { ThemeProvider } from "./components/provider/theme.provider";
 
 interface Wallet {
   IsConnected: boolean;
@@ -176,7 +177,6 @@ export default function App() {
 
         dispatch(setHasRegistered(true));
         dispatch(setCredential(userConstruct));
-        // dispatch(setContractOwner(toHex(contractOwner)));
         dispatch(
           setContractOwner(
             "0x025de235bcba49aa753587d4ae45f6d71908db9e2b4152dca1246b80516e88ad",
@@ -190,10 +190,10 @@ export default function App() {
   }, [dispatch, getContractInstance, walletAddress]);
 
   return (
-    <Fragment>
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <SonnerToast richColors theme="dark" />
       <NoticeToast />
       <RouterProvider router={routes} />
-    </Fragment>
+    </ThemeProvider>
   );
 }

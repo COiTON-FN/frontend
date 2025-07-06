@@ -128,7 +128,7 @@ const Banner: FC = () => {
               once: true,
               amount: 0.7,
             }}
-            className="text-base font-normal text-primary md:text-[23px] md:leading-9"
+            className="px-6 text-sm font-normal text-primary sm:text-base md:text-[23px] md:leading-9"
           >
             Bringing $2.4 Trillion Real Estate Market On-Chain with Blockchain
             Technology Globally.

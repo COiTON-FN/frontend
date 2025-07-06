@@ -81,9 +81,9 @@ const Support: FC = () => {
             once: true,
             amount: 0.7,
           }}
-          className="h-[280px] w-full rounded-2xl bg-gradient-to-br from-[#FBFEFE] via-[#FBFEFE] to-[#57E741] p-1 sm:h-[400px] md:rounded-[24px] lg:w-[857px] lg:p-[1.5px]"
+          className="h-[280px] w-full rounded-2xl border bg-gradient-to-br from-[#FBFEFE] via-[#FBFEFE] to-[#57E741] p-1 dark:from-neutral-800 dark:via-neutral-900 dark:to-neutral-950 sm:h-[400px] md:rounded-[24px] lg:w-[857px] lg:p-[1.5px]"
         >
-          <div className="relative flex size-full !max-w-full justify-center overflow-clip rounded-[inherit] bg-white bg-gradient-to-b from-[#F9FFF8] to-[#DEFED9]">
+          <div className="relative flex size-full !max-w-full justify-center overflow-clip rounded-[inherit] shadow-inner">
             <motion.div
               className="absolute -left-5 z-[2] h-[350px] w-[200px] cursor-pointer sm:-left-5 sm:top-16 sm:h-[400px] sm:w-[300px] md:left-5 md:top-12 md:h-[400px] md:w-[330px]"
               style={{

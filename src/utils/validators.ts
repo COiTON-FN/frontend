@@ -44,13 +44,15 @@ export const buildingFormSchema = z.object({
     .min(2, "Area is required"),
   map: z.object(
     {
-      lat: z.coerce.number({ invalid_type_error: "Latitude must be a number" }),
-      lng: z.coerce.number({
-        invalid_type_error: "Longitude must be a number",
-      }),
-      name: z.string().min(1, "Map name is required"),
+      name: z.string().min(1, "Location is required"),
+      lat: z.number(),
+      lng: z.number(),
+      address: z.string().optional(),
     },
-    { required_error: "Please select a location" },
+    {
+      required_error: "Location is required",
+      invalid_type_error: "Please select a valid location",
+    },
   ),
 
   // 3. Details
@@ -151,13 +153,15 @@ export const landFormSchema = z.object({
     .min(2, "Area is required"),
   map: z.object(
     {
-      lat: z.coerce.number({ invalid_type_error: "Latitude must be a number" }),
-      lng: z.coerce.number({
-        invalid_type_error: "Longitude must be a number",
-      }),
-      name: z.string().min(1, "Map name is required"),
+      name: z.string().min(1, "Location is required"),
+      lat: z.number(),
+      lng: z.number(),
+      address: z.string().optional(),
     },
-    { required_error: "Please select a location" },
+    {
+      required_error: "Location is required",
+      invalid_type_error: "Please select a valid location",
+    },
   ),
 
   landSize: z.coerce

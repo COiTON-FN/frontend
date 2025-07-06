@@ -11,7 +11,7 @@ export default function DashboardLayout() {
       <AppSidebar />
       <ScrollTop />
 
-      <main className="flex flex-1 flex-col sm:bg-secondary">
+      <main className="flex flex-1 flex-col sm:bg-secondary sm:dark:bg-neutral-900/50">
         <Navbar />
         <MaxWrapper>
           <Outlet />

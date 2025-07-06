@@ -1,16 +1,14 @@
-import { FC, memo, useState } from "react";
+import { FC, memo } from "react";
 import { motion } from "framer-motion";
 import { IoMdArrowForward } from "react-icons/io";
-import { RxClock } from "react-icons/rx";
-import { PiBuildingOfficeLight } from "react-icons/pi";
-import { LiaEthereum } from "react-icons/lia";
 
 import MaxWrapper from "@/components/shared/max-wrapper";
 import { variants } from "@/utils/constants";
 import { Button } from "@/components/ui/button";
-import { cn, formatDate } from "@/lib/utils";
 import { useAppSelector } from "@/store";
 import { useNavigate } from "react-router-dom";
+import ListingCard from "@/components/shared/listing-card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Latest: FC = () => {
   const { fadeIn } = variants;
@@ -30,9 +28,61 @@ const Latest: FC = () => {
       },
     }),
   };
-
-  const [activeCard, setActiveCard] = useState(1);
   const { listings } = useAppSelector((state) => state.listing);
+
+  if (listings.length === 0)
+    return (
+      <div className="my-16 flex flex-col gap-7 md:my-32 md:gap-14">
+        <MaxWrapper>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[...new Array(3)].map((_, _index) => (
+              <motion.div
+                variants={fadInAnimate}
+                initial="initial"
+                whileInView={"animate"}
+                viewport={{
+                  once: true,
+                  amount: 0.3,
+                }}
+                key={_index}
+                custom={_index}
+              >
+                <div className="group rounded-[24px] bg-background">
+                  <Skeleton className="relative aspect-[1.6] w-full overflow-hidden rounded-[inherit] bg-secondary" />
+
+                  <div className="flex flex-col gap-4 p-6 md:gap-6">
+                    <Skeleton className="text-xl font-bold leading-none tracking-wide text-primary md:text-2xl" />
+
+                    <div className="flex flex-col gap-2">
+                      <Skeleton className="h-8 w-[90%]" />
+                      <Skeleton className="h-6 w-[50%]" />
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex flex-1 items-center justify-start gap-2">
+                        <Skeleton className="size-6 rounded-full" />
+
+                        <Skeleton className="h-6 flex-1" />
+                      </div>
+                      <div className="flex flex-1 items-center justify-center gap-2">
+                        <Skeleton className="size-6 rounded-full" />
+
+                        <Skeleton className="h-6 flex-1" />
+                      </div>
+                      <div className="flex flex-1 items-center justify-end gap-2">
+                        <Skeleton className="size-6 rounded-full" />
+
+                        <Skeleton className="h-6 flex-1" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </MaxWrapper>
+      </div>
+    );
 
   return (
     <MaxWrapper>
@@ -79,80 +129,8 @@ const Latest: FC = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {listings.slice(-3).map((property, _index) => (
-            <motion.div
-              variants={fadInAnimate}
-              initial="initial"
-              whileInView={"animate"}
-              viewport={{
-                once: true,
-                amount: 0.3,
-              }}
-              onMouseOver={() => setActiveCard(_index + 1)}
-              key={_index}
-              custom={_index}
-              className="flex flex-col"
-            >
-              <div className="relative aspect-square w-full overflow-hidden rounded-3xl border-2 bg-background shadow-2xl shadow-black/20">
-                <div
-                  className={cn(
-                    "absolute bottom-0 left-0 z-10 h-full w-full overflow-hidden rounded-2xl bg-background/80 transition-all duration-500",
-                    {
-                      "h-[30%] brightness-50": activeCard === _index + 1,
-                    },
-                  )}
-                >
-                  <img
-                    src={`${import.meta.env.VITE_PINATA_GATEWAY}/${property?.details?.imagesCid[0]}?pinataGatewayToken=${import.meta.env.VITE_PINATA_GATEWAY_TOKEN}`}
-                    alt={property?.details?.title}
-                    className={cn(
-                      "size-full object-cover delay-200 duration-300",
-                      {
-                        "scale-110": activeCard === _index + 1,
-                      },
-                    )}
-                  />
-                </div>
-
-                <div
-                  className={cn(
-                    "flex size-full flex-col gap-2 rounded-2xl px-6 pt-16 opacity-0 transition-all delay-300",
-                    {
-                      "pt-8 opacity-100": activeCard === _index + 1,
-                    },
-                  )}
-                >
-                  <h3 className="flex items-center font-normal text-[#032724]">
-                    <LiaEthereum className="mr-1 size-8" />
-                    {property?.price.toLocaleString()}
-                  </h3>
-
-                  <p className="flex items-center text-base font-medium">
-                    <span className="line-clamp-1 flex-1">
-                      {property?.details?.area} -{" "}
-                      {property?.details?.region?.state
-                        ? property?.details?.region?.state?.stateName
-                        : property?.details?.region[1]}
-                      ,{" "}
-                      {property?.details?.region?.country
-                        ? property?.details?.region?.country?.countryName
-                        : property?.details?.region[0]}
-                    </span>
-                  </p>
-
-                  <div className="mt-4 flex items-center gap-4">
-                    <p className="flex items-center text-sm text-muted-foreground sm:text-base">
-                      <RxClock size={18} className="mr-2" />
-                      {formatDate(property?.details?.yearBuilt)}
-                    </p>
-                    <p className="flex items-center text-sm text-muted-foreground sm:text-base">
-                      <PiBuildingOfficeLight size={18} className="mr-2" />
-                      {property?.details?.propertySize}sqm
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+          {listings.slice(-3).map((listing, index) => (
+            <ListingCard key={listing.id} listing={listing} index={index} />
           ))}
         </div>
       </div>

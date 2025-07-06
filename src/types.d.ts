@@ -4,7 +4,28 @@ declare module "country-region-data/dist/data-umd" {
   export default data;
 }
 
-interface ListingBoardProps {
-  placeholder: string,
-  options: string[]
+declare interface ListingBoardProps {
+  placeholder: string;
+  options: string[];
+}
+
+declare interface LocationData {
+  name: string;
+  lat: number;
+  lng: number;
+  address?: string;
+}
+
+declare interface GeocodeResult {
+  display_name: string;
+  lat: string;
+  lon: string;
+  address?: {
+    house_number?: string;
+    road?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postcode?: string;
+  };
 }

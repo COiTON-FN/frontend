@@ -42,7 +42,7 @@ const Bento: FC = () => {
               }}
               className="aspect-[1.3] rounded-2xl bg-gradient-to-bl from-[#33FFEE] to-primary p-px text-primary md:aspect-[1.8] md:rounded-[24px] lg:aspect-auto lg:h-[500px] lg:flex-1"
             >
-              <div className="relative flex size-full flex-col justify-between gap-6 overflow-hidden rounded-[inherit] bg-[#F2FFFE] p-6 md:px-10 md:py-12 lg:gap-0 lg:px-12 lg:py-16">
+              <div className="relative flex size-full flex-col justify-between gap-6 overflow-hidden rounded-[inherit] bg-[#F2FFFE] p-6 dark:bg-neutral-950 md:px-10 md:py-12 lg:gap-0 lg:px-12 lg:py-16">
                 <h2 className="text-[40px] font-normal leading-[50px] md:max-w-[514px] md:text-5xl lg:text-[64px] lg:leading-[80px]">
                   Ready to Start Your Real Estate Journey?
                 </h2>
@@ -95,7 +95,7 @@ const Bento: FC = () => {
               }}
               className="aspect-[1.3] w-full rounded-2xl bg-gradient-to-bl from-[#FFE692] to-[#B69C46] p-px text-[#9C7800] md:aspect-[1.8] md:rounded-[24px] lg:aspect-auto lg:h-[500px] lg:max-w-md lg:flex-1"
             >
-              <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-[inherit] bg-[#FFFCF2] p-6 md:px-10 md:py-12 lg:px-12 lg:py-16">
+              <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-[inherit] bg-[#FFFCF2] p-6 dark:bg-neutral-950 md:px-10 md:py-12 lg:px-12 lg:py-16">
                 <h2 className="text-[40px] font-normal leading-[50px] md:text-5xl lg:text-[64px] lg:leading-[80px]">
                   Dive Deeper into Coiton
                 </h2>
@@ -157,7 +157,7 @@ const Bento: FC = () => {
               }}
               className="aspect-[1.3] rounded-2xl bg-primary p-px text-primary md:aspect-[1.8] md:rounded-[24px] lg:aspect-auto lg:h-[500px] lg:flex-1"
             >
-              <div className="relative size-full overflow-hidden rounded-[inherit] bg-[rgb(2,66,60)]">
+              <div className="relative size-full overflow-hidden rounded-[inherit] bg-[rgb(2,66,60)] dark:bg-neutral-950">
                 <video
                   autoPlay
                   loop
@@ -179,7 +179,7 @@ const Bento: FC = () => {
               }}
               className="aspect-[1.3] rounded-2xl bg-gradient-to-bl from-[#C0ACFF] to-[#7851F0] p-px text-[#5C41AD] md:rounded-[24px] lg:h-[500px] lg:flex-1"
             >
-              <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-[inherit] bg-[#F9F7FF] p-6 md:px-10 md:py-12 lg:px-12 lg:py-16">
+              <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-[inherit] bg-[#F9F7FF] p-6 dark:bg-neutral-950 md:px-10 md:py-12 lg:px-12 lg:py-16">
                 <div className="relative z-[1] flex flex-col gap-3 lg:w-[458px]">
                   <div className="flex items-center gap-4">
                     <div className="flex h-[38px] flex-1 items-center justify-center rounded-full border border-[#5C41AD] text-sm font-normal text-[#5C41AD] sm:w-44 sm:flex-none md:w-[248px] md:text-base md:font-medium">

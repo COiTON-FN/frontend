@@ -21,21 +21,18 @@ export async function executeFn({
   contract,
 }: WriteTransactionProps) {
   const account = window.Wallet.Account;
-  if (!account) throw new Error("Execution aborted: Wallet is not connected.");
 
+  if (!account) throw new Error("Execution aborted: Wallet is not connected.");
   if (!contract) throw new Error("Execution aborted: Wallet is not connected.");
 
   try {
-    // console.log(
-    //   "Attempting to execute entrypoint(s):",
-    //   calls.map((c) => c.entrypoint).join(", "),
-    // );
+    console.log("Attempting to execute entrypoint:", entrypoint);
+
     const call = contract!.populate(entrypoint, calldata);
 
     const outsideExecutionPayload = await account.getOutsideExecutionPayload({
       calls: [call],
     });
-    // const call = await account.getOutsideExecutionPayload({ calls });
 
     const response = await fetch(
       `${variables.renderEndpoint}/contract/execute`,

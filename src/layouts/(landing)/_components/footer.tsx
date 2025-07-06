@@ -10,35 +10,39 @@ import MaxWrapper from "@/components/shared/max-wrapper";
 import { Button } from "@/components/ui/button";
 import { assets } from "@/assets";
 import { footer_routes } from "@/utils/constants";
+import { siteConfig } from "@/config/site.config";
 
 const socials = [
   {
     icon: FaLinkedinIn,
     label: "LinkedIn",
-    url: "https://www.linkedin.com/in/coiton-nigeria-b59b6831a/",
+    url: siteConfig.social.linkedin,
   },
   {
     icon: FaXTwitter,
     label: "X (Twitter)",
-    url: "https://x.com/_COiTON",
-  },
-  {
-    icon: FaFacebookF,
-    label: "Facebook",
+    url: siteConfig.social.twitter,
   },
   {
     icon: SiInstagram,
     label: "Instagram",
+    url: siteConfig.social.instagram,
+  },
+  {
+    icon: FaFacebookF,
+    label: "Facebook",
+    url: siteConfig.social.facebook,
   },
   {
     icon: BsYoutube,
     label: "YouTube",
+    url: siteConfig.social.youtube,
   },
 ];
 
 const Footer: FC = () => {
   return (
-    <footer className="bg-[#062623] text-primary-foreground">
+    <footer className="bg-[#062623] text-primary-foreground dark:bg-neutral-900">
       <div className="w-full pb-0 pt-24 sm:py-24">
         <MaxWrapper className="flex flex-col justify-between gap-6 lg:flex-row">
           <img
@@ -103,7 +107,7 @@ const Footer: FC = () => {
           <div className="flex w-full items-center justify-center gap-2 lg:max-w-xs lg:justify-end">
             {socials.map((link) => (
               <Button
-                disabled={!link.url}
+                disabled={link.url === ""}
                 className="size-10 rounded-full"
                 variant={"secondary"}
                 size={"icon"}

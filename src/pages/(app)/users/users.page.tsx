@@ -1,17 +1,13 @@
 import { motion } from "framer-motion";
 import { MdVerified } from "react-icons/md";
-import {
-  copyToClipboard,
-  generateAvatarFromAddress,
-  truncateAddr,
-} from "@/lib/utils";
+import { generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { User } from "@/store/slice/credential.slice";
-import { ReactNode, useEffect, useState } from "react";
+import { Fragment, ReactNode, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { IoChevronForwardOutline, IoCopyOutline } from "react-icons/io5";
+import { IoChevronForwardOutline } from "react-icons/io5";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { RootState, useAppSelector } from "@/store";
@@ -45,6 +41,12 @@ import {
 import { RxOpenInNewWindow } from "react-icons/rx";
 import { toast } from "sonner";
 import { Phone } from "lucide-react";
+import { SEO } from "@/components/shared/seo";
+import { ClipboardCopy } from "@/components/shared/clipboard-copy";
+// import { contract } from "@/utils/contract";
+// import { stringToByteArray } from "@/lib/starknet/utils";
+// import { BigNumberish, ec, hash } from "starknet";
+// import { useContractInstance } from "@/hooks/useContractInstance.hook";
 
 function UserCard({ user }: { user: User }) {
   const isVerified = user.verified;
@@ -54,7 +56,7 @@ function UserCard({ user }: { user: User }) {
       <div className="flex items-start gap-3 border-b p-4">
         <Link
           to={`/profile?address=${user?.address}`}
-          className="size-14 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]"
+          className="size-12 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]"
         >
           <div className="size-full rounded-full bg-background p-[2.5px]">
             <img
@@ -72,22 +74,18 @@ function UserCard({ user }: { user: User }) {
             to={`/profile?address=${user?.address}`}
             className="flex items-center gap-2"
           >
-            <p className="text-base font-medium text-foreground transition-colors group-hover:text-primary">
+            <p className="line-clamp-1 text-base font-medium text-foreground transition-colors group-hover:text-primary">
               {user.details.name}
             </p>
             {isVerified && <MdVerified className="mt-px size-4 text-primary" />}
           </Link>
-          <p className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
-            {truncateAddr(user.address)}{" "}
-            <span
-              className="cursor-pointer"
-              onClick={() => {
-                copyToClipboard(user.address);
-              }}
-            >
-              <IoCopyOutline className="!size-3.5" />
-            </span>
-          </p>
+          <ClipboardCopy
+            value={user.address}
+            className="text-sm font-medium text-muted-foreground"
+            size={14}
+          >
+            {truncateAddr(user.address)}
+          </ClipboardCopy>
         </div>
 
         <p className="text-sm font-medium text-primary">{user.user_type}</p>
@@ -131,6 +129,8 @@ function VerifyUserModal({
   user: User;
   children: ReactNode;
 }) {
+  // const { getContractInstance } = useContractInstance();
+
   const form = useForm<z.infer<typeof verificationSchema>>({
     resolver: zodResolver(verificationSchema),
     defaultValues: {
@@ -146,24 +146,33 @@ function VerifyUserModal({
     await new Promise((r) => setTimeout(r, 1000));
     console.log(values);
     toast.success("Account verified successfully");
+
+    // const contractInstance = getContractInstance();
+
+    // const data = {
+    //   signer: "",
+    //   payload: {
+    //     entryPoint: "verify_user",
+    //     contractAddress: contract.daoAddress,
+    //     calldata: [user.address],
+    //   },
+    // };
+
+    // const message: BigNumberish[] = stringToByteArray(
+    //   JSON.stringify(data.payload),
+    // ).split(",");
+
+    // const msgHash = hash.computeHashOnElements(message);
+    // const signature = ec.starkCurve.sign(msgHash, values.key);
+    // const signer = ec.starkCurve.getStarkKey(values.key);
+
+    // await contractInstance.invoke("verify_user", {
+    //   address: user.address,
+    //   signature_r: signature[0],
+    //   signature_s: signature[1],
+    //   signer_key: signer,
+    // });
   }
-
-  // const dt = {
-  //   signature: "address", // <call-signature>
-  //   payload: {
-  //     entryPoint: "verify", // <function-name>,
-  //     contractAddress: "0x1111", //<contract-address>,
-  //     calldata: [], // <array of arguments>
-  //   },
-  // };
-
-  // const message = stringToByteArray({JSON.stringify(<payload>)});
-  //   const msgHash = hash.computeHashOnElements(message);
-  //   const signature = ec.starkCurve.sign(msgHash, PRIVATE_KEY);
-
-  // const message = stringToByteArray({JSON.stringify(<payload>)}).split(",");
-  //   const msgHash = hash.computeHashOnElements(message);
-  //   const signature = ec.starkCurve.sign(msgHash, PRIVATE_KEY);
 
   return (
     <Dialog>
@@ -177,9 +186,9 @@ function VerifyUserModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-xl bg-secondary p-4">
+        <div className="rounded-xl bg-secondary p-4 dark:bg-neutral-900">
           <div className="mb-4 flex items-start gap-3 border-b pb-4">
-            <div className="size-14 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]">
+            <div className="size-12 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]">
               <div className="size-full rounded-full bg-background p-[2.5px]">
                 <img
                   src={generateAvatarFromAddress(user?.address)}
@@ -200,17 +209,13 @@ function VerifyUserModal({
                   <MdVerified className="mt-px size-4 text-primary" />
                 )}
               </div>
-              <p className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
-                {truncateAddr(user.address)}{" "}
-                <span
-                  className="cursor-pointer"
-                  onClick={() => {
-                    copyToClipboard(user.address);
-                  }}
-                >
-                  <IoCopyOutline className="!size-3.5" />
-                </span>
-              </p>
+              <ClipboardCopy
+                value={user.address}
+                className="text-xs font-medium text-muted-foreground"
+                size={14}
+              >
+                {truncateAddr(user.address)}
+              </ClipboardCopy>
             </div>
 
             <p className="text-sm font-medium text-primary">{user.user_type}</p>
@@ -361,79 +366,83 @@ export default function UsersPage() {
   }, [isContractOwner, navigate]);
 
   return (
-    <div className="flex flex-col gap-8 py-6">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="w-full max-w-md">
-          <Input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={`Search ${
-              filter === "all" ? "users" : filter
-            } by name or address...`}
-            className="px-5"
-          />
-        </div>
-        <Select onValueChange={setFilter} defaultValue={filter}>
-          <SelectTrigger className="!h-12 w-full !text-sm sm:w-[200px]">
-            <SelectValue placeholder="Select user type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {filterTypes.map((type) => (
-                <SelectItem
-                  key={type.value}
-                  value={type.value}
-                  className="text-sm"
-                >
-                  {type.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div>
+    <Fragment>
+      <SEO title="Accounts" />
 
-      <section className="overflow-clip">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
-          {users.length === 0 ? (
-            Array.from({ length: 12 }).map((_, index) => (
-              <Skeleton
-                key={index}
-                className="h-24 w-full rounded-xl p-4 sm:bg-background"
-              />
-            ))
-          ) : filteredUsers.length > 0 ? (
-            filteredUsers.map((user, index) => (
-              <motion.div
-                variants={{
-                  initial: { opacity: 0, y: 100 },
-                  animate: (index: number) => ({
-                    opacity: 1,
-                    y: 0,
-                    transition: {
-                      delay: 0.05 * index,
-                      duration: 0.9,
-                      type: "spring",
-                    },
-                  }),
-                }}
-                initial="initial"
-                whileInView="animate"
-                viewport={{ once: true }}
-                custom={index}
-                key={user.id ?? index}
-              >
-                <UserCard key={user.id ?? index} user={user} />
-              </motion.div>
-            ))
-          ) : (
-            <p className="col-span-full text-base">
-              No users match the filter.
-            </p>
-          )}
+      <div className="flex flex-col gap-8 py-6">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="w-full max-w-md">
+            <Input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={`Search ${
+                filter === "all" ? "users" : filter
+              } by name or address...`}
+              className="px-5"
+            />
+          </div>
+          <Select onValueChange={setFilter} defaultValue={filter}>
+            <SelectTrigger className="!h-12 w-full !text-sm sm:w-[200px]">
+              <SelectValue placeholder="Select user type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {filterTypes.map((type) => (
+                  <SelectItem
+                    key={type.value}
+                    value={type.value}
+                    className="text-sm"
+                  >
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
-      </section>
-    </div>
+
+        <section>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            {users.length === 0 ? (
+              Array.from({ length: 12 }).map((_, index) => (
+                <Skeleton
+                  key={index}
+                  className="h-24 w-full rounded-xl p-4 sm:bg-background"
+                />
+              ))
+            ) : filteredUsers.length > 0 ? (
+              filteredUsers.map((user, index) => (
+                <motion.div
+                  variants={{
+                    initial: { opacity: 0, y: 100 },
+                    animate: (index: number) => ({
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        delay: 0.05 * index,
+                        duration: 0.9,
+                        type: "spring",
+                      },
+                    }),
+                  }}
+                  initial="initial"
+                  whileInView="animate"
+                  viewport={{ once: true }}
+                  custom={index}
+                  key={user.id ?? index}
+                >
+                  <UserCard key={user.id ?? index} user={user} />
+                </motion.div>
+              ))
+            ) : (
+              <p className="col-span-full text-base">
+                No users match the filter.
+              </p>
+            )}
+          </div>
+        </section>
+      </div>
+    </Fragment>
   );
 }

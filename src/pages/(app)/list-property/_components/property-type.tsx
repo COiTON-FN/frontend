@@ -59,9 +59,12 @@ export default function PropertyType({
               <div className="relative overflow-hidden rounded-2xl p-6 transition-all sm:p-8">
                 <div className="mb-6 flex items-center justify-between gap-6">
                   <div
-                    className={cn("rounded-xl bg-secondary/80 p-4", {
-                      "bg-primary/10": isSelected,
-                    })}
+                    className={cn(
+                      "rounded-xl bg-secondary/80 p-4 dark:bg-neutral-900/80",
+                      {
+                        "bg-primary/10 dark:bg-primary/10": isSelected,
+                      },
+                    )}
                   >
                     <Icon
                       className={cn("size-8 text-foreground", {
@@ -109,9 +112,9 @@ export default function PropertyType({
                         <div
                           key={index}
                           className={cn(
-                            "flex flex-wrap items-center space-x-2 rounded-lg border border-border/60 bg-secondary/70 px-3 py-2 text-sm text-muted-foreground",
+                            "flex flex-wrap items-center space-x-2 rounded-lg border border-border/60 bg-secondary/80 px-3 py-2 text-sm text-muted-foreground dark:bg-neutral-900/80",
                             {
-                              "border-primary/10 bg-primary/10 text-primary":
+                              "border-primary/10 bg-primary/10 text-primary dark:bg-primary/10":
                                 isSelected,
                             },
                           )}

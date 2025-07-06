@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -23,23 +22,23 @@ const sidebarLinks = [
     icon: (className: string) => (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className={cn("!size-6", className)}
+        className={cn("!size-[26px]", className)}
         viewBox="0 0 24 24"
         fill="none"
       >
         <path
           d="M3 8.976C3 4.05476 4.05476 3 8.976 3H15.024C19.9452 3 21 4.05476 21 8.976V15.024C21 19.9452 19.9452 21 15.024 21H8.976C4.05476 21 3 19.9452 3 15.024V8.976Z"
-          strokeWidth="1.7"
+          stroke-width="1.7"
         />
         <path
           d="M21 9L3 9"
-          strokeWidth="1.7"
+          stroke-width="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
           d="M9 21L9 9"
-          strokeWidth="1.7"
+          stroke-width="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -94,8 +93,8 @@ const sidebarLinks = [
     onlyFor: "Entity",
   },
   {
-    label: "Requests",
-    path: "/requests",
+    label: "About Us",
+    path: "/about",
     icon: (className: string) => (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -104,21 +103,12 @@ const sidebarLinks = [
         fill="none"
       >
         <path
-          d="M19 16C19 18.8284 19 20.2426 18.1213 21.1213C17.2426 22 15.8284 22 13 22H11C8.17157 22 6.75736 22 5.87868 21.1213C5 20.2426 5 18.8284 5 16V12M5 8C5 5.17157 5 3.75736 5.87868 2.87868C6.75736 2 8.17157 2 11 2H13C15.8284 2 17.2426 2 18.1213 2.87868C19 3.75736 19 5.17157 19 8V12"
+          d="M3 10V14C3 15.8856 3 16.8284 3.58579 17.4142C4.17157 18 5.11438 18 7 18H17C18.8856 18 19.8284 18 20.4142 17.4142C21 16.8284 21 15.8856 21 14V9C21 6.17157 21 4.75736 20.1213 3.87868C19.2426 3 17.8284 3 15 3H9C6.17157 3 4.75736 3 3.87868 3.87868C3.38879 4.36857 3.17203 5.02491 3.07612 6"
           strokeWidth="1.7"
           strokeLinecap="round"
         />
-        <path
-          d="M5 4.07617C4.02491 4.17208 3.36857 4.38885 2.87868 4.87873C2 5.75741 2 7.17163 2 10.0001V14.0001C2 16.8285 2 18.2427 2.87868 19.1214C3.36857 19.6113 4.02491 19.828 5 19.9239"
-          strokeWidth="1.7"
-        />
-        <path
-          d="M19 4.07617C19.9751 4.17208 20.6314 4.38885 21.1213 4.87873C22 5.75741 22 7.17163 22 10.0001V14.0001C22 16.8285 22 18.2427 21.1213 19.1214C20.6314 19.6113 19.9751 19.828 19 19.9239"
-          strokeWidth="1.7"
-        />
-        <path d="M9 13H15" strokeWidth="1.7" strokeLinecap="round" />
-        <path d="M9 9H15" strokeWidth="1.7" strokeLinecap="round" />
-        <path d="M9 17H12" strokeWidth="1.7" strokeLinecap="round" />
+        <path d="M22 21H16M2 21H12" strokeWidth="1.7" strokeLinecap="round" />
+        <path d="M15 15H9" strokeWidth="1.7" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -133,31 +123,7 @@ const sidebarLinks = [
         fill="none"
       >
         <path
-          d="M4.75 17.4V6.6C4.75 5.1 5.39 4.5 6.98 4.5H8.02C9.61 4.5 10.25 5.1 10.25 6.6V17.4C10.25 18.9 9.61 19.5 8.02 19.5H6.98C5.39 19.5 4.75 18.9 4.75 17.4Z"
-          strokeWidth="1.7"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M13.25 15.4V8.6C13.25 7.1 13.89 6.5 15.48 6.5H16.52C18.11 6.5 18.75 7.1 18.75 8.6V15.4C18.75 16.9 18.11 17.5 16.52 17.5H15.48C13.89 17.5 13.25 16.9 13.25 15.4Z"
-          strokeWidth="1.7"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M2 12H4.4"
-          strokeWidth="1.7"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M11 12H13"
-          strokeWidth="1.7"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M22 12H19.31"
+          d="M4 9V7.2C4 6.0799 4 5.51984 4.21799 5.09202C4.40973 4.71569 4.71569 4.40973 5.09202 4.21799C5.51984 4 6.07989 4 7.2 4H16.8C17.9201 4 18.4802 4 18.908 4.21799C19.2843 4.40973 19.5903 4.71569 19.782 5.09202C20 5.51984 20 6.0799 20 7.2V16.8C20 17.9201 20 18.4802 19.782 18.908C19.5903 19.2843 19.2843 19.5903 18.908 19.782C18.4802 20 17.9201 20 16.8 20H10.5M11 16H17M8 11L11 9V12L17 7M17 7H14M17 7V10M7 14.5C6.5 14.376 5.68509 14.3714 5 14.376C4.77091 14.3775 4.90941 14.3678 4.6 14.376C3.79258 14.4012 3.00165 14.7368 3 15.6875C2.99825 16.7004 4 17 5 17C6 17 7 17.2312 7 18.3125C7 19.1251 6.1925 19.4812 5.1861 19.5991C4.3861 19.5991 4 19.625 3 19.5M5 20V21M5 13V14"
           strokeWidth="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -175,7 +141,7 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
           <SidebarMenuItem>
             <Link className="flex w-max items-center gap-3" to="/">
               <img src="/coiton.svg" width={28} height={28} />
-              <p className="text-lg font-medium">Coiton</p>
+              <p className="text-lg font-medium dark:text-foreground">Coiton</p>
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -215,175 +181,175 @@ export function NavMain() {
   });
 
   return (
-    <SidebarGroup className="md:!pl-4">
-      <SidebarMenu className="gap-2 md:!pl-4">
-        {filteredLinks.map(({ label, path, icon }, index) => {
-          const active = isActive(path);
-          const toPath =
-            path === "/profile" ? `${path}/${walletAddress}` : path || "";
+    <SidebarMenu className="gap-2 md:!pl-10">
+      {filteredLinks.map(({ label, path, icon }, index) => {
+        const active = isActive(path);
+        const toPath =
+          path === "/profile" ? `${path}/${walletAddress}` : path || "";
 
-          return (
-            <motion.div
-              key={index}
-              variants={{
-                initial: { opacity: 0, y: 100 },
-                animate: (index: number) => ({
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    delay: 0.05 * index,
-                    duration: 0.9,
-                    type: "spring",
-                  },
-                }),
-              }}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
-              custom={index}
-            >
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  className={cn(
-                    "group relative h-14 rounded-none rounded-l-full !p-0 !pl-6 font-medium transition hover:bg-secondary",
-                    active &&
-                      "bg-[#e7fefc] text-primary hover:bg-[#dbfffc] hover:text-primary",
+        return (
+          <motion.div
+            key={index}
+            variants={{
+              initial: { opacity: 0, y: 100 },
+              animate: (index: number) => ({
+                opacity: 1,
+                y: 0,
+                transition: {
+                  delay: 0.05 * index,
+                  duration: 0.9,
+                  type: "spring",
+                },
+              }),
+            }}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            custom={index}
+          >
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                className={cn(
+                  "group relative h-14 rounded-none rounded-l-full !p-0 !pl-6 font-medium text-muted-foreground transition hover:bg-secondary active:text-muted-foreground dark:hover:bg-neutral-900",
+                  active &&
+                    "bg-[#e7fefc] text-primary hover:bg-[#dbfffc] hover:text-primary dark:bg-primary/20 dark:text-primary dark:hover:bg-primary/10",
+                  !active && "hover:text-foreground/60",
+                )}
+                tooltip={label}
+              >
+                <Link to={toPath} className="flex items-center gap-4">
+                  {icon?.(
+                    active
+                      ? "stroke-primary stroke-2"
+                      : "stroke-muted-foreground transition-[stroke]",
                   )}
-                  tooltip={label}
-                >
-                  <Link to={toPath} className="flex items-center gap-4">
-                    {icon?.(
-                      active
-                        ? "stroke-[#056F67] stroke-2"
-                        : "stroke-muted-foreground transition-[stroke]",
+                  <span
+                    className={cn(
+                      "text-base font-normal tracking-wide",
+                      active && "font-medium",
                     )}
-                    <span
-                      className={cn(
-                        "text-base font-normal tracking-wide",
-                        active && "font-medium",
-                      )}
-                    >
-                      {label}
-                    </span>
-                    {active && (
-                      <span className="absolute right-0 top-0 h-full w-1 bg-primary" />
-                    )}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </motion.div>
-          );
-        })}
+                  >
+                    {label}
+                  </span>
+                  {active && (
+                    <span className="absolute right-0 top-0 h-full w-1 bg-primary" />
+                  )}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </motion.div>
+        );
+      })}
 
-        {isContractOwner && (
-          <Fragment>
-            <motion.p
-              variants={{
-                initial: { opacity: 0, y: 100 },
-                animate: (index: number) => ({
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    delay: 0.05 * index,
-                    duration: 0.9,
-                    type: "spring",
-                  },
-                }),
-              }}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
-              custom={filteredLinks.length}
-              className="ml-6 mt-6 text-sm tracking-wide text-muted-foreground"
-            >
-              Administration
-            </motion.p>
-            <motion.div
-              variants={{
-                initial: { opacity: 0, y: 100 },
-                animate: (index: number) => ({
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    delay: 0.05 * index,
-                    duration: 0.9,
-                    type: "spring",
-                  },
-                }),
-              }}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
-              custom={filteredLinks.length}
-            >
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  className={cn(
-                    "group relative h-14 rounded-none rounded-l-full !p-0 !pl-6 font-medium transition hover:bg-secondary",
-                    isActive("/users") &&
-                      "bg-[#e7fefc] text-primary hover:bg-[#dbfffc] hover:text-primary",
-                  )}
-                  tooltip="Accounts"
-                >
-                  <Link to="/users" className="flex items-center gap-4">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className={cn(
-                        "!size-6 stroke-muted-foreground transition-[stroke]",
-                        {
-                          "stroke-[#056F67] stroke-2": isActive("/users"),
-                        },
-                      )}
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <circle cx="12" cy="6" r="4" strokeWidth="1.7" />
-                      <path
-                        d="M18 9C19.6569 9 21 7.88071 21 6.5C21 5.11929 19.6569 4 18 4"
-                        strokeWidth="1.7"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M6 9C4.34315 9 3 7.88071 3 6.5C3 5.11929 4.34315 4 6 4"
-                        strokeWidth="1.7"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M17.1973 15C17.7078 15.5883 18 16.2714 18 17C18 19.2091 15.3137 21 12 21C8.68629 21 6 19.2091 6 17C6 14.7909 8.68629 13 12 13C12.3407 13 12.6748 13.0189 13 13.0553"
-                        strokeWidth="1.7"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M20 19C21.7542 18.6153 23 17.6411 23 16.5C23 15.3589 21.7542 14.3847 20 14"
-                        strokeWidth="1.7"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M4 19C2.24575 18.6153 1 17.6411 1 16.5C1 15.3589 2.24575 14.3847 4 14"
-                        strokeWidth="1.7"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <span
-                      className={cn(
-                        "text-base font-normal tracking-wide",
-                        isActive("/users") && "font-medium",
-                      )}
-                    >
-                      Accounts
-                    </span>
-                    {isActive("/users") && (
-                      <span className="absolute right-0 top-0 h-full w-1 bg-primary" />
+      {isContractOwner && (
+        <Fragment>
+          <motion.p
+            variants={{
+              initial: { opacity: 0, y: 100 },
+              animate: (index: number) => ({
+                opacity: 1,
+                y: 0,
+                transition: {
+                  delay: 0.05 * index,
+                  duration: 0.9,
+                  type: "spring",
+                },
+              }),
+            }}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            custom={filteredLinks.length}
+            className="ml-6 mt-6 text-sm tracking-wide text-muted-foreground"
+          >
+            Administration
+          </motion.p>
+          <motion.div
+            variants={{
+              initial: { opacity: 0, y: 100 },
+              animate: (index: number) => ({
+                opacity: 1,
+                y: 0,
+                transition: {
+                  delay: 0.05 * index,
+                  duration: 0.9,
+                  type: "spring",
+                },
+              }),
+            }}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            custom={filteredLinks.length}
+          >
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                className={cn(
+                  "group relative h-14 rounded-none rounded-l-full !p-0 !pl-6 font-medium text-muted-foreground transition hover:bg-secondary active:text-muted-foreground dark:hover:bg-neutral-900",
+                  isActive("/users") &&
+                    "bg-[#e7fefc] text-primary hover:bg-[#dbfffc] hover:text-primary dark:bg-primary/20 dark:text-primary dark:hover:bg-primary/10",
+                  !isActive("/users") && "hover:text-foreground/60",
+                )}
+                tooltip="Accounts"
+              >
+                <Link to="/users" className="flex items-center gap-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={cn(
+                      "!size-6 stroke-muted-foreground transition-[stroke]",
+                      {
+                        "stroke-[#056F67] stroke-2": isActive("/users"),
+                      },
                     )}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </motion.div>
-          </Fragment>
-        )}
-      </SidebarMenu>
-    </SidebarGroup>
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle cx="12" cy="6" r="4" strokeWidth="1.7" />
+                    <path
+                      d="M18 9C19.6569 9 21 7.88071 21 6.5C21 5.11929 19.6569 4 18 4"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M6 9C4.34315 9 3 7.88071 3 6.5C3 5.11929 4.34315 4 6 4"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M17.1973 15C17.7078 15.5883 18 16.2714 18 17C18 19.2091 15.3137 21 12 21C8.68629 21 6 19.2091 6 17C6 14.7909 8.68629 13 12 13C12.3407 13 12.6748 13.0189 13 13.0553"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M20 19C21.7542 18.6153 23 17.6411 23 16.5C23 15.3589 21.7542 14.3847 20 14"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M4 19C2.24575 18.6153 1 17.6411 1 16.5C1 15.3589 2.24575 14.3847 4 14"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span
+                    className={cn(
+                      "text-base font-normal tracking-wide",
+                      isActive("/users") && "font-medium",
+                    )}
+                  >
+                    Accounts
+                  </span>
+                  {isActive("/users") && (
+                    <span className="absolute right-0 top-0 h-full w-1 bg-primary" />
+                  )}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </motion.div>
+        </Fragment>
+      )}
+    </SidebarMenu>
   );
 }
