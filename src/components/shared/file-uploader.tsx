@@ -135,7 +135,7 @@ export function FileUploader(props: FileUploaderProps) {
       const newFiles = acceptedFiles.map((file) =>
         Object.assign(file, {
           preview: URL.createObjectURL(file),
-        })
+        }),
       );
 
       const updatedFiles = files ? [...files, ...newFiles] : newFiles;
@@ -167,7 +167,7 @@ export function FileUploader(props: FileUploaderProps) {
       }
     },
 
-    [files, maxFiles, multiple, onUpload, setFiles]
+    [files, maxFiles, multiple, onUpload, setFiles],
   );
 
   function onRemove(index: number) {
@@ -206,11 +206,11 @@ export function FileUploader(props: FileUploaderProps) {
           <div
             {...getRootProps()}
             className={cn(
-              "flex items-center justify-center rounded-xl aspect-video border border-dashed divide-dashed bg-background p-10 text-center",
+              "flex aspect-video items-center justify-center divide-dashed rounded-xl border border-dashed bg-background p-10 text-center",
               "ring-offset-background focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0",
               isDragActive && "border-muted-foreground/50",
               isDisabled && "pointer-events-none opacity-60",
-              className
+              className,
             )}
             {...dropzoneProps}
           >
@@ -223,14 +223,14 @@ export function FileUploader(props: FileUploaderProps) {
                     aria-hidden="true"
                   />
                 </div>
-                <p className="font-medium text-base text-primary">
+                <p className="text-base font-medium text-primary">
                   Release to drop hrer.
                 </p>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-4 sm:px-5">
                 <div className="flex flex-col">
-                  <p className="font-medium text-sm sm:text-base text-primary">
+                  <p className="text-sm font-medium text-primary sm:text-base">
                     {title ? (
                       title
                     ) : (
@@ -240,7 +240,7 @@ export function FileUploader(props: FileUploaderProps) {
                       </>
                     )}
                   </p>
-                  <p className="mb-4 mt-2 font-normal text-sm text-muted-foreground">
+                  <p className="mb-4 mt-2 text-sm font-normal text-muted-foreground">
                     {maxFiles > 1
                       ? ` ${maxFiles === Infinity ? "multiple" : maxFiles}
                       files (up to ${formatBytes(maxSize)} each)`
@@ -292,10 +292,10 @@ function FileCard({ file, progress, onRemove }: FileCardProps) {
 
         <div className="flex w-full flex-col gap-2">
           <div className="flex w-full flex-col">
-            <p className="line-clamp-1 font-medium text-base">
+            <p className="line-clamp-1 text-base font-medium">
               {truncateAddr(file.name)}
             </p>
-            <p className="flex items-center font-sans_light text-xs">
+            <p className="font-sans_light flex items-center text-xs">
               <span>{formatBytes(file.size)}</span>
             </p>
           </div>
@@ -329,14 +329,14 @@ const getFileIcon = (file: File) => {
   // Check if fileType is defined before calling startsWith
   if (!fileType) return <img src="/file-type.svg" />; // Return a generic icon if type is undefined
 
-  if (fileType.startsWith("image/png")) {
+  if (fileType?.startsWith("image/png")) {
     return <img src="/png-type.svg" />;
   } else if (
-    fileType.startsWith("image/jpeg") ||
-    fileType.startsWith("image/jpg")
+    fileType?.startsWith("image/jpeg") ||
+    fileType?.startsWith("image/jpg")
   ) {
     return <img src="/jpeg-type.svg" />;
-  } else if (fileType.startsWith("video/")) {
+  } else if (fileType?.startsWith("video/")) {
     return <img src="/video-type.svg" />;
   } else if (fileType === "application/pdf") {
     return <img src="/pdf-type.svg" />;

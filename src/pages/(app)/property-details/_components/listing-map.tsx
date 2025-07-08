@@ -30,6 +30,7 @@ export const ListingMap: React.FC<ListingMapProps> = ({ listing }) => {
         ]}
         zoom={6}
         className="h-full w-full"
+        scrollWheelZoom={false}
         key={[
           listing?.details?.map?.lat,
           listing?.details?.map?.long || listing?.details?.map?.lng,

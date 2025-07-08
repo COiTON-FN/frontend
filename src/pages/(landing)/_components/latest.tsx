@@ -129,7 +129,7 @@ const Latest: FC = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {listings.slice(-3).map((listing, index) => (
+          {listings.slice(0, 3).map((listing, index) => (
             <ListingCard key={listing.id} listing={listing} index={index} />
           ))}
         </div>

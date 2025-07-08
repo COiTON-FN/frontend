@@ -78,7 +78,7 @@ export function toBN(val: string | BN | undefined): BN | string {
   if (val === undefined || val === "") {
     return "";
   }
-  if (val.startsWith("0x") && isHex(removeHexPrefix(val))) {
+  if (val?.startsWith("0x") && isHex(removeHexPrefix(val))) {
     return new BN(removeHexPrefix(val), 16);
   } else if (isDecimal(val)) {
     return new BN(val, 10);
@@ -90,17 +90,23 @@ export function toBN(val: string | BN | undefined): BN | string {
 
 // Function to convert value to Hex string
 export function toHex(val: string | undefined): string {
-  if (val === undefined || val === "") {
+  if (!val || val === undefined || val === "") {
     return "";
   }
-  if (String(val).startsWith("0x") && isHex(removeHexPrefix(val))) {
+  if (String(val)?.startsWith("0x") && isHex(removeHexPrefix(val))) {
     return val;
-  } else if (isDecimal(val)) {
-    const nbn = new BN(val, 10);
-    return addHexPrefix(nbn.toString(16));
-  } else {
-    return asciiToHex(val);
   }
+  let hex: string;
+  if (isDecimal(val)) {
+    hex = new BN(val, 10).toString(16);
+  } else {
+    const bn = toBN(val) as BN;
+    hex = bn.toString(16);
+  }
+  // strip leading zero bytes
+  hex = hex.replace(/^0+/, "");
+  if (hex === "") hex = "0";
+  return "0x" + hex;
 }
 
 // Function to convert value to Uint256

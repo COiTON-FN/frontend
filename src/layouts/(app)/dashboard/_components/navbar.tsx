@@ -1,11 +1,10 @@
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { RootState } from "@/store";
-import { ChevronDown, Search } from "lucide-react";
-import { Fragment, memo, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
+import { Fragment, memo, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   DropdownMenu,
@@ -26,7 +25,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { IoWalletOutline } from "react-icons/io5";
 import { HiOutlineUser } from "react-icons/hi2";
 import { useWalletHook } from "@/hooks/useWallet.hook";
@@ -43,9 +42,14 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ClipboardCopy } from "@/components/shared/clipboard-copy";
 import { useTheme } from "@/components/provider/theme.provider";
+import { SearchInput } from "@/components/shared/search-input";
+import { siteConfig } from "@/config/site.config";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
+  const [searchParams] = useSearchParams();
+  const init = (key: string, def: string) => searchParams.get(key) ?? def;
+  const [searchValue, setSearchValue] = useState<string>(init("search", ""));
 
   const isDark = theme === "dark";
 
@@ -62,9 +66,9 @@ const Navbar = () => {
 
   useEffect(() => {
     if (walletStore.isWalletConnected) {
-      generateAvatarFromAddress(window.Wallet.Account?.address as string);
+      generateAvatarFromAddress(credentialStore?.address as string);
     }
-  }, [walletStore.isWalletConnected]);
+  }, [credentialStore?.address, walletStore.isWalletConnected]);
 
   const connectWallet = async () => {
     try {
@@ -86,14 +90,12 @@ const Navbar = () => {
         <div className="flex h-full w-full max-w-sm items-center gap-3 xl:max-w-md">
           <SidebarTrigger className="rounded-full" />
           <Separator className="hidden h-[30%] w-px lg:flex" />
-          <div className="relative hidden h-11 flex-1 rounded-full bg-secondary sm:h-14 lg:flex">
-            <Search className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground/80" />
-            <Input
-              placeholder="Search for property..."
-              type="search"
-              className="h-full flex-1 !rounded-full !pl-11 !text-base tracking-wide"
-            />
-          </div>
+          <SearchInput
+            placeholder="Search property by title or owner"
+            className="hidden flex-1 lg:flex"
+            value={searchValue}
+            onValueChange={setSearchValue}
+          />
         </div>
 
         <div className="flex h-full flex-1 items-center justify-end gap-3">
@@ -129,7 +131,7 @@ const Navbar = () => {
               <DropdownMenuContent
                 side="bottom"
                 sideOffset={-4}
-                className="mr-5 w-[260px] rounded-[18px] p-2 sm:w-[270px] md:mr-6"
+                className="mr-5 w-[290px] rounded-3xl p-2 sm:w-[280px] md:mr-6"
               >
                 {walletStore.hasRegistered && (
                   <Fragment>
@@ -158,16 +160,16 @@ const Navbar = () => {
                               <MdVerified className="mt-px size-4 text-primary" />
                             )}
                           </div>
-                          {walletStore.walletAddress && (
+                          {credentialStore?.address && (
                             <ClipboardCopy
                               size={14}
                               className="gap-1"
-                              value={walletStore.walletAddress}
+                              value={credentialStore?.address}
                               message="Wallet address copied successfully"
                             >
-                              <span className="line-clamp-1 text-xs text-muted-foreground">
+                              <span className="line-clamp-1 text-xs font-normal text-muted-foreground">
                                 {truncateAddr(
-                                  walletStore.walletAddress as string,
+                                  credentialStore?.address as string,
                                 )}
                               </span>
                             </ClipboardCopy>
@@ -183,7 +185,7 @@ const Navbar = () => {
                             aria-describedby="argent-profile"
                             className={buttonVariants({
                               size: "icon",
-                              className: "!size-9 !rounded-[12px]",
+                              className: "!size-10 !rounded-[14px]",
                               variant: "outline",
                             })}
                           >
@@ -231,7 +233,7 @@ const Navbar = () => {
                     title="Join the Telegram community"
                   >
                     <Link
-                      to="https://t.me/COiTONRealEstates"
+                      to={siteConfig.social.telegram}
                       target="_blank"
                       title="Join the Telegram community"
                     >

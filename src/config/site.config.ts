@@ -3,22 +3,32 @@ export const siteConfig = {
     default: {
       title: "Coiton",
       description:
-        "Bringing Nigeria's $2.4 Trillion Real Estate Market On-Chain with Blockchain Technology",
+        "Bringing $2.4 Trillion Real Estate Market On-Chain with Blockchain Technology Globally.",
     },
     dashboard: {
       title: "Dashboard",
+      description:
+        "View your portfolio, monitor assets, and manage your on-chain real estate activity in one place",
     },
     properties: {
       title: "Properties",
+      description:
+        "Browse verified, tokenized real estate listings available for fractional or full investment",
     },
     trade: {
       title: "Trading",
+      description:
+        "Invest in property tokens, track asset performance, and trade real estate shares seamlessly on-chain",
     },
     about: {
       title: "About Us",
+      description:
+        "Learn about Coiton's mission to democratize real estate access through blockchain technology",
     },
     listProperty: {
       title: "Add Property",
+      description:
+        "Tokenize your property, verify ownership, and list it on the Coiton marketplace for investor access",
     },
   },
   image: "/og-image.png",
@@ -39,6 +49,7 @@ export const siteConfig = {
     linkedin: "https://www.linkedin.com/in/coiton-nigeria-b59b6831a/",
     facebook: "",
     youtube: "",
+    telegram: "https://t.me/COiTONRealEstates",
   },
   handle: "@COiTON",
 };

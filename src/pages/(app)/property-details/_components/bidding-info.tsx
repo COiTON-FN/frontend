@@ -273,7 +273,7 @@ export const BiddingInfo: React.FC<BiddingInfoProps> = ({
 
   return (
     <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:rounded-3xl md:p-10">
-      <div className="flex flex-col gap-4 sm:mb-4 sm:flex-row sm:items-center sm:gap-6">
+      <div className="flex flex-col gap-4 sm:mb-4 lg:flex-row lg:items-center lg:gap-6">
         <div className="flex flex-col">
           <p className="text-base font-semibold uppercase md:text-lg">
             Bidding Info
@@ -285,14 +285,14 @@ export const BiddingInfo: React.FC<BiddingInfoProps> = ({
             placeholder="Search by name, address or amount..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="h-11 w-full sm:max-w-sm"
+            className="h-14 w-full !rounded-full lg:max-w-sm"
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 className={buttonVariants({
                   variant: "outline",
-                  className: "gap-2 rounded-xl",
+                  className: "h-14 gap-2 rounded-full pl-6 pr-5",
                 })}
               >
                 <span>Columns</span>

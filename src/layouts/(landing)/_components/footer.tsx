@@ -3,7 +3,7 @@ import { FaLinkedinIn } from "react-icons/fa";
 import { FaFacebookF } from "react-icons/fa";
 import { SiInstagram } from "react-icons/si";
 import { FaXTwitter } from "react-icons/fa6";
-import { BsYoutube } from "react-icons/bs";
+import { LiaTelegramPlane } from "react-icons/lia";
 import { Link } from "react-router-dom";
 
 import MaxWrapper from "@/components/shared/max-wrapper";
@@ -29,14 +29,14 @@ const socials = [
     url: siteConfig.social.instagram,
   },
   {
+    icon: LiaTelegramPlane,
+    label: "Telegram",
+    url: siteConfig.social.telegram,
+  },
+  {
     icon: FaFacebookF,
     label: "Facebook",
     url: siteConfig.social.facebook,
-  },
-  {
-    icon: BsYoutube,
-    label: "YouTube",
-    url: siteConfig.social.youtube,
   },
 ];
 

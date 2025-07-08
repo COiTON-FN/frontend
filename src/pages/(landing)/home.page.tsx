@@ -11,11 +11,7 @@ import { SEO } from "@/components/shared/seo";
 export default function HomePage() {
   return (
     <React.Fragment>
-      <SEO
-        override
-        title="Coiton - Invest in Real Estate, Reinvented."
-        image="/og-image.png"
-      />
+      <SEO page="default" override />
 
       <div className="overflow-x-clip">
         <Banner />

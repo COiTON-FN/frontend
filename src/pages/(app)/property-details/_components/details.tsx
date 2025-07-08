@@ -1,43 +1,24 @@
 import * as React from "react";
-import {
-  FacebookIcon,
-  FacebookShareButton,
-  LinkedinIcon,
-  LinkedinShareButton,
-  TelegramIcon,
-  TelegramShareButton,
-  TwitterShareButton,
-  WhatsappIcon,
-  WhatsappShareButton,
-  XIcon,
-} from "react-share";
 import { PiBathtub, PiIslandDuotone } from "react-icons/pi";
 import { BiLeaf } from "react-icons/bi";
-import { Link as LinkIcon, Share2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Share2 } from "lucide-react";
 import { IoBedOutline } from "react-icons/io5";
 import { TbResize } from "react-icons/tb";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BidModal } from "./bid-modal";
 import { RootState, useAppSelector } from "@/store";
 import { RiBuilding2Line } from "react-icons/ri";
-import { Button } from "@/components/ui/button";
-import { cn, copyToClipboard } from "@/lib/utils";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SharePopup } from "@/components/shared/share-popup";
 
 type DetailsAddress = Array<{ label: string; value: string }>;
 
 interface DetailsProps {
   listing: Listing | null;
-  content: {
-    url: string;
-    message: string;
-  };
+  shareUrl: string;
   isLoadingRequests: boolean;
   purchaseRequests: Array<PurchaseRequest>;
   setPurchaseRequests: React.Dispatch<
@@ -49,7 +30,7 @@ interface DetailsProps {
 
 export const Details: React.FC<DetailsProps> = ({
   listing,
-  content,
+  shareUrl,
   isLoadingRequests,
   purchaseRequests,
   setPurchaseRequests,
@@ -130,63 +111,26 @@ export const Details: React.FC<DetailsProps> = ({
             )
           )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant={"outline"} size="icon">
-                <Share2 className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              side="bottom"
-              sideOffset={10}
-              className="mr-5 rounded-3xl md:mr-8 lg:mr-10 xl:mr-16"
+          <SharePopup
+            title={listing?.details?.title}
+            shareUrl={shareUrl}
+            platforms={[
+              "facebook",
+              "linkedin",
+              "telegram",
+              "twitter",
+              "whatsapp",
+            ]}
+          >
+            <button
+              className={buttonVariants({
+                variant: "outline",
+                size: "icon",
+              })}
             >
-              <div className="flex items-center justify-center gap-4 p-4">
-                <TwitterShareButton
-                  htmlTitle="X"
-                  title={content.message}
-                  url={content.url}
-                  children={<XIcon round size={30} />}
-                />
-                <FacebookShareButton
-                  htmlTitle="Facebook"
-                  url={content.url}
-                  title={content.message}
-                  children={<FacebookIcon round size={30} />}
-                />
-                <LinkedinShareButton
-                  htmlTitle="Linkedin"
-                  title={content.message}
-                  url={content.url}
-                  children={<LinkedinIcon round size={30} />}
-                />
-
-                <TelegramShareButton
-                  htmlTitle="Telegram"
-                  url={content.url}
-                  title={content.message}
-                  children={<TelegramIcon round size={30} />}
-                />
-                <WhatsappShareButton
-                  htmlTitle="Whatsapp"
-                  url={content.url}
-                  title={content.message}
-                  children={<WhatsappIcon round size={30} />}
-                />
-                <button
-                  title="Copy Link"
-                  onClick={async () => {
-                    copyToClipboard(
-                      content.url,
-                      `Copied "${listing?.details?.title}"`,
-                    );
-                  }}
-                >
-                  <LinkIcon size={20} />
-                </button>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <Share2 className="size-4" />
+            </button>
+          </SharePopup>
         </div>
       </div>
 

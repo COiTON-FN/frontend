@@ -21,7 +21,7 @@ export default function AboutPage() {
                 <div className="flex size-full items-center justify-center">
                   <div className="flex w-full flex-col gap-1 border-y border-[#0FAB9F] px-6 py-4 lg:p-4">
                     <h4 className="text-2xl font-normal italic tracking-wider sm:text-3xl">
-                      Empowering Decentralized Real Estate for All.
+                      Our mission to democratize real estate.
                     </h4>
                     <span className="text-base font-light text-[#B1EDE9] lg:text-xl">
                       Collaborative On-chain Investment and Trading of
