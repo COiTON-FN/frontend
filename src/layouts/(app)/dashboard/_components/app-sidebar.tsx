@@ -28,17 +28,17 @@ const sidebarLinks = [
       >
         <path
           d="M3 8.976C3 4.05476 4.05476 3 8.976 3H15.024C19.9452 3 21 4.05476 21 8.976V15.024C21 19.9452 19.9452 21 15.024 21H8.976C4.05476 21 3 19.9452 3 15.024V8.976Z"
-          stroke-width="1.7"
+          strokeWidth="1.7"
         />
         <path
           d="M21 9L3 9"
-          stroke-width="1.7"
+          strokeWidth="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
           d="M9 21L9 9"
-          stroke-width="1.7"
+          strokeWidth="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -93,6 +93,25 @@ const sidebarLinks = [
     onlyFor: "Entity",
   },
   {
+    label: "Trade Center",
+    path: "/trading",
+    icon: (className: string) => (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("!size-6", className)}
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path
+          d="M4 9V7.2C4 6.0799 4 5.51984 4.21799 5.09202C4.40973 4.71569 4.71569 4.40973 5.09202 4.21799C5.51984 4 6.07989 4 7.2 4H16.8C17.9201 4 18.4802 4 18.908 4.21799C19.2843 4.40973 19.5903 4.71569 19.782 5.09202C20 5.51984 20 6.0799 20 7.2V16.8C20 17.9201 20 18.4802 19.782 18.908C19.5903 19.2843 19.2843 19.5903 18.908 19.782C18.4802 20 17.9201 20 16.8 20H10.5M11 16H17M8 11L11 9V12L17 7M17 7H14M17 7V10M7 14.5C6.5 14.376 5.68509 14.3714 5 14.376C4.77091 14.3775 4.90941 14.3678 4.6 14.376C3.79258 14.4012 3.00165 14.7368 3 15.6875C2.99825 16.7004 4 17 5 17C6 17 7 17.2312 7 18.3125C7 19.1251 6.1925 19.4812 5.1861 19.5991C4.3861 19.5991 4 19.625 3 19.5M5 20V21M5 13V14"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
     label: "About Us",
     path: "/about",
     icon: (className: string) => (
@@ -109,25 +128,6 @@ const sidebarLinks = [
         />
         <path d="M22 21H16M2 21H12" strokeWidth="1.7" strokeLinecap="round" />
         <path d="M15 15H9" strokeWidth="1.7" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    label: "Trade Center",
-    path: "/trading",
-    icon: (className: string) => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className={cn("!size-6", className)}
-        viewBox="0 0 24 24"
-        fill="none"
-      >
-        <path
-          d="M4 9V7.2C4 6.0799 4 5.51984 4.21799 5.09202C4.40973 4.71569 4.71569 4.40973 5.09202 4.21799C5.51984 4 6.07989 4 7.2 4H16.8C17.9201 4 18.4802 4 18.908 4.21799C19.2843 4.40973 19.5903 4.71569 19.782 5.09202C20 5.51984 20 6.0799 20 7.2V16.8C20 17.9201 20 18.4802 19.782 18.908C19.5903 19.2843 19.2843 19.5903 18.908 19.782C18.4802 20 17.9201 20 16.8 20H10.5M11 16H17M8 11L11 9V12L17 7M17 7H14M17 7V10M7 14.5C6.5 14.376 5.68509 14.3714 5 14.376C4.77091 14.3775 4.90941 14.3678 4.6 14.376C3.79258 14.4012 3.00165 14.7368 3 15.6875C2.99825 16.7004 4 17 5 17C6 17 7 17.2312 7 18.3125C7 19.1251 6.1925 19.4812 5.1861 19.5991C4.3861 19.5991 4 19.625 3 19.5M5 20V21M5 13V14"
-          strokeWidth="1.7"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
       </svg>
     ),
   },

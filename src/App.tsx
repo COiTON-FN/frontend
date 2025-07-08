@@ -63,7 +63,7 @@ export default function App() {
         };
       });
 
-      dispatch(setListing(structured));
+      dispatch(setListing(structured.reverse()));
     } catch (error) {
       console.error(error);
     }
@@ -171,15 +171,16 @@ export default function App() {
         if (!contract) return;
 
         const user = await contract.get_user(walletAddress);
-        // const contractOwner = await contract.get_owner();
+        const contractOwner = await contract.get_owner();
 
         const userConstruct = formatUser(user);
+        console.log(toHex(contractOwner));
 
         dispatch(setHasRegistered(true));
         dispatch(setCredential(userConstruct));
         dispatch(
           setContractOwner(
-            "0x025de235bcba49aa753587d4ae45f6d71908db9e2b4152dca1246b80516e88ad",
+            "0x25de235bcba49aa753587d4ae45f6d71908db9e2b4152dca1246b80516e88ad",
           ),
         );
       } catch (error) {

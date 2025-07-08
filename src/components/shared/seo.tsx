@@ -25,10 +25,8 @@ export const SEO: React.FC<SEOProps> = ({
   const seoTitle = title || pageConfig.title;
   const seoDescription =
     description ||
-    ("description" in pageConfig
-      ? pageConfig.description
-      : siteConfig.sitemap.default.description) ||
-    "";
+    pageConfig.description ||
+    siteConfig.sitemap.default.description;
   const fullTitle = override
     ? seoTitle
     : `${seoTitle} • ${siteConfig.sitemap.default.title}`;
@@ -95,6 +93,7 @@ export const SEO: React.FC<SEOProps> = ({
             siteConfig.social.linkedin,
             siteConfig.social.youtube,
             siteConfig.social.instagram,
+            siteConfig.social.telegram,
           ],
         })}
       </script>

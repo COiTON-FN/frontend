@@ -25,15 +25,15 @@ const ListingCard = ({
       <motion.div
         variants={{
           initial: { opacity: 0, y: 100 },
-          animate: {
+          animate: (index: number) => ({
             opacity: 1,
             y: 0,
             transition: {
-              delay: 0.05 * (index ?? 1),
+              delay: 0.04 * (index ?? 1),
               duration: 0.9,
               type: "spring",
             },
-          },
+          }),
         }}
         initial="initial"
         whileInView="animate"
@@ -126,7 +126,7 @@ const ListingCard = ({
                 )}
               </div>
               <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                {truncateAddr(owner_details?.address, 8)}
+                {truncateAddr(owner_details?.address)}
               </p>
             </div>
           </div>

@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Dialog,
   DialogClose,
@@ -39,14 +39,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { RxOpenInNewWindow } from "react-icons/rx";
-import { toast } from "sonner";
 import { Phone } from "lucide-react";
 import { SEO } from "@/components/shared/seo";
 import { ClipboardCopy } from "@/components/shared/clipboard-copy";
-// import { contract } from "@/utils/contract";
-// import { stringToByteArray } from "@/lib/starknet/utils";
-// import { BigNumberish, ec, hash } from "starknet";
-// import { useContractInstance } from "@/hooks/useContractInstance.hook";
+import { contract } from "@/utils/contract";
+import { stringToByteArray } from "@/lib/starknet/utils";
+import { BigNumberish, ec, hash } from "starknet";
+import { useContractInstance } from "@/hooks/useContractInstance.hook";
+import { SearchInput } from "@/components/shared/search-input";
+import { useSearchFilter } from "@/hooks/useSearchFilter.hook";
 
 function UserCard({ user }: { user: User }) {
   const isVerified = user.verified;
@@ -129,7 +130,7 @@ function VerifyUserModal({
   user: User;
   children: ReactNode;
 }) {
-  // const { getContractInstance } = useContractInstance();
+  const { getContractInstance } = useContractInstance();
 
   const form = useForm<z.infer<typeof verificationSchema>>({
     resolver: zodResolver(verificationSchema),
@@ -143,35 +144,40 @@ function VerifyUserModal({
   } = form;
 
   async function onSubmit(values: z.infer<typeof verificationSchema>) {
-    await new Promise((r) => setTimeout(r, 1000));
-    console.log(values);
-    toast.success("Account verified successfully");
+    // await new Promise((r) => setTimeout(r, 1000));
+    // toast.success("Account verified successfully");
 
-    // const contractInstance = getContractInstance();
+    const contractInstance = getContractInstance();
 
-    // const data = {
-    //   signer: "",
-    //   payload: {
-    //     entryPoint: "verify_user",
-    //     contractAddress: contract.daoAddress,
-    //     calldata: [user.address],
-    //   },
-    // };
+    const data = {
+      signer: "",
+      payload: {
+        entryPoint: "verify_user",
+        contractAddress: contract.daoAddress as string,
+        calldata: [user.address],
+      },
+    };
 
-    // const message: BigNumberish[] = stringToByteArray(
-    //   JSON.stringify(data.payload),
-    // ).split(",");
+    const call = contractInstance!.populate(
+      data.payload.entryPoint,
+      data.payload.calldata,
+    );
 
-    // const msgHash = hash.computeHashOnElements(message);
-    // const signature = ec.starkCurve.sign(msgHash, values.key);
-    // const signer = ec.starkCurve.getStarkKey(values.key);
+    const message: BigNumberish[] = stringToByteArray(
+      JSON.stringify(data.payload),
+    ).split(",");
 
-    // await contractInstance.invoke("verify_user", {
-    //   address: user.address,
-    //   signature_r: signature[0],
-    //   signature_s: signature[1],
-    //   signer_key: signer,
-    // });
+    const msgHash = hash.computeHashOnElements(message);
+    const signature = ec.starkCurve.sign(msgHash, values.key);
+    const signer = ec.starkCurve.getStarkKey(values.key);
+
+    console.log({ call, msgHash, signature, signer });
+
+    const account = window.Wallet.Account;
+
+    const result = await account?.execute(call);
+
+    console.log(result);
   }
 
   return (
@@ -277,11 +283,11 @@ function VerifyUserModal({
             <FormField
               control={form.control}
               name="key"
-              disabled={isSubmitting}
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <Input
+                      disabled={isSubmitting}
                       type="password"
                       placeholder="Enter your private key"
                       error={!!errors.key}
@@ -325,17 +331,19 @@ function VerifyUserModal({
 }
 
 const filterTypes = [
-  { label: "Default", value: "all" },
-  { label: "Entities", value: "entity" },
-  { label: "Individuals", value: "individual" },
-  { label: "Verified Accounts", value: "verified" },
+  { label: "All Users", value: "default" },
+  { label: "– Entities –", value: "entity" },
+  { label: "– Individuals –", value: "individual" },
+  { label: "– Verified Accounts –", value: "verified" },
 ];
 
 export default function UsersPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const init = (key: string, def: string) => searchParams.get(key) ?? def;
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState(init("type", "default"));
+
   const users = useAppSelector((state: RootState) => state.users.users);
   const contractOwner = useAppSelector(
     (state: RootState) => state.wallet.contractOwner,
@@ -348,18 +356,25 @@ export default function UsersPage() {
     String(credential?.address).toLowerCase() ===
     String(contractOwner).toLowerCase();
 
-  const filteredUsers = users
-    .filter((user) => {
-      if (filter === "entity") return user.user_type === "Entity";
-      if (filter === "individual") return user.user_type === "Individual";
-      if (filter === "verified") return user.verified;
-      return true;
-    })
-    .filter(
-      (user) =>
-        user.details.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.address.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
+  const filteredUsers = users.filter((user) => {
+    if (typeFilter === "entity") return user.user_type === "Entity";
+    if (typeFilter === "individual") return user.user_type === "Individual";
+    if (typeFilter === "verified") return user.verified;
+    return true;
+  });
+
+  const { search, setSearch, filtered } = useSearchFilter(
+    filteredUsers,
+    [(l) => l.address, (l) => l?.details?.name],
+    init("search", ""),
+  );
+
+  useEffect(() => {
+    const params: Record<string, string> = {};
+    if (typeFilter !== "default") params.tag = typeFilter;
+    if (search) params.search = search;
+    setSearchParams(params, { replace: true });
+  }, [typeFilter, search, setSearchParams]);
 
   useEffect(() => {
     if (!isContractOwner) navigate("/dashboard", { replace: true });
@@ -369,79 +384,78 @@ export default function UsersPage() {
     <Fragment>
       <SEO title="Accounts" />
 
-      <div className="flex flex-col gap-8 py-6">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="w-full max-w-md">
-            <Input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+      <div className="py-6">
+        <div className="flex flex-col gap-8 rounded-2xl py-6 md:rounded-3xl md:border md:bg-background md:px-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <SearchInput
+              value={search}
+              onValueChange={setSearch}
               placeholder={`Search ${
-                filter === "all" ? "users" : filter
+                typeFilter === "default" ? "users" : typeFilter
               } by name or address...`}
-              className="px-5"
+              className="w-full lg:max-w-md"
             />
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="!h-14 w-full !rounded-full !text-sm md:max-w-[200px]">
+                <SelectValue placeholder="Select user type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {filterTypes.map((type) => (
+                    <SelectItem
+                      key={type.value}
+                      value={type.value}
+                      className="text-sm"
+                    >
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
-          <Select onValueChange={setFilter} defaultValue={filter}>
-            <SelectTrigger className="!h-12 w-full !text-sm sm:w-[200px]">
-              <SelectValue placeholder="Select user type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {filterTypes.map((type) => (
-                  <SelectItem
-                    key={type.value}
-                    value={type.value}
-                    className="text-sm"
-                  >
-                    {type.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
 
-        <section>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
-            {users.length === 0 ? (
-              Array.from({ length: 12 }).map((_, index) => (
-                <Skeleton
-                  key={index}
-                  className="h-24 w-full rounded-xl p-4 sm:bg-background"
-                />
-              ))
-            ) : filteredUsers.length > 0 ? (
-              filteredUsers.map((user, index) => (
-                <motion.div
-                  variants={{
-                    initial: { opacity: 0, y: 100 },
-                    animate: (index: number) => ({
-                      opacity: 1,
-                      y: 0,
-                      transition: {
-                        delay: 0.05 * index,
-                        duration: 0.9,
-                        type: "spring",
-                      },
-                    }),
-                  }}
-                  initial="initial"
-                  whileInView="animate"
-                  viewport={{ once: true }}
-                  custom={index}
-                  key={user.id ?? index}
-                >
-                  <UserCard key={user.id ?? index} user={user} />
-                </motion.div>
-              ))
-            ) : (
-              <p className="col-span-full text-base">
-                No users match the filter.
-              </p>
-            )}
-          </div>
-        </section>
+          <section className="overflow-clip">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+              {users.length === 0 ? (
+                Array.from({ length: 12 }).map((_, index) => (
+                  <Skeleton
+                    key={index}
+                    className="h-24 w-full rounded-xl p-4 sm:bg-background"
+                  />
+                ))
+              ) : filtered.length > 0 ? (
+                filtered.map((user, index) => (
+                  <motion.div
+                    variants={{
+                      initial: { opacity: 0, y: 100 },
+                      animate: (index: number) => ({
+                        opacity: 1,
+                        y: 0,
+                        transition: {
+                          delay: 0.03 * (index ?? 1),
+                          duration: 0.9,
+                          type: "spring",
+                        },
+                      }),
+                    }}
+                    initial="initial"
+                    whileInView="animate"
+                    viewport={{ once: true }}
+                    custom={index}
+                    key={user.id ?? index}
+                  >
+                    <UserCard key={user.id ?? index} user={user} />
+                  </motion.div>
+                ))
+              ) : (
+                <p className="col-span-full text-base">
+                  No users match the filter.
+                </p>
+              )}
+            </div>
+          </section>
+        </div>
       </div>
     </Fragment>
   );

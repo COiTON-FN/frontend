@@ -48,11 +48,6 @@ export default function PropertyDetailsPage() {
   );
   const { getContractInstance } = useContractInstance();
 
-  const [content, setContent] = useState({
-    url: window.location.href,
-    message: "",
-  });
-
   function configureVars(_listing: Listing) {
     setAddresses([
       {
@@ -184,11 +179,8 @@ export default function PropertyDetailsPage() {
 
   useEffect(() => {
     fetchPurchaseRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
-
-  useEffect(() => {
-    setContent({ ...content, message: listing?.details?.title });
-  }, [listing]);
 
   const { credential } = useAppSelector((state: RootState) => state.credential);
 
@@ -221,7 +213,7 @@ export default function PropertyDetailsPage() {
         {/* Details */}
         <Details
           listing={listing}
-          content={content}
+          shareUrl={window.location.href}
           isLoadingRequests={isLoadingRequests}
           purchaseRequests={purchaseRequests}
           setPurchaseRequests={setPurchaseRequests}
@@ -329,7 +321,7 @@ export default function PropertyDetailsPage() {
 
         {/* AGENT DETAILS & MAP */}
         <div className="flex flex-1 flex-col gap-5 sm:rounded-2xl sm:border sm:bg-background sm:p-6 md:rounded-3xl md:p-10">
-          <div className="flex w-full flex-row gap-6">
+          <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
             <div className="flex flex-1 flex-col gap-7 rounded-2xl border bg-background p-6 dark:bg-neutral-950 sm:p-8">
               <div className="flex flex-col gap-3">
                 <p className="text-xl font-medium">Property Agent</p>

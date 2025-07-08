@@ -2,7 +2,10 @@ import { assets } from "@/assets";
 import { SEO } from "@/components/shared/seo";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { siteConfig } from "@/config/site.config";
 import React from "react";
+import { RiUserCommunityFill } from "react-icons/ri";
+import { Link } from "react-router-dom";
 
 export default function TradingPage() {
   return (
@@ -11,7 +14,7 @@ export default function TradingPage() {
 
       <div className="flex flex-col gap-4 py-4">
         <div className="relative flex h-[300px] w-full items-center overflow-clip rounded-2xl border bg-background p-[1px] md:h-[363px] md:rounded-3xl">
-          <div className="space-y-1 px-10 py-11 md:px-16">
+          <div className="space-y-1 p-10 lg:p-16">
             <svg
               width="227"
               height="153"
@@ -94,8 +97,8 @@ export default function TradingPage() {
 
         <Separator className="my-2 h-px w-full" />
 
-        <div className="relative grid grid-cols-1 gap-8 overflow-clip rounded-2xl bg-[#08847B] p-8 text-white md:gap-10 md:rounded-3xl md:p-10 lg:grid-cols-2 xl:grid-cols-3">
-          <div className="hidden h-max flex-1 rounded-2xl bg-primary lg:flex xl:col-span-2">
+        <div className="relative grid grid-cols-1 gap-5 overflow-clip rounded-2xl bg-[#08847B] p-5 text-white sm:gap-6 sm:p-6 md:gap-8 md:rounded-3xl md:p-8 lg:grid-cols-2 lg:gap-10 lg:p-10 xl:grid-cols-3">
+          <div className="h-max flex-1 rounded-2xl bg-primary xl:col-span-2">
             <img
               src="/blocks.svg"
               alt="blocks"
@@ -108,44 +111,27 @@ export default function TradingPage() {
           <div className="flex w-full flex-col justify-between gap-6">
             <div className="flex flex-col gap-2">
               <h2 className="font-normal">Coming Soon</h2>
-              <p className="text-base font-normal">
-                We are working 24/7 to make sure that this update drops ASAP.
+              <p className="text-sm font-normal md:text-base">
+                Implementing this functionality is a top priority for the team.
               </p>
             </div>
 
             <div className="flex flex-col gap-2">
-              <p className="text-center">
-                Click link to get notified when we drop the sweetness
-              </p>
-              <Button
-                size={"lg"}
-                variant={"secondary"}
-                className="rounded-full"
+              <p className="text-center">Want to get notified?</p>
+              <Link
+                to={siteConfig.social.telegram}
+                target="_blank"
+                className="w-full"
               >
-                <span className="text-primary">Join Waitlist</span>
-                <svg
-                  width="24"
-                  height="23"
-                  viewBox="0 0 24 23"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+                <Button
+                  size={"lg"}
+                  variant={"black"}
+                  className="group w-full rounded-full"
                 >
-                  <path
-                    d="M11.126 3.10059C7.71996 3.10672 5.93636 3.19035 4.7965 4.33039C3.56641 5.56069 3.56641 7.54082 3.56641 11.501C3.56641 15.4613 3.56641 17.4415 4.7965 18.6717C6.02659 19.9021 8.00641 19.9021 11.9661 19.9021C15.9256 19.9021 17.9055 19.9021 19.1356 18.6717C20.2754 17.5317 20.359 15.7478 20.3652 12.3412"
-                    stroke="#056F67"
-                    strokeWidth="1.58333"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M19.9525 3.5631L11.0781 12.489M19.9525 3.5631C19.4914 3.10142 16.3852 3.14445 15.7286 3.1538M19.9525 3.5631C20.4136 4.02479 20.3706 7.13496 20.3612 7.79248"
-                    stroke="#056F67"
-                    strokeWidth="1.58333"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Button>
+                  <span>Join the Community</span>
+                  <RiUserCommunityFill className="size-5 transition-all duration-300 group-hover:rotate-[360deg]" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

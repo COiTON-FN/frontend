@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { variants } from "@/utils/constants";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { BsInbox } from "react-icons/bs";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import ListingCard from "@/components/shared/listing-card";
@@ -15,7 +14,7 @@ import { SEO } from "@/components/shared/seo";
 
 export default function DashboardPage() {
   const { fadeIn } = variants;
-  const { listings, isLoading } = useAppSelector((state) => state.listing);
+  const { listings } = useAppSelector((state) => state.listing);
 
   return (
     <React.Fragment>
@@ -138,65 +137,57 @@ export default function DashboardPage() {
 
         <Separator className="my-2 h-px w-full" />
 
-        <div className="rounded-2xl md:rounded-3xl md:border md:bg-background">
-          {isLoading ? (
-            <div className="mx-auto grid grid-cols-1 gap-4 overflow-y-auto py-6 md:gap-6 md:p-6 lg:grid-cols-2 2xl:grid-cols-3">
-              {[...new Array(3)].map((_, _index) => (
-                <div
-                  key={_index}
-                  className="group rounded-[24px] bg-white dark:bg-neutral-900"
-                >
-                  <Skeleton className="relative aspect-[1.6] w-full overflow-hidden rounded-[inherit] bg-secondary" />
+        <div className="flex flex-col gap-8 rounded-2xl py-6 md:rounded-3xl md:border md:bg-background md:px-8">
+          <Link to="/properties" className="ml-auto">
+            <Button className="px-5" variant={"black"}>
+              See All Properties
+            </Button>
+          </Link>
 
-                  <div className="flex flex-col gap-4 p-6 md:gap-6">
-                    <Skeleton className="text-xl font-bold leading-none tracking-wide text-primary md:text-2xl" />
+          <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2 2xl:grid-cols-3">
+            {listings.length === 0
+              ? [...new Array(3)].map((_, _index) => (
+                  <div key={_index} className="group rounded-[24px]">
+                    <Skeleton className="relative aspect-[1.6] w-full overflow-hidden rounded-[inherit] bg-secondary" />
 
-                    <div className="flex flex-col gap-2">
-                      <Skeleton className="h-8 w-[90%]" />
-                      <Skeleton className="h-6 w-[50%]" />
-                    </div>
+                    <div className="flex flex-col gap-4 p-6 md:gap-6">
+                      <Skeleton className="text-xl font-bold leading-none tracking-wide text-primary md:text-2xl" />
 
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex flex-1 items-center justify-start gap-2">
-                        <Skeleton className="size-6 rounded-full" />
-
-                        <Skeleton className="h-6 flex-1" />
+                      <div className="flex flex-col gap-2">
+                        <Skeleton className="h-8 w-[90%]" />
+                        <Skeleton className="h-6 w-[50%]" />
                       </div>
-                      <div className="flex flex-1 items-center justify-center gap-2">
-                        <Skeleton className="size-6 rounded-full" />
 
-                        <Skeleton className="h-6 flex-1" />
-                      </div>
-                      <div className="flex flex-1 items-center justify-end gap-2">
-                        <Skeleton className="size-6 rounded-full" />
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex flex-1 items-center justify-start gap-2">
+                          <Skeleton className="size-6 rounded-full" />
 
-                        <Skeleton className="h-6 flex-1" />
+                          <Skeleton className="h-6 flex-1" />
+                        </div>
+                        <div className="flex flex-1 items-center justify-center gap-2">
+                          <Skeleton className="size-6 rounded-full" />
+
+                          <Skeleton className="h-6 flex-1" />
+                        </div>
+                        <div className="flex flex-1 items-center justify-end gap-2">
+                          <Skeleton className="size-6 rounded-full" />
+
+                          <Skeleton className="h-6 flex-1" />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : listings.length === 0 ? (
-            <div className="flex aspect-[3.2] w-full flex-col items-center justify-center">
-              <BsInbox className="size-24 text-muted-foreground" />
-              <p className="text-xl font-medium text-muted-foreground">
-                No active property
-              </p>
-            </div>
-          ) : (
-            <div className="mx-auto grid grid-cols-1 gap-4 overflow-y-auto py-6 md:gap-6 md:p-6 lg:grid-cols-2 2xl:grid-cols-3">
-              {listings.slice(0, 3)?.map((listing: Listing, index: number) => {
-                return (
-                  <ListingCard
-                    key={listing.id}
-                    listing={listing}
-                    index={index}
-                  />
-                );
-              })}
-            </div>
-          )}
+                ))
+              : listings.slice(0, 3)?.map((listing: Listing, index: number) => {
+                  return (
+                    <ListingCard
+                      key={listing.id}
+                      listing={listing}
+                      index={index}
+                    />
+                  );
+                })}
+          </div>
         </div>
       </div>
     </React.Fragment>
