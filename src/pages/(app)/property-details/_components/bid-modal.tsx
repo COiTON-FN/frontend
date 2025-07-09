@@ -143,7 +143,7 @@ export const BidModal: FC<BidModalProps> = ({
         return;
       }
 
-      if (walletAddress?.toLowerCase() === listing?.owner.toLowerCase()) {
+      if (credential.address?.toLowerCase() === listing?.owner.toLowerCase()) {
         toast.error("Owner can not perform action");
         return;
       }

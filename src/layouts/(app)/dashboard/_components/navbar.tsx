@@ -3,8 +3,8 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { RootState } from "@/store";
-import { ChevronDown } from "lucide-react";
-import { Fragment, memo, useEffect, useState } from "react";
+import { ChevronDown, Search } from "lucide-react";
+import { Fragment, memo, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   DropdownMenu,
@@ -25,7 +25,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { IoWalletOutline } from "react-icons/io5";
 import { HiOutlineUser } from "react-icons/hi2";
 import { useWalletHook } from "@/hooks/useWallet.hook";
@@ -42,14 +42,11 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ClipboardCopy } from "@/components/shared/clipboard-copy";
 import { useTheme } from "@/components/provider/theme.provider";
-import { SearchInput } from "@/components/shared/search-input";
 import { siteConfig } from "@/config/site.config";
+import { GlobalSearch } from "@/components/shared/global-search";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
-  const [searchParams] = useSearchParams();
-  const init = (key: string, def: string) => searchParams.get(key) ?? def;
-  const [searchValue, setSearchValue] = useState<string>(init("search", ""));
 
   const isDark = theme === "dark";
 
@@ -87,15 +84,22 @@ const Navbar = () => {
   return (
     <div className="sticky left-0 top-0 z-30 h-20 w-full border-b border-[#EAECF0] bg-background/80 backdrop-blur-xl dark:border-border sm:bg-background sm:backdrop-blur-0">
       <MaxWrapper className="flex h-full items-center gap-6">
-        <div className="flex h-full w-full max-w-sm items-center gap-3 xl:max-w-md">
+        <div className="flex h-full max-w-sm flex-1 items-center gap-3 xl:max-w-md">
           <SidebarTrigger className="rounded-full" />
           <Separator className="hidden h-[30%] w-px lg:flex" />
-          <SearchInput
-            placeholder="Search property by title or owner"
-            className="hidden flex-1 lg:flex"
-            value={searchValue}
-            onValueChange={setSearchValue}
-          />
+
+          <GlobalSearch>
+            <div className="relative flex h-11 w-max items-center gap-3 rounded-full border px-3 xl:h-14 xl:px-4">
+              <Search className="size-[21px] text-muted-foreground" />
+              <p className="hidden font-normal text-muted-foreground xl:flex">
+                Search for people and listings...
+              </p>
+
+              <kbd className="pointer-events-none ml-4 inline-flex h-5 select-none items-center gap-1 rounded bg-neutral-100 px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 dark:bg-neutral-800 xl:ml-6">
+                <span className="mt-px text-sm">⌘</span>J
+              </kbd>
+            </div>
+          </GlobalSearch>
         </div>
 
         <div className="flex h-full flex-1 items-center justify-end gap-3">
@@ -116,7 +120,7 @@ const Navbar = () => {
                         src={generateAvatarFromAddress(
                           credentialStore?.address as string,
                         )}
-                        alt={credentialStore?.avatar}
+                        alt={credentialStore?.address}
                         width={48}
                         height={48}
                         className="rounded-full object-contain"

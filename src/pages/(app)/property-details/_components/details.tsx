@@ -112,7 +112,6 @@ export const Details: React.FC<DetailsProps> = ({
           )}
 
           <SharePopup
-            title={listing?.details?.title}
             shareUrl={shareUrl}
             platforms={[
               "facebook",
