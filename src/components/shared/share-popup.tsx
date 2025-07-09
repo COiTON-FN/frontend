@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ClipboardCopy } from "./clipboard-copy";
+import { useIsMobileHook } from "@/hooks/useMobile.hook";
 
 type SharePlatform =
   | "facebook"
@@ -31,7 +32,6 @@ type ShareTo = SharePlatform[];
 interface SharePopupProps {
   children: React.ReactNode;
   shareUrl: string;
-  title?: string;
   platforms: ShareTo;
 }
 
@@ -73,17 +73,18 @@ export const SharePopup: React.FC<SharePopupProps> = ({
   children,
   shareUrl,
   platforms,
-  title,
 }) => {
+  const isMobile = useIsMobileHook(640);
+
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
-        align="end"
+        align={isMobile ? "center" : "end"}
         sideOffset={10}
-        className="flex flex-col gap-4 rounded-3xl p-6 sm:gap-6"
+        className="flex w-[calc(100%-20px)] flex-col gap-4 rounded-3xl p-6 sm:w-full sm:gap-6"
       >
-        <div className="mx-auto flex items-center gap-4 sm:gap-5">
+        <div className="mx-auto flex items-center justify-evenly gap-4 sm:gap-5">
           {platforms.map((platform) => {
             const { Button, label, icon: Icon } = shareConfig[platform];
 
@@ -102,13 +103,11 @@ export const SharePopup: React.FC<SharePopupProps> = ({
           })}
         </div>
 
-        <div className="flex h-12 w-full items-center rounded-lg bg-secondary px-4 py-1 dark:bg-neutral-900">
-          <ClipboardCopy
-            value={shareUrl}
-            className="flex w-full !flex-row !justify-between gap-4"
-          >
-            <p className="max-w-[230px] truncate text-xs sm:text-sm">{title}</p>
-          </ClipboardCopy>
+        <div className="flex h-12 max-w-xs items-center justify-between overflow-hidden rounded-lg bg-secondary px-4 py-1 dark:bg-neutral-900 sm:max-w-sm">
+          <p className="flex-1 truncate text-sm">{shareUrl}</p>
+          <div className="flex h-12 items-center justify-center bg-secondary dark:bg-neutral-900">
+            <ClipboardCopy value={shareUrl} size={18} />
+          </div>
         </div>
       </PopoverContent>
     </Popover>

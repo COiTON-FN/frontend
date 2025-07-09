@@ -61,14 +61,20 @@ export const ClipboardCopy: React.FC<ClipboardCopyProps> = ({
       </span>
 
       {isCopying ? (
-        <Loader size={size} className="animate-spin cursor-progress" />
+        <Loader
+          style={{ width: `${size}px`, height: `${size}px` }}
+          className="animate-spin cursor-progress"
+        />
       ) : isCopiedSuccessfully ? (
         <TbCopyCheckFilled
-          size={size}
+          style={{ width: `${size}px`, height: `${size}px` }}
           className="cursor-not-allowed text-primary"
         />
       ) : (
-        <TbCopy size={size} className="cursor-pointer" />
+        <TbCopy
+          style={{ width: `${size}px`, height: `${size}px` }}
+          className="cursor-pointer"
+        />
       )}
     </div>
   );

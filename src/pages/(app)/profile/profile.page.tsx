@@ -220,7 +220,7 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="mt-6 flex flex-wrap items-center justify-between gap-4 sm:mt-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2">
                       {credential?.details?.socials?.map((social: SOCIAL) => {
                         const IconComponent = (() => {
                           switch (social.type) {
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                             <Button
                               variant={"outline"}
                               size={"icon"}
-                              className="size-10 border-primary text-primary hover:bg-transparent hover:text-primary sm:size-11"
+                              className="size-10 border-primary text-primary hover:bg-transparent hover:text-primary md:size-11"
                             >
                               <IconComponent className="size-4" />
                             </Button>
@@ -258,7 +258,6 @@ export default function ProfilePage() {
                     </div>
 
                     <SharePopup
-                      title={credential?.details.name}
                       shareUrl={`${window.location.origin}/profile?address=${credential?.address}`}
                       platforms={[
                         "facebook",
@@ -274,8 +273,8 @@ export default function ProfilePage() {
                           className: "!gap-2",
                         })}
                       >
-                        <RiLink className="size-[18px]" />
-                        <span>Copy profile url</span>
+                        <RiLink className="size-4" />
+                        <span>Share Profile</span>
                       </button>
                     </SharePopup>
                   </div>

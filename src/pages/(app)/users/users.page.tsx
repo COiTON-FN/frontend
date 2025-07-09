@@ -1,6 +1,4 @@
 import { motion } from "framer-motion";
-import { MdVerified } from "react-icons/md";
-import { generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -41,55 +39,29 @@ import {
 import { RxOpenInNewWindow } from "react-icons/rx";
 import { Phone } from "lucide-react";
 import { SEO } from "@/components/shared/seo";
-import { ClipboardCopy } from "@/components/shared/clipboard-copy";
 import { contract } from "@/utils/contract";
 import { stringToByteArray } from "@/lib/starknet/utils";
 import { BigNumberish, ec, hash } from "starknet";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { SearchInput } from "@/components/shared/search-input";
 import { useSearchFilter } from "@/hooks/useSearchFilter.hook";
+import { UserAvatar } from "@/components/shared/user-avatar";
 
 function UserCard({ user }: { user: User }) {
   const isVerified = user.verified;
 
   return (
     <div className="group relative rounded-[18px] border bg-background shadow-sm transition-shadow duration-200 hover:shadow-lg">
-      <div className="flex items-start gap-3 border-b p-4">
-        <Link
-          to={`/profile?address=${user?.address}`}
-          className="size-12 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]"
-        >
-          <div className="size-full rounded-full bg-background p-[2.5px]">
-            <img
-              src={generateAvatarFromAddress(user?.address)}
-              alt={user?.details.name}
-              width={64}
-              height={64}
-              className="size-full rounded-full object-contain"
-            />
-          </div>
+      <div className="border-b p-4">
+        <Link to={`/profile?address=${user?.address}`}>
+          <UserAvatar
+            user={user}
+            parentClass="gap-3"
+            avatarClass="size-12"
+            nameClass="text-base line-clamp-1 font-medium text-foreground group-hover:text-primary transition-colors"
+            addrClass="text-sm font-medium"
+          />
         </Link>
-
-        <div className="flex flex-1 flex-col justify-center">
-          <Link
-            to={`/profile?address=${user?.address}`}
-            className="flex items-center gap-2"
-          >
-            <p className="line-clamp-1 text-base font-medium text-foreground transition-colors group-hover:text-primary">
-              {user.details.name}
-            </p>
-            {isVerified && <MdVerified className="mt-px size-4 text-primary" />}
-          </Link>
-          <ClipboardCopy
-            value={user.address}
-            className="text-sm font-medium text-muted-foreground"
-            size={14}
-          >
-            {truncateAddr(user.address)}
-          </ClipboardCopy>
-        </div>
-
-        <p className="text-sm font-medium text-primary">{user.user_type}</p>
       </div>
 
       <div className="flex items-center justify-between p-4">
@@ -193,38 +165,16 @@ function VerifyUserModal({
         </DialogHeader>
 
         <div className="rounded-xl bg-secondary p-4 dark:bg-neutral-900">
-          <div className="mb-4 flex items-start gap-3 border-b pb-4">
-            <div className="size-12 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-[2.5px]">
-              <div className="size-full rounded-full bg-background p-[2.5px]">
-                <img
-                  src={generateAvatarFromAddress(user?.address)}
-                  alt={user?.details.name}
-                  width={64}
-                  height={64}
-                  className="size-full rounded-full object-contain"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-1 flex-col justify-center">
-              <div className="flex items-center gap-2">
-                <p className="text-base font-medium text-foreground transition-colors group-hover:text-primary">
-                  {user.details.name}
-                </p>
-                {user?.verified && (
-                  <MdVerified className="mt-px size-4 text-primary" />
-                )}
-              </div>
-              <ClipboardCopy
-                value={user.address}
-                className="text-xs font-medium text-muted-foreground"
-                size={14}
-              >
-                {truncateAddr(user.address)}
-              </ClipboardCopy>
-            </div>
-
-            <p className="text-sm font-medium text-primary">{user.user_type}</p>
+          <div className="mb-4 border-b pb-4">
+            <UserAvatar
+              copyAddr
+              user={user}
+              copySize={14}
+              parentClass="gap-3"
+              avatarClass="size-12"
+              nameClass="text-base line-clamp-1 font-medium text-foreground group-hover:text-primary transition-colors"
+              addrClass="text-sm font-medium"
+            />
           </div>
 
           <div className="flex flex-col gap-2.5">
@@ -385,7 +335,7 @@ export default function UsersPage() {
       <SEO title="Accounts" />
 
       <div className="py-6">
-        <div className="flex flex-col gap-8 rounded-2xl py-6 md:rounded-3xl md:border md:bg-background md:px-8">
+        <div className="flex flex-col gap-8 overflow-clip rounded-2xl py-6 md:rounded-3xl md:border md:bg-background md:px-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <SearchInput
               value={search}
@@ -415,45 +365,43 @@ export default function UsersPage() {
             </Select>
           </div>
 
-          <section className="overflow-clip">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
-              {users.length === 0 ? (
-                Array.from({ length: 12 }).map((_, index) => (
-                  <Skeleton
-                    key={index}
-                    className="h-24 w-full rounded-xl p-4 sm:bg-background"
-                  />
-                ))
-              ) : filtered.length > 0 ? (
-                filtered.map((user, index) => (
-                  <motion.div
-                    variants={{
-                      initial: { opacity: 0, y: 100 },
-                      animate: (index: number) => ({
-                        opacity: 1,
-                        y: 0,
-                        transition: {
-                          delay: 0.03 * (index ?? 1),
-                          duration: 0.9,
-                          type: "spring",
-                        },
-                      }),
-                    }}
-                    initial="initial"
-                    whileInView="animate"
-                    viewport={{ once: true }}
-                    custom={index}
-                    key={user.id ?? index}
-                  >
-                    <UserCard key={user.id ?? index} user={user} />
-                  </motion.div>
-                ))
-              ) : (
-                <p className="col-span-full text-base">
-                  No users match the filter.
-                </p>
-              )}
-            </div>
+          <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            {users.length === 0 ? (
+              Array.from({ length: 12 }).map((_, index) => (
+                <Skeleton
+                  key={index}
+                  className="h-24 w-full rounded-xl p-4 sm:bg-background"
+                />
+              ))
+            ) : filtered.length > 0 ? (
+              filtered.map((user, index) => (
+                <motion.div
+                  variants={{
+                    initial: { opacity: 0, y: 100 },
+                    animate: (index: number) => ({
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        delay: 0.03 * (index ?? 1),
+                        duration: 0.9,
+                        type: "spring",
+                      },
+                    }),
+                  }}
+                  initial="initial"
+                  whileInView="animate"
+                  viewport={{ once: true }}
+                  custom={index}
+                  key={user.id ?? index}
+                >
+                  <UserCard key={user.id ?? index} user={user} />
+                </motion.div>
+              ))
+            ) : (
+              <p className="col-span-full text-base">
+                No users match the filter.
+              </p>
+            )}
           </section>
         </div>
       </div>

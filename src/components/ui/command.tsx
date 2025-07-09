@@ -13,7 +13,7 @@ const Command = React.forwardRef<
   <CommandPrimitive
     ref={ref}
     className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground",
+      "flex h-full w-full flex-col overflow-hidden !rounded-2xl bg-background text-foreground sm:!rounded-3xl",
       className,
     )}
     {...props}
@@ -24,7 +24,7 @@ Command.displayName = CommandPrimitive.displayName;
 const CommandDialog = ({ children, ...props }: DialogProps) => {
   return (
     <Dialog {...props}>
-      <DialogContent className="overflow-hidden rounded-xl p-0 shadow-lg">
+      <DialogContent className="w-[calc(100%-20px)] overflow-hidden !rounded-2xl p-0 pb-1 shadow-lg sm:!rounded-3xl">
         <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           {children}
         </Command>
@@ -37,15 +37,18 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div className="flex items-center gap-4 border-b px-4" cmdk-input-wrapper="">
-    <RiSearch2Line className="size-5 shrink-0 opacity-50" />
+  <div
+    className="relative flex items-center gap-4 border-b p-2"
+    cmdk-input-wrapper=""
+  >
+    <RiSearch2Line className="absolute left-6 top-1/2 size-5 -translate-y-1/2 opacity-50" />
     <CommandPrimitive.Input
       ref={ref}
+      {...props}
       className={cn(
-        "flex h-14 w-full rounded-md bg-transparent py-3 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+        "flex !h-14 w-full rounded-lg border bg-background py-2 pl-12 pr-5 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl md:text-[15px]",
         className,
       )}
-      {...props}
     />
   </div>
 ));
@@ -113,7 +116,7 @@ const CommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex h-14 cursor-default select-none items-center gap-2 rounded-md px-4 text-base outline-none data-[disabled=true]:pointer-events-none data-[selected='true']:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+      "relative flex h-14 cursor-pointer select-none items-center gap-2 rounded-xl px-4 text-base outline-none data-[disabled=true]:pointer-events-none data-[selected='true']:bg-secondary data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 dark:data-[selected='true']:bg-neutral-900 dark:data-[selected=true]:text-foreground sm:rounded-2xl [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
       className,
     )}
     {...props}

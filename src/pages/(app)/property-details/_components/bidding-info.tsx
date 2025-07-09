@@ -30,14 +30,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { PurchaseRequest } from "@/store/slice/listing.slice";
-import { generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
+import { truncateAddr } from "@/lib/utils";
 import { ClipboardCopy } from "@/components/shared/clipboard-copy";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User } from "@/store/slice/credential.slice";
 import { Link } from "react-router-dom";
-import { MdVerified } from "react-icons/md";
 import { RiArrowUpDownLine } from "react-icons/ri";
 import { ApproveModal } from "./approve-modal";
+import { UserAvatar } from "@/components/shared/user-avatar";
 
 interface BiddingInfoProps {
   isLoadingRequests: boolean;
@@ -96,40 +96,27 @@ const baseColumns: ColumnDef<PurchaseRequest>[] = [
 
       if (!user) return null;
 
+      const structuredUser = {
+        ...user,
+        details: {
+          ...user.details,
+          name: user.details.name.split(" ")[0],
+        },
+      };
+
       return (
         <Link
-          to={`/profile?address=${user?.address}`}
+          to={`/profile?address=${structuredUser?.address}`}
           className="flex w-max items-center gap-2.5 md:gap-3"
         >
-          <div className="size-12 rounded-full bg-gradient-to-br from-primary via-teal-500 to-teal-300 p-0.5">
-            <div className="size-full rounded-full bg-background p-0.5">
-              <img
-                src={generateAvatarFromAddress(user?.address)}
-                alt={user?.details.name}
-                width={64}
-                height={64}
-                className="size-full rounded-full object-contain"
-              />
-            </div>
-          </div>
-          <div className="flex flex-1 flex-col justify-center">
-            <div className="flex items-center gap-2">
-              <p className="line-clamp-1 flex-1 text-base font-medium text-foreground transition-colors group-hover:text-primary">
-                <span className="hidden sm:flex md:hidden xl:flex">
-                  {user?.details.name}
-                </span>
-                <span className="sm:hidden md:flex xl:hidden">
-                  {user?.details?.name?.split(" ")[0]}
-                </span>
-              </p>
-              {user?.verified && (
-                <MdVerified className="mt-px size-4 text-primary" />
-              )}
-            </div>
-            <p className="hidden text-xs font-medium text-primary sm:flex">
-              {user?.user_type}
-            </p>
-          </div>
+          <UserAvatar
+            user={structuredUser}
+            parentClass="gap-2.5 md:gap-3"
+            avatarClass="size-10 md:size-12"
+            nameClass="font-medium text-sm md:text-base"
+            addrClass="text-xs"
+            copySize={14}
+          />
         </Link>
       );
     },
@@ -148,7 +135,7 @@ const baseColumns: ColumnDef<PurchaseRequest>[] = [
           value={address}
           message="Initiator's Address copied successfully"
         >
-          {truncateAddr(address, 8)}
+          {truncateAddr(address)}
         </ClipboardCopy>
       );
     },
@@ -165,7 +152,7 @@ const baseColumns: ColumnDef<PurchaseRequest>[] = [
         className="flex cursor-pointer select-none items-center justify-end gap-2"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        <span>Bid Amount</span>
+        <span>Amount</span>
         <RiArrowUpDownLine className="size-4" />
       </div>
     ),
@@ -178,7 +165,11 @@ const baseColumns: ColumnDef<PurchaseRequest>[] = [
         .format(amount)
         ?.split(".")[0];
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      return (
+        <div className="text-right text-xs font-medium text-primary sm:text-sm">
+          {formatted}
+        </div>
+      );
     },
   },
 ];
