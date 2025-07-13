@@ -191,7 +191,7 @@ export default function App() {
   }, [dispatch, getContractInstance, walletAddress]);
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <SonnerToast richColors theme="dark" />
       <NoticeToast />
       <RouterProvider router={routes} />
