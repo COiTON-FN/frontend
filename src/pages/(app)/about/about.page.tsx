@@ -60,7 +60,79 @@ export default function AboutPage() {
 
         <Separator className="my-2 h-px w-full" />
 
-        <div className="rounded-2xl md:rounded-3xl md:border md:bg-background"></div>
+        <div className="space-y-6 rounded-2xl pb-6 sm:space-y-8 sm:px-8 sm:py-6 md:rounded-3xl md:border md:bg-background md:px-10 md:py-10 lg:space-y-12">
+          <div className="flex flex-col gap-4 sm:gap-6 lg:gap-8 xl:flex-row xl:gap-10">
+            <div className="hidden max-w-sm flex-1 sm:flex">
+              <p className="text-base font-medium text-primary">About Us</p>
+            </div>
+
+            <div className="flex flex-1 flex-col gap-4">
+              <p className="text-2xl font-light leading-[1.4] sm:text-3xl sm:leading-[1.4] md:text-2xl md:leading-[1.3] lg:text-3xl lg:leading-[1.3]">
+                <span className="font-normal text-primary">
+                  We're more than just a Real-Estate Platform.
+                </span>{" "}
+                We're a <i>Decentralized Real-Estate Trading Platform</i>{" "}
+                designed to tokenize real estate properties using a secure smart
+                contract system.
+              </p>
+
+              <p className="max-w-3xl text-base font-normal opacity-60">
+                Coiton maintains the integrity of its asset pools by ensuring
+                that the total value of tokenized properties remains consistent
+                across all transactions. Coiton has an automated protocol that
+                incorporates low transaction fees. This architecture ensures
+                liquidity, security, and efficiency for real estate traders
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 sm:gap-6 lg:gap-8 xl:flex-row xl:gap-10">
+            <div className="w-full overflow-hidden rounded-2xl bg-gradient-to-l from-[#0D857C] to-[#0EB9AC] p-[1px] md:rounded-3xl xl:max-w-sm">
+              <div className="flex w-full flex-1 flex-col gap-2 overflow-hidden rounded-[inherit] bg-primary bg-gradient-to-br from-[#056F67] to-[#0AADA1] p-6 text-white">
+                <p className="text-2xl font-light sm:text-3xl md:text-2xl lg:text-3xl">
+                  Our mission is clear
+                </p>
+
+                <p className="text-base font-light text-[#B1EDE9]">
+                  To democratize real estate investing by utilizing blockchain
+                  technology to provide a safe, open, and welcoming marketplace.
+                </p>
+
+                <div className="mx-auto mt-8">
+                  <img
+                    src="/mission.avif"
+                    alt="Grow"
+                    width={300}
+                    height={205}
+                    className="object-contain"
+                    loading="eager"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-1 flex-col gap-2 rounded-2xl bg-secondary p-6 dark:bg-neutral-900 md:rounded-3xl">
+              <p className="text-2xl font-light sm:text-3xl md:text-2xl lg:text-3xl">
+                Our impact knows no bounds
+              </p>
+              <p className="mb-8 text-base font-light">
+                From integrating blockchain technology to real-time, borderless
+                transactions
+              </p>
+
+              <div className="m-auto">
+                <img
+                  src="/dot-map.png"
+                  alt="map"
+                  width={640}
+                  height={300}
+                  loading="eager"
+                  className="object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </React.Fragment>
   );

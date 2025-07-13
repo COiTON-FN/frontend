@@ -342,7 +342,10 @@ export const BiddingInfo: React.FC<BiddingInfoProps> = ({
           <TableBody>
             {isLoadingRequests ? (
               Array.from({ length: 6 }).map((_, index) => (
-                <TableRow key={index} className="hover:bg-transparent">
+                <TableRow
+                  key={index}
+                  className="hover:bg-transparent dark:hover:bg-transparent"
+                >
                   <TableCell colSpan={5} className="h-20">
                     <Skeleton className="size-full" />
                   </TableCell>
