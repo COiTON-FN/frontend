@@ -5,8 +5,9 @@ import {
     starkscan,
 } from "@starknet-react/core";
 import ControllerConnector from "@cartridge/connector/controller";
-import { FeeSource } from "@cartridge/controller"
+import { toSessionPolicies } from "@cartridge/controller"
 import { contract } from "@/utils/contract";
+import { constants } from "starknet";
 
 
 // Define session policies
@@ -44,12 +45,14 @@ const policies = {
     },
 }
 
+const sessions = toSessionPolicies(policies)
 // Initialize the connector
 const connector = new ControllerConnector({
-    policies,
-    feeSource: FeeSource.PAYMASTER,
-    // signupOptions: ["Argent"]
-    // rpc: 'https://api.cartridge.gg/x/starknet/sepolia',
+    policies: sessions,
+    defaultChainId: constants.StarknetChainId.SN_SEPOLIA,
+    chains: [{
+        rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia",
+    }],
 
 })
 
@@ -67,11 +70,12 @@ const provider = jsonRpcProvider({
     },
 })
 
+
 export function StarknetProvider({ children }: { children: React.ReactNode }) {
     return (
         <StarknetConfig
             autoConnect
-            chains={[mainnet, sepolia]}
+            chains={[sepolia]}
             provider={provider}
             connectors={[connector]}
             explorer={starkscan}

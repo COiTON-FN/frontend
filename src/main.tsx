@@ -10,12 +10,12 @@ import { StarknetProvider } from "./config/Catridge";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <HelmetProvider>
-      <Provider store={store}>
-        <StarknetProvider>
+    <StarknetProvider>
+      <HelmetProvider>
+        <Provider store={store}>
           <App />
-        </StarknetProvider>
-      </Provider>
-    </HelmetProvider>
+        </Provider>
+      </HelmetProvider>
+    </StarknetProvider>
   </StrictMode>
 );
