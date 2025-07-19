@@ -44,15 +44,17 @@ import { ClipboardCopy } from "@/components/shared/clipboard-copy";
 import { useTheme } from "@/components/provider/theme.provider";
 import { siteConfig } from "@/config/site.config";
 import { GlobalSearch } from "@/components/shared/global-search";
+import { useConnect, } from "@starknet-react/core";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
-
+  const { connect, connectors } = useConnect()
+  // const { disconnect } = useDisconnect()
   const isDark = theme === "dark";
 
   const navigate = useNavigate();
 
-  const { handleDisconnect, handleConnectWallet, isConnecting } =
+  const { handleDisconnect, isConnecting } =
     useWalletHook();
   const isMobile = useIsMobileHook();
 
@@ -70,7 +72,8 @@ const Navbar = () => {
   const connectWallet = async () => {
     try {
       if (window.Wallet?.IsConnected) return;
-      await handleConnectWallet();
+      // await handleConnectWallet();
+      connect({ connector: connectors[0] })
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {

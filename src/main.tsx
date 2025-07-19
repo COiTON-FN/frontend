@@ -6,12 +6,15 @@ import "@/styles/index.css";
 import store from "./store";
 import App from "./App";
 import { HelmetProvider } from "react-helmet-async";
+import { StarknetProvider } from "./config/Catridge";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HelmetProvider>
       <Provider store={store}>
-        <App />
+        <StarknetProvider>
+          <App />
+        </StarknetProvider>
       </Provider>
     </HelmetProvider>
   </StrictMode>
