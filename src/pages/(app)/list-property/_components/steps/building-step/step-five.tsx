@@ -32,13 +32,13 @@ import {
 } from "@/store/slice/new-listing.slice";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { variables } from "@/utils/variables";
 import { stringToByteArray } from "@/lib/starknet/utils";
-import { CairoCustomEnum, Call } from "starknet";
+import { CairoCustomEnum } from "starknet";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.hook";
 import { useNavigate } from "react-router-dom";
 import React from "react";
+import { executeFn } from "@/lib/execute";
 
 export default function BuildingStepFive() {
   const navigate = useNavigate();
@@ -50,7 +50,7 @@ export default function BuildingStepFive() {
     (state: RootState) => state.newListing.formData,
   );
 
-  const { getContractInstance } = useContractInstance();
+  const { getWalletProviderContract } = useContractInstance();
   const { onUpload } = useUploadFileToPinataHook();
 
   const form = useForm<BuildingFormSchemaProps>({
@@ -153,48 +153,60 @@ export default function BuildingStepFive() {
 
       const detailsBytes = stringToByteArray(JSON.stringify(result));
       const type = new CairoCustomEnum({ Building: {} });
-      const contractInstance = getContractInstance();
-
-      if (!contractInstance) {
+      // const contractInstance = getContractInstance();
+      const contract_ = getWalletProviderContract();
+      if (!contract_) {
         throw new Error("Contract instance not available");
       }
 
-      const calls: Call = contractInstance.populate("create_listing", [
-        type,
-        formFields.price!,
-        detailsBytes,
-      ]);
+      // const calls: Call = contractInstance.populate("create_listing", [
+      // type,
+      // formFields.price!,
+      // detailsBytes,
+      // ]);
 
-      const account = window.Wallet.Account;
-      if (!account) {
-        throw new Error("Wallet not connected!");
-      }
+      // const account = window.Wallet.Account;
+      // if (!account) {
+      //   throw new Error("Wallet not connected!");
+      // }
 
-      const callPayload = await account.getOutsideExecutionPayload({
-        calls: [calls],
+      // const callPayload = await account.getOutsideExecutionPayload({
+      //   calls: [calls],
+      // });
+      // console.log({ callPayload });
+
+      // const response = await fetch(
+      //   `${variables.renderEndpoint}/contract/execute`,
+      //   {
+      //     headers: {
+      //       Accept: "application/json",
+      //       "Content-Type": "application/json",
+      //     },
+      //     method: "POST",
+      //     body: JSON.stringify(callPayload),
+      //     redirect: "follow",
+      //   },
+      // );
+
+      // console.log("ENDPOINT CALLED");
+      // const txResult = await response.json();
+
+      const txResult = await executeFn({
+        entrypoint: "create_listing",
+        calldata: [
+          type,
+          formFields.price!,
+          detailsBytes,
+        ],
+        contract: contract_,
       });
-      console.log({ callPayload });
 
-      const response = await fetch(
-        `${variables.renderEndpoint}/contract/execute`,
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify(callPayload),
-          redirect: "follow",
-        },
-      );
+      if (!txResult?.isSuccess()) return;
 
-      console.log("ENDPOINT CALLED");
-      const txResult = await response.json();
-
-      if (!txResult?.success) {
-        toast.error(txResult?.message);
-        throw new Error(txResult?.message);
-      }
+      // if (!txResult?.success) {
+      //   toast.error(txResult?.message);
+      //   throw new Error(txResult?.message);
+      // }
 
       form.reset();
       navigate("/properties");

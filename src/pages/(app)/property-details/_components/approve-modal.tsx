@@ -62,7 +62,7 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
           contract: contract_,
         });
 
-        if (!result?.success) return;
+        if (!result?.isSuccess()) return;
       }
 
       const call = contractInstance!.populate("approve_purchase_request", [
@@ -77,9 +77,10 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
         contract: contract_,
       });
 
-      if (!result?.success) {
-        toast.error(result?.message);
-        throw new Error(result?.message);
+      if (!result?.isSuccess()) {
+        return;
+        // toast.error(result?.message);
+        // throw new Error(result?.message);
       }
       console.log(result);
       toast.success("Approval successful");

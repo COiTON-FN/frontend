@@ -33,15 +33,15 @@ import { PhoneInput } from "@/components/extension/phone-input";
 import { formatPhoneNumber } from "react-phone-number-input";
 import LocationSelector from "@/components/extension/location-input";
 import SocialInput from "@/components/extension/social-input";
-import { useWalletHook } from "@/hooks/useWallet.hook";
 import { setCredential, User } from "@/store/slice/credential.slice";
 import { stringToByteArray } from "@/lib/starknet/utils";
 import { executeFn } from "@/lib/execute";
 // import { contract } from "@/utils/contract";
-import { setHasRegistered } from "@/store/slice/wallet.slice";
+import { setHasRegistered, setIsWalletConnected, setWalletAddress } from "@/store/slice/wallet.slice";
 import { Upload, X } from "lucide-react";
 import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.hook";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
+import { useAccount, useConnect } from "@starknet-react/core";
 
 const entityFormSchema = z.object({
   name: z
@@ -112,13 +112,14 @@ type EntityFormSchemaProps = z.infer<typeof entityFormSchema>;
 export default function EntityForm() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { handleConnectWallet } = useWalletHook();
   const { onUpload } = useUploadFileToPinataHook();
   const { getWalletProviderContract } = useContractInstance();
   const walletStore = useAppSelector((state: RootState) => state.wallet);
   const credentialStore = useAppSelector(
     (state: RootState) => state.credential.credential,
   );
+  const { connectAsync, connectors } = useConnect()
+
 
   const [countryName, setCountryName] = React.useState<string>("");
   const [stateName, setStateName] = React.useState<string>("");
@@ -150,10 +151,26 @@ export default function EntityForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.watch("phone.national")]);
 
+  const { account, address } = useAccount();
+  // const dispatch = useAppDispatch()
+  React.useEffect(() => {
+    (function () {
+      if (!address) return;
+      window.Wallet = {
+        Account: account,
+        IsConnected: true,
+      };
+      dispatch(setIsWalletConnected(true));
+      dispatch(setWalletAddress(address?.toString()));
+    }())
+  }, [connectors, address])
+
   async function onSubmit(formData: EntityFormSchemaProps) {
     try {
       if (!walletStore.isWalletConnected) {
-        await handleConnectWallet();
+        await connectAsync({ connector: connectors[0] });
+
+        // await handleConnectWallet();
       }
 
       let licenseCid: string[] | null = null;
@@ -177,7 +194,7 @@ export default function EntityForm() {
 
       });
 
-      if (!result?.success) return;
+      if (!result?.isSuccess()) return;
 
       const account = window.Wallet.Account;
 

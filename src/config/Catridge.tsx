@@ -6,24 +6,41 @@ import {
 } from "@starknet-react/core";
 import ControllerConnector from "@cartridge/connector/controller";
 import { FeeSource } from "@cartridge/controller"
+import { contract } from "@/utils/contract";
 
-// Define your contract addresses
-const ETH_TOKEN_ADDRESS =
-    '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'
 
 // Define session policies
 const policies = {
     contracts: {
-        [ETH_TOKEN_ADDRESS]: {
+        [contract.daoAddress]: {
             methods: [
                 {
-                    name: "approve",
-                    entrypoint: "approve",
-                    description: "Approve spending of tokens",
+                    name: "Create Listing",
+                    entrypoint: "create_listing",
+                    // description: "Approve spending of ",
                 },
-                { name: "transfer", entrypoint: "transfer" },
+                { name: "Create Purchase Request", entrypoint: "create_purchase_request" },
+                { name: "Register", entrypoint: "register" },
+                { name: "Approve Purchase Request", entrypoint: "approve_purchase_request" },
+
             ],
         },
+        [contract.erc20Address]: {
+            methods: [
+                {
+                    name: "Approve", entrypoint: "approve",
+                    description: "Approve spending of tokens",
+                },
+            ]
+        },
+        [contract.erc721Address]: {
+            methods: [
+                {
+                    name: "Approve", entrypoint: "approve",
+                    description: "Approve transfer of tokens",
+                },
+            ]
+        }
     },
 }
 

@@ -27,11 +27,12 @@ import { Listing, PurchaseRequest } from "@/store/slice/listing.slice";
 import { toast } from "sonner";
 import { parseUnits } from "ethers";
 import { contract } from "@/utils/contract";
-import { useWalletHook } from "@/hooks/useWallet.hook";
-import { RootState, useAppSelector } from "@/store";
+import { RootState, useAppDispatch, useAppSelector } from "@/store";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { CairoOption, CairoOptionVariant } from "starknet";
 import { executeFn } from "@/lib/execute";
+import { useAccount, useConnect, } from "@starknet-react/core";
+import { setIsWalletConnected, setWalletAddress } from "@/store/slice/wallet.slice";
 
 interface BidModalProps {
   children: ReactNode;
@@ -49,7 +50,7 @@ export const BidModal: FC<BidModalProps> = ({
   const [open, setOpen] = useState(false);
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
   const { getErc20Instance, getWalletProviderContract } = useContractInstance();
-  const { argentWebWallet, handleConnectWallet } = useWalletHook();
+  const { connectAsync, connectors } = useConnect()
 
   const { hasRegistered } = useAppSelector((state: RootState) => state.wallet);
   const { credential } = useAppSelector((state: RootState) => state.credential);
@@ -87,38 +88,52 @@ export const BidModal: FC<BidModalProps> = ({
     }
   }, [isSubmitSuccessful, form]);
 
-  const handleConnect = async ({
-    callbackData,
-    approval = parseUnits("100").toString(),
-  }: {
-    callbackData?: string;
-    approval?: string;
-  }) => {
-    console.log(approval.toString());
-    const response = await argentWebWallet.requestConnection({
-      callbackData: callbackData,
-      approvalRequests: [
-        {
-          tokenAddress: contract.erc20Address as any,
-          amount: approval.toString(),
-          // Your dapp contract
-          spender: contract.daoAddress as any,
-        },
-      ],
-    });
-    console.log(response);
+  // const handleConnect = async ({
+  //   callbackData,
+  //   approval = parseUnits("100").toString(),
+  // }: {
+  //   callbackData?: string;
+  //   approval?: string;
+  // }) => {
+  //   console.log(approval.toString());
+  //   const response = await argentWebWallet.requestConnection({
+  //     callbackData: callbackData,
+  //     approvalRequests: [
+  //       {
+  //         tokenAddress: contract.erc20Address as any,
+  //         amount: approval.toString(),
+  //         // Your dapp contract
+  //         spender: contract.daoAddress as any,
+  //       },
+  //     ],
+  //   });
+  //   console.log(response);
 
-    if (response) {
+  //   if (response) {
+  //     window.Wallet = {
+  //       Account: response.account,
+  //       IsConnected: true,
+  //     };
+  //     // Dispatch a custom event to notify about the change
+  // const event = new Event("windowWalletClassChange");
+  // window.dispatchEvent(event);
+  //     return response.callbackData;
+  //   }
+  // };
+
+  const { account, address } = useAccount();
+  const dispatch = useAppDispatch()
+  useEffect(() => {
+    (function () {
+      if (!address) return;
       window.Wallet = {
-        Account: response.account,
+        Account: account,
         IsConnected: true,
       };
-      // Dispatch a custom event to notify about the change
-      const event = new Event("windowWalletClassChange");
-      window.dispatchEvent(event);
-      return response.callbackData;
-    }
-  };
+      dispatch(setIsWalletConnected(true));
+      dispatch(setWalletAddress(address?.toString()));
+    }())
+  }, [connectors, address])
 
   async function onSubmit(values: BidFormSchemaProps) {
     const bidPrice = values.bid;
@@ -135,7 +150,7 @@ export const BidModal: FC<BidModalProps> = ({
 
     try {
       if (!window.Wallet?.IsConnected) {
-        await handleConnectWallet();
+        await connectAsync({ connector: connectors[0] });
       }
 
       if (!hasRegistered || !credential || !credential.address) {
@@ -180,9 +195,18 @@ export const BidModal: FC<BidModalProps> = ({
         (bidPrice || listing.price).toString(),
       ).toLocaleString("fullwide", { useGrouping: false });
       if (Number(bidValue) > Number(allowance)) {
-        await handleConnect({
-          approval: bidValue,
+        const approval = await executeFn({
+          entrypoint: "approve",
+          calldata: [
+            contract.daoAddress,
+            bidValue,
+          ],
+          contract: erc20,
         });
+        if (!approval.isSuccess()) {
+          throw new Error("Insufficient allowance")
+        }
+
       }
 
       const contract_ = getWalletProviderContract();
@@ -197,7 +221,7 @@ export const BidModal: FC<BidModalProps> = ({
         contract: contract_,
       });
 
-      if (!result?.success) return;
+      if (!result?.isSuccess()) return;
 
       toast.success("Bid submitted successfully");
 
@@ -256,20 +280,19 @@ export const BidModal: FC<BidModalProps> = ({
                       $
                       {purchaseRequests.length > 0
                         ? purchaseRequests
-                            .sort((a, b) => b.price - a.price)[0]
-                            .price.toLocaleString()
+                          .sort((a, b) => b.price - a.price)[0]
+                          .price.toLocaleString()
                         : listing?.price.toLocaleString()}
                     </span>
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={`$${
-                        purchaseRequests.length > 0
-                          ? purchaseRequests
-                              .sort((a, b) => b.price - a.price)[0]
-                              .price.toLocaleString()
-                          : listing?.price.toLocaleString()
-                      }`}
+                      placeholder={`$${purchaseRequests.length > 0
+                        ? purchaseRequests
+                          .sort((a, b) => b.price - a.price)[0]
+                          .price.toLocaleString()
+                        : listing?.price.toLocaleString()
+                        }`}
                       type="number"
                       disabled={isSubmitting}
                       error={!!errors.bid}

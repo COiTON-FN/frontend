@@ -19,14 +19,14 @@ import { setCredential } from "./store/slice/credential.slice";
 import { setListing, Listing } from "./store/slice/listing.slice";
 import { setUsers } from "./store/slice/users.slice";
 
-import { useWalletHook } from "./hooks/useWallet.hook";
-import { SessionAccountInterface } from "@argent/invisible-sdk";
 import { toast } from "sonner";
 import { ThemeProvider } from "./components/provider/theme.provider";
+import { useAccount, useConnect } from "@starknet-react/core";
+import { AccountInterface } from "starknet";
 
 interface Wallet {
   IsConnected: boolean;
-  Account: SessionAccountInterface | undefined;
+  Account: AccountInterface | undefined;
 }
 
 declare global {
@@ -39,7 +39,6 @@ export default function App() {
   const dispatch = useAppDispatch();
   const { walletAddress } = useAppSelector((state) => state.wallet);
 
-  const { argentWebWallet } = useWalletHook();
   const { getContractInstance } = useContractInstance();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -131,37 +130,56 @@ export default function App() {
     };
   }, [walletAddress, dispatch]);
 
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const response = await argentWebWallet.connect();
+  //       if (!response || response.account.getSessionStatus() !== "VALID")
+  //         return;
+
+  // window.Wallet = {
+  //   Account: response.account,
+  //   IsConnected: true,
+  // };
+
+  // dispatch(setIsWalletConnected(true));
+  // dispatch(setWalletAddress(response.account.address));
+
+  //       const event = new Event("windowWalletClassChange");
+  //       window.dispatchEvent(event);
+  //     } catch (error) {
+  //       const msg = "Failed to connect to Argent Web Wallet";
+  //       console.error(msg, error);
+  //       const errorMessage =
+  //         error instanceof Error
+  //           ? error.message
+  //           : typeof error === "string"
+  //             ? error
+  //             : "Failed to connect to Argent Web Wallet";
+  //       toast.error(errorMessage);
+  //     }
+  //   })();
+  // }, [argentWebWallet, dispatch]);
+
+
+  const { account, address } = useAccount();
+  const { connectors } = useConnect()
+
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await argentWebWallet.connect();
-        if (!response || response.account.getSessionStatus() !== "VALID")
-          return;
+    (function () {
+      if (!address) return;
+      window.Wallet = {
+        Account: account,
+        IsConnected: true,
+      };
 
-        window.Wallet = {
-          Account: response.account,
-          IsConnected: true,
-        };
+      dispatch(setIsWalletConnected(true));
+      dispatch(setWalletAddress(address));
 
-        dispatch(setIsWalletConnected(true));
-        dispatch(setWalletAddress(response.account.address));
-
-        const event = new Event("windowWalletClassChange");
-        window.dispatchEvent(event);
-      } catch (error) {
-        const msg = "Failed to connect to Argent Web Wallet";
-        console.error(msg, error);
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : typeof error === "string"
-              ? error
-              : "Failed to connect to Argent Web Wallet";
-        toast.error(errorMessage);
-      }
-    })();
-  }, [argentWebWallet, dispatch]);
-
+      const event = new Event("windowWalletClassChange");
+      window.dispatchEvent(event);
+    }())
+  }, [address, connectors])
   useEffect(() => {
     (async () => {
       try {

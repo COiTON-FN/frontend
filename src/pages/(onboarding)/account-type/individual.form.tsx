@@ -22,13 +22,13 @@ import { PhoneInput } from "@/components/extension/phone-input";
 import { formatPhoneNumber } from "react-phone-number-input";
 import LocationSelector from "@/components/extension/location-input";
 import SocialInput from "@/components/extension/social-input";
-import { useWalletHook } from "@/hooks/useWallet.hook";
 import { setCredential, User } from "@/store/slice/credential.slice";
 import { stringToByteArray } from "@/lib/starknet/utils";
 import { executeFn } from "@/lib/execute";
 // import { contract } from "@/utils/contract";
-import { setHasRegistered } from "@/store/slice/wallet.slice";
+import { setHasRegistered, setIsWalletConnected, setWalletAddress } from "@/store/slice/wallet.slice";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
+import { useAccount, useConnect } from "@starknet-react/core";
 
 const individualFormSchema = z.object({
   name: z
@@ -91,12 +91,12 @@ type IndividualFormSchemaProps = z.infer<typeof individualFormSchema>;
 export default function IndividualForm() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { handleConnectWallet } = useWalletHook();
   const { getWalletProviderContract } = useContractInstance();
   const walletStore = useAppSelector((state: RootState) => state.wallet);
   const credentialStore = useAppSelector(
     (state: RootState) => state.credential.credential,
   );
+  const { connectAsync, connectors } = useConnect()
 
   const [countryName, setCountryName] = React.useState<string>("");
   const [stateName, setStateName] = React.useState<string>("");
@@ -127,10 +127,26 @@ export default function IndividualForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.watch("phone.national")]);
 
+  const { account, address } = useAccount();
+  // const dispatch = useAppDispatch()
+  React.useEffect(() => {
+    (function () {
+      if (!address) return;
+      window.Wallet = {
+        Account: account,
+        IsConnected: true,
+      };
+      dispatch(setIsWalletConnected(true));
+      dispatch(setWalletAddress(address?.toString()));
+    }())
+  }, [connectors, address])
+
   async function onSubmit(formData: IndividualFormSchemaProps) {
     try {
       if (!walletStore.isWalletConnected) {
-        await handleConnectWallet();
+        await connectAsync({ connector: connectors[0] });
+
+        // await handleConnectWallet();
       }
 
       // const userType = new CairoCustomEnum({ Individual: {} });
@@ -149,7 +165,7 @@ export default function IndividualForm() {
         contract: contract_
       });
 
-      if (!result?.success) return;
+      if (!result?.isSuccess()) return;
 
       const account = window.Wallet.Account;
 

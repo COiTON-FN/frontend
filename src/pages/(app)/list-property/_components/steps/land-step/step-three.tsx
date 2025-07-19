@@ -33,9 +33,9 @@ import React from "react";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
 import { useUploadFileToPinataHook } from "@/hooks/upload/useUploadFileToPinata.hook";
 import { stringToByteArray } from "@/lib/starknet/utils";
-import { CairoCustomEnum, Call } from "starknet";
-import { variables } from "@/utils/variables";
+import { CairoCustomEnum, } from "starknet";
 import { useNavigate } from "react-router-dom";
+import { executeFn } from "@/lib/execute";
 
 export default function LandStepThree() {
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ export default function LandStepThree() {
     (state: RootState) => state.newListing.formData,
   );
 
-  const { getContractInstance } = useContractInstance();
+  const { getWalletProviderContract } = useContractInstance();
   const { onUpload } = useUploadFileToPinataHook();
 
   const form = useForm<LandFormSchemaProps>({
@@ -138,46 +138,62 @@ export default function LandStepThree() {
 
       const detailsBytes = stringToByteArray(JSON.stringify(result));
       const type = new CairoCustomEnum({ Land: {} });
-      const contractInstance = getContractInstance();
+      // const contractInstance = getContractInstance();
 
-      if (!contractInstance) {
+      const contract_ = getWalletProviderContract();
+      if (!contract_) {
         throw new Error("Contract instance not available");
+
       }
 
-      const calls: Call = contractInstance.populate("create_listing", [
-        type,
-        formFields.price!,
-        detailsBytes,
-      ]);
 
-      const account = window.Wallet.Account;
-      if (!account) {
-        throw new Error("Wallet not connected!");
-      }
-
-      const callPayload = await account.getOutsideExecutionPayload({
-        calls: [calls],
+      const txResult = await executeFn({
+        // contractAddress: contract.daoAddress,
+        entrypoint: "create_listing",
+        calldata: [
+          type,
+          formFields.price!,
+          detailsBytes,
+        ],
+        contract: contract_,
       });
 
-      const response = await fetch(
-        `${variables.renderEndpoint}/contract/execute`,
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify(callPayload),
-          redirect: "follow",
-        },
-      );
+      if (!txResult?.isSuccess()) return;
 
-      const txResult = await response.json();
+      // const calls: Call = contractInstance.populate("create_listing", [
+      // type,
+      // formFields.price!,
+      // detailsBytes,
+      // ]);
 
-      if (!txResult?.success) {
-        toast.error(txResult?.message);
-        throw new Error(txResult?.message);
-      }
+      // const account = window.Wallet.Account;
+      // if (!account) {
+      //   throw new Error("Wallet not connected!");
+      // }
+
+      // const callPayload = await account.getOutsideExecutionPayload({
+      //   calls: [calls],
+      // });
+
+      // const response = await fetch(
+      //   `${variables.renderEndpoint}/contract/execute`,
+      //   {
+      //     headers: {
+      //       Accept: "application/json",
+      //       "Content-Type": "application/json",
+      //     },
+      //     method: "POST",
+      //     body: JSON.stringify(callPayload),
+      //     redirect: "follow",
+      //   },
+      // );
+
+      // const txResult = await response.json();
+
+      // if (!txResult?.success) {
+      //   toast.error(txResult?.message);
+      //   throw new Error(txResult?.message);
+      // }
 
       form.reset();
       navigate("/properties");

@@ -2,7 +2,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn, generateAvatarFromAddress, truncateAddr } from "@/lib/utils";
-import { RootState } from "@/store";
+import { RootState, useAppDispatch } from "@/store";
 import { ChevronDown, Search } from "lucide-react";
 import { Fragment, memo, useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -28,7 +28,6 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { IoWalletOutline } from "react-icons/io5";
 import { HiOutlineUser } from "react-icons/hi2";
-import { useWalletHook } from "@/hooks/useWallet.hook";
 import { MdVerified } from "react-icons/md";
 import MaxWrapper from "@/components/shared/max-wrapper";
 import { useIsMobileHook } from "@/hooks/useMobile.hook";
@@ -44,25 +43,26 @@ import { ClipboardCopy } from "@/components/shared/clipboard-copy";
 import { useTheme } from "@/components/provider/theme.provider";
 import { siteConfig } from "@/config/site.config";
 import { GlobalSearch } from "@/components/shared/global-search";
-import { useConnect, } from "@starknet-react/core";
+import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
+import { setCurrentConnector, setIsWalletConnected, setWalletAddress } from "@/store/slice/wallet.slice";
+import { setCredential } from "@/store/slice/credential.slice";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
-  const { connect, connectors } = useConnect()
-  // const { disconnect } = useDisconnect()
+  const { connectAsync, connectors } = useConnect()
+  const { account, address } = useAccount()
+  const { disconnectAsync } = useDisconnect()
   const isDark = theme === "dark";
 
   const navigate = useNavigate();
 
-  const { handleDisconnect, isConnecting } =
-    useWalletHook();
   const isMobile = useIsMobileHook();
 
   const walletStore = useSelector((state: RootState) => state.wallet);
   const credentialStore = useSelector(
     (state: RootState) => state.credential.credential,
   );
-
+  const dispatch = useAppDispatch()
   useEffect(() => {
     if (walletStore.isWalletConnected) {
       generateAvatarFromAddress(credentialStore?.address as string);
@@ -72,8 +72,8 @@ const Navbar = () => {
   const connectWallet = async () => {
     try {
       if (window.Wallet?.IsConnected) return;
-      // await handleConnectWallet();
-      connect({ connector: connectors[0] })
+      await connectAsync({ connector: connectors[0] });
+
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
@@ -83,6 +83,35 @@ const Navbar = () => {
       }
     }
   };
+
+  const handleDisconnect = async () => {
+    try {
+      await disconnectAsync()
+      dispatch(setCurrentConnector(null));
+      dispatch(setIsWalletConnected(false));
+      dispatch(setCredential(null));
+      window.Wallet = { Account: undefined, IsConnected: false };
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        toast.info(error.message);
+      } else {
+        toast.info(String(error));
+      }
+    }
+  }
+
+  useEffect(() => {
+    (function () {
+      if (!address) return;
+      dispatch(setIsWalletConnected(true));
+      dispatch(setWalletAddress(address?.toString()));
+      window.Wallet = {
+        Account: account,
+        IsConnected: true,
+      };
+    }())
+  }, [connectors, address])
 
   return (
     <div className="sticky left-0 top-0 z-30 h-20 w-full border-b border-[#EAECF0] bg-background/80 backdrop-blur-xl dark:border-border sm:bg-background sm:backdrop-blur-0">
@@ -300,7 +329,7 @@ const Navbar = () => {
                         </DialogClose>
                         <Button
                           className="flex-1"
-                          onClick={async () => await handleDisconnect()}
+                          onClick={handleDisconnect}
                         >
                           Yes, Sign Out!
                         </Button>
@@ -314,7 +343,7 @@ const Navbar = () => {
             <Button
               size={isMobile ? "icon" : "sm"}
               onClick={connectWallet}
-              isLoading={isConnecting}
+              // isLoading={false}
               txt={!isMobile ? "Please wait..." : undefined}
               className="rounded-full"
             >
