@@ -167,7 +167,9 @@ export default function App() {
 
   useEffect(() => {
     (function () {
+      console.log(account, address)
       if (!address) return;
+      if (window.Wallet?.Account) return;
       window.Wallet = {
         Account: account,
         IsConnected: true,
@@ -179,7 +181,7 @@ export default function App() {
       const event = new Event("windowWalletClassChange");
       window.dispatchEvent(event);
     }())
-  }, [address, connectors])
+  }, [account, connectors])
   useEffect(() => {
     (async () => {
       try {
@@ -192,6 +194,7 @@ export default function App() {
         const contractOwner = await contract.get_owner();
 
         const userConstruct = formatUser(user);
+        console.log(userConstruct, "===========>>>>>")
         console.log(toHex(contractOwner));
 
         dispatch(setHasRegistered(true));

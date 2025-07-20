@@ -104,6 +104,7 @@ const Navbar = () => {
   useEffect(() => {
     (function () {
       if (!address) return;
+      if (window.Wallet?.Account) return;
       dispatch(setIsWalletConnected(true));
       dispatch(setWalletAddress(address?.toString()));
       window.Wallet = {
@@ -111,7 +112,7 @@ const Navbar = () => {
         IsConnected: true,
       };
     }())
-  }, [connectors, address])
+  }, [connectors, account])
 
   return (
     <div className="sticky left-0 top-0 z-30 h-20 w-full border-b border-[#EAECF0] bg-background/80 backdrop-blur-xl dark:border-border sm:bg-background sm:backdrop-blur-0">

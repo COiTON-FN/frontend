@@ -126,6 +126,7 @@ export const BidModal: FC<BidModalProps> = ({
   useEffect(() => {
     (function () {
       if (!address) return;
+      if (window.Wallet?.Account) return;
       window.Wallet = {
         Account: account,
         IsConnected: true,
@@ -133,7 +134,7 @@ export const BidModal: FC<BidModalProps> = ({
       dispatch(setIsWalletConnected(true));
       dispatch(setWalletAddress(address?.toString()));
     }())
-  }, [connectors, address])
+  }, [connectors, account])
 
   async function onSubmit(values: BidFormSchemaProps) {
     const bidPrice = values.bid;

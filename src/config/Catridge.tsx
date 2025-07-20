@@ -50,6 +50,7 @@ const sessions = toSessionPolicies(policies)
 const connector = new ControllerConnector({
     policies: sessions,
     defaultChainId: constants.StarknetChainId.SN_SEPOLIA,
+
     chains: [{
         rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia",
     }],

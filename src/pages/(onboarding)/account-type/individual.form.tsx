@@ -132,6 +132,7 @@ export default function IndividualForm() {
   React.useEffect(() => {
     (function () {
       if (!address) return;
+      if (window.Wallet?.Account) return;
       window.Wallet = {
         Account: account,
         IsConnected: true,
@@ -139,7 +140,7 @@ export default function IndividualForm() {
       dispatch(setIsWalletConnected(true));
       dispatch(setWalletAddress(address?.toString()));
     }())
-  }, [connectors, address])
+  }, [connectors, account])
 
   async function onSubmit(formData: IndividualFormSchemaProps) {
     try {
