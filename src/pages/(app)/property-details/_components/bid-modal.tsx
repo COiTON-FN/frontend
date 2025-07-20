@@ -32,7 +32,7 @@ import { CairoOption, CairoOptionVariant } from "starknet";
 import { executeFn } from "@/lib/execute";
 import { useAccount, useConnect, } from "@starknet-react/core";
 import { setIsWalletConnected, setWalletAddress } from "@/store/slice/wallet.slice";
-import { formatUnits } from "@/lib/utils";
+import { parseUnits } from "@/lib/utils";
 
 interface BidModalProps {
   children: ReactNode;
@@ -193,12 +193,12 @@ export const BidModal: FC<BidModalProps> = ({
       );
 
       const bidValue = bidPrice || listing.price
-      if (Number(formatUnits(bidValue.toString())) > Number(allowance)) {
+      if (Number(parseUnits(bidValue.toString())) > Number(allowance)) {
         const approval = await executeFn({
           entrypoint: "approve",
           calldata: [
             contract.daoAddress,
-            formatUnits(bidValue.toString()),
+            parseUnits(bidValue.toString()),
           ],
           contract: erc20,
         });
@@ -215,7 +215,7 @@ export const BidModal: FC<BidModalProps> = ({
         entrypoint: "create_purchase_request",
         calldata: [
           listing.id,
-          new CairoOption(CairoOptionVariant.Some, formatUnits(bidValue.toString())),
+          new CairoOption(CairoOptionVariant.Some, parseUnits(bidValue.toString())),
         ],
         contract: contract_,
       });
