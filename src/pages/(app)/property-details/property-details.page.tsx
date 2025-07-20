@@ -15,6 +15,7 @@ import { byteArrayToString, toHex } from "@/lib/starknet/utils";
 import { Fragment, useEffect, useState } from "react";
 import {
   formatDate,
+  formatUnits,
   formatUser,
   generateAvatarFromAddress,
   truncateAddr,
@@ -162,7 +163,7 @@ export default function PropertyDetailsPage() {
         const request_construct: PurchaseRequest = {
           initiator: toHex(request.initiator),
           listing_id: Number(request.listing_id),
-          price: Number(request.price),
+          price: Number(formatUnits(Number(request.price).toLocaleString("fullwide", { useGrouping: false }))),
           request_id: Number(request.request_id),
           user: user_construct,
         };
