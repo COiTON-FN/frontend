@@ -33,6 +33,52 @@ export const shuffleArray = <T>(array: T[]): T[] => {
   return shuffledArray;
 };
 
+export const extractDecodedErrorReasons = (errorMsg: string) => {
+  const hexMatches = errorMsg.match(/0x[0-9a-fA-F]{8,}/g);
+  if (!hexMatches) return "Execution error";
+
+  const decodeHex = (hex: any) => {
+    hex = hex.replace(/^0x/, "");
+    let decoded = "";
+    for (let i = 0; i < hex.length; i += 2) {
+      const charCode = parseInt(hex.slice(i, i + 2), 16);
+      decoded +=
+        charCode >= 32 && charCode <= 126 ? String.fromCharCode(charCode) : ""; // skip unreadable characters
+    }
+    return decoded;
+  };
+
+  const priorityOrder = [
+    "INVALID_LISTING",
+    "UNAUTHORIZED",
+    "ALREADY_EXIST",
+    "INVALID_PARAM",
+    "PRICE_TOO_LOW",
+    "INSUFFICIENT_ALLOWANCE",
+    "INSUFFICIENT_BALANCE",
+    "NOT_REGISTERED",
+    "INVALID_ADDRESS",
+    "NOT_FOR_SALE",
+  ];
+
+  const decoded = hexMatches
+    .map(decodeHex)
+    .filter((str) => str && /^[A-Z0-9_\/-]{5,}$/.test(str)); // keep error-like strings
+
+  const errs = decoded.sort((a, b) => {
+    const aIndex = priorityOrder.indexOf(a);
+    const bIndex = priorityOrder.indexOf(b);
+    return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+  });
+
+  if (errs.length) {
+    return errs[0];
+  }
+
+  const match = errorMsg.match(/'([^']+)'/);
+  return (match ?? ["Execution error"])[0];
+};
+
 export function truncateAddr(str: string | undefined, n: number = 4): string {
   if (!str) return "";
   return str?.length > n

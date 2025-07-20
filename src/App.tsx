@@ -7,7 +7,7 @@ import { routes } from "./routes";
 import { useAppDispatch, useAppSelector } from "./store";
 import { useContractInstance } from "./hooks/useContractInstance.hook";
 import { byteArrayToString, toHex } from "./lib/starknet/utils";
-import { formatUser, generateAvatarFromAddress } from "./lib/utils";
+import { extractDecodedErrorReasons, formatUser, generateAvatarFromAddress } from "./lib/utils";
 
 import {
   setIsWalletConnected,
@@ -204,8 +204,9 @@ export default function App() {
             "0x25de235bcba49aa753587d4ae45f6d71908db9e2b4152dca1246b80516e88ad",
           ),
         );
-      } catch (error) {
-        console.error("Error fetching user credentials:", error);
+      } catch (error: any) {
+        console.log(extractDecodedErrorReasons(error.message))
+        // console.error("Error fetching user credentials:", error);
         toast.warning("Looks like you're not registered yet");
       }
     })();

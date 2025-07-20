@@ -1,5 +1,6 @@
 // import { variables } from "@/utils/variables";
 import { Calldata, Contract, RawArgs } from "starknet";
+import { extractDecodedErrorReasons } from "./utils";
 
 interface WriteTransactionProps {
   entrypoint: string;
@@ -67,10 +68,8 @@ export async function executeFn({
 
     // return result;
   } catch (error: any) {
-    const errMsg =
-      error?.message ||
-      "Unexpected error occurred while executing contract function.";
-    console.error("Execution aborted:", errMsg);
-    throw new Error(errMsg);
+    console.error("Execution Error:", error);
+    const msg = extractDecodedErrorReasons(error.message);
+    throw new Error(msg);
   }
 }
