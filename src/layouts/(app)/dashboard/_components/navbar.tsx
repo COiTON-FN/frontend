@@ -49,7 +49,7 @@ import { setCredential } from "@/store/slice/credential.slice";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
-  const { connectAsync, connectors } = useConnect()
+  const { connectAsync, connectors, isPending } = useConnect()
   const { account, address } = useAccount()
   const { disconnectAsync } = useDisconnect()
   const isDark = theme === "dark";
@@ -344,7 +344,7 @@ const Navbar = () => {
             <Button
               size={isMobile ? "icon" : "sm"}
               onClick={connectWallet}
-              // isLoading={false}
+              isLoading={isPending}
               txt={!isMobile ? "Please wait..." : undefined}
               className="rounded-full"
             >
