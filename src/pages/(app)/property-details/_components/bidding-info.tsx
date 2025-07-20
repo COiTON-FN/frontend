@@ -100,7 +100,7 @@ const baseColumns: ColumnDef<PurchaseRequest>[] = [
         ...user,
         details: {
           ...user.details,
-          name: user.details.name.split(" ")[0],
+          name: user.details.name?.split(" ")[0],
         },
       };
 
@@ -330,9 +330,9 @@ export const BiddingInfo: React.FC<BiddingInfoProps> = ({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
