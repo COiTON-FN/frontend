@@ -78,7 +78,8 @@ export default function ProfilePage() {
   useEffect(() => {
     (async function () {
       try {
-        if (!credential) return;
+        console.log("initialized here=============>>>>")
+        // if (!credential) return;
         if (!address) return;
         // if (credential?.user_type === "Individual") return;
         const contract = getContractInstance();
@@ -109,7 +110,7 @@ export default function ProfilePage() {
         console.error(error)
       }
     }())
-  }, [credential, address])
+  }, [address])
 
   useEffect(() => {
     if (credential) {
