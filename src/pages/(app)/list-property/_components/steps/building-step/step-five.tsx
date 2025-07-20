@@ -30,7 +30,7 @@ import {
   setFormStep,
   updateListingFormData,
 } from "@/store/slice/new-listing.slice";
-import { cn } from "@/lib/utils";
+import { cn, formatUnits } from "@/lib/utils";
 import { toast } from "sonner";
 import { stringToByteArray } from "@/lib/starknet/utils";
 import { CairoCustomEnum } from "starknet";
@@ -195,7 +195,7 @@ export default function BuildingStepFive() {
         entrypoint: "create_listing",
         calldata: [
           type,
-          formFields.price!,
+          formatUnits(formFields.price!.toString()),
           detailsBytes,
         ],
         contract: contract_,

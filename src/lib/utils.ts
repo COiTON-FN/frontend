@@ -15,6 +15,37 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const parseUnits = (
+  value: string,
+  decimals: number = variables.TOKEN_DECIMAL,
+): bigint => {
+  const [integerPart, fractionalPart = ""] = value.split(".");
+
+  // Pad fractional part to the right with zeros up to `decimals`
+  const paddedFraction = fractionalPart
+    .padEnd(decimals, "0")
+    .slice(0, decimals);
+
+  // Combine integer and fractional parts and convert to BigInt
+  return BigInt(integerPart + paddedFraction);
+};
+
+export const formatUnits = (
+  value: string | bigint,
+  decimals: number = variables.TOKEN_DECIMAL,
+): string => {
+  const bigValue = BigInt(value); // Convert to BigInt for precision
+  const divisor = BigInt(10 ** decimals); // 10^decimals
+  const integerPart = bigValue / divisor;
+  const fractionalPart = bigValue % divisor;
+
+  // Pad fractional part with leading zeros
+  const fractionalString = fractionalPart.toString().padStart(decimals, "0");
+
+  // Remove trailing zeros and return
+  return `${integerPart}.${fractionalString}`.replace(/\.?0+$/, "");
+};
+
 export const formatDate = (isoString: string): string => {
   const date = new Date(isoString);
   return date.toLocaleDateString("en-US", {

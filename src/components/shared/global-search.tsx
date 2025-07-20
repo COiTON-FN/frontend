@@ -32,18 +32,18 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ children }) => {
 
   const filteredUsers = query
     ? users.filter(
-        (user) =>
-          user.details.name.toLowerCase().includes(query) ||
-          user.address.toLowerCase().includes(query),
-      )
+      (user) =>
+        user?.details?.name?.toLowerCase()?.includes(query) ||
+        user?.address?.toLowerCase()?.includes(query),
+    )
     : users.slice(0, 1).reverse();
 
   const filteredListings = query
     ? listings.filter(
-        (listing) =>
-          listing.details.title.toLowerCase().includes(query) ||
-          listing.details.description.toLowerCase().includes(query),
-      )
+      (listing) =>
+        listing?.details?.title?.toLowerCase()?.includes(query) ||
+        listing?.details?.description?.toLowerCase()?.includes(query),
+    )
     : listings.slice(-1).reverse();
 
   React.useEffect(() => {

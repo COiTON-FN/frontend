@@ -7,7 +7,7 @@ import { routes } from "./routes";
 import { useAppDispatch, useAppSelector } from "./store";
 import { useContractInstance } from "./hooks/useContractInstance.hook";
 import { byteArrayToString, toHex } from "./lib/starknet/utils";
-import { extractDecodedErrorReasons, formatUser, generateAvatarFromAddress } from "./lib/utils";
+import { extractDecodedErrorReasons, formatUser, generateAvatarFromAddress, parseUnits } from "./lib/utils";
 
 import {
   setIsWalletConnected,
@@ -55,7 +55,7 @@ export default function App() {
         return {
           id: Number(listing.id),
           owner: toHex(listing.owner),
-          price: Number(listing.price),
+          price: Number(parseUnits(listing.price.toString())),
           tag: listing.tag.variant.Sold ? "Sold" : "ForSale",
           details: byteArrayToString(listing.details),
           owner_details: userConstruct,

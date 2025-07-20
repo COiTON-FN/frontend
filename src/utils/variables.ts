@@ -4,6 +4,7 @@ export const variables = {
   daoAddress: import.meta.env.VITE_DEPLOYED_ADDRESS,
   erc20Address: import.meta.env.VITE_ERC20_ADDRESS,
   erc721Address: import.meta.env.VITE_ERC721_ADDRESS,
+  TOKEN_DECIMAL: 18,
 
   gateway: import.meta.env.VITE_PINATA_GATEWAY,
   renderEndpoint: import.meta.env.VITE_RENDER_ENDPOINT,

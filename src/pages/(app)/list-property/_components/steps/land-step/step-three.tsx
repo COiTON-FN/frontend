@@ -14,7 +14,7 @@ import {
   setFormStep,
   updateListingFormData,
 } from "@/store/slice/new-listing.slice";
-import { cn, lcStorage } from "@/lib/utils";
+import { cn, formatUnits, lcStorage } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import {
   FileUpload,
@@ -152,7 +152,7 @@ export default function LandStepThree() {
         entrypoint: "create_listing",
         calldata: [
           type,
-          formFields.price!,
+          formatUnits(formFields.price!.toString()),
           detailsBytes,
         ],
         contract: contract_,
