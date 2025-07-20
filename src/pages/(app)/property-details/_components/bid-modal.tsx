@@ -28,7 +28,7 @@ import { toast } from "sonner";
 import { contract } from "@/utils/contract";
 import { RootState, useAppDispatch, useAppSelector } from "@/store";
 import { useContractInstance } from "@/hooks/useContractInstance.hook";
-import { CairoOption, CairoOptionVariant } from "starknet";
+import { cairo, CairoOption, CairoOptionVariant } from "starknet";
 import { executeFn } from "@/lib/execute";
 import { useAccount, useConnect, } from "@starknet-react/core";
 import { setIsWalletConnected, setWalletAddress } from "@/store/slice/wallet.slice";
@@ -208,6 +208,8 @@ export const BidModal: FC<BidModalProps> = ({
 
       }
 
+      // console.log(new CairoOption(CairoOptionVariant.Some, cairo.uint256(Number(parseUnits(bidValue.toString())))))
+
       const contract_ = getWalletProviderContract();
 
       const result = await executeFn({
@@ -215,7 +217,7 @@ export const BidModal: FC<BidModalProps> = ({
         entrypoint: "create_purchase_request",
         calldata: [
           listing.id,
-          new CairoOption(CairoOptionVariant.Some, parseUnits(bidValue.toString())),
+          new CairoOption(CairoOptionVariant.Some, cairo.uint256(Number(parseUnits(bidValue.toString())))),
         ],
         contract: contract_,
       });

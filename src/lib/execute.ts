@@ -69,7 +69,7 @@ export async function executeFn({
     // return result;
   } catch (error: any) {
     console.error("Execution Error:", error);
-    const msg = extractDecodedErrorReasons(error.message);
+    const msg = extractDecodedErrorReasons(error?.message ?? "Execution Error");
     throw new Error(msg);
   }
 }
