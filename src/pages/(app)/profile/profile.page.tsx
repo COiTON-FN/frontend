@@ -99,6 +99,8 @@ export default function ProfilePage() {
           };
         });
 
+        console.log({ structured })
+
         setListingHistory(structured);
 
 
@@ -107,7 +109,7 @@ export default function ProfilePage() {
         console.error(error)
       }
     }())
-  }, [credential])
+  }, [credential, address])
 
   useEffect(() => {
     if (credential) {
