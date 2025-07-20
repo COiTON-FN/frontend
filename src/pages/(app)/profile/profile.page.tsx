@@ -36,6 +36,7 @@ export default function ProfilePage() {
 
   const listings = useAppSelector((state: RootState) => state.listing.listings);
   const [agentListings, setAgentListings] = useState<Listing[]>([]);
+  const [listingHistory, setListingHistory] = useState<Listing[]>([]);
   const connectedAddress = useAppSelector(
     (state) => state.wallet.walletAddress,
   );
@@ -72,6 +73,41 @@ export default function ProfilePage() {
       }
     })();
   }, [address, connectedAddress, getContractInstance]);
+
+
+  useEffect(() => {
+    (async function () {
+      try {
+        if (!credential) return;
+        if (!address) return;
+        // if (credential?.user_type === "Individual") return;
+        const contract = getContractInstance();
+        if (!contract) throw new Error("Contract not available");
+        const listing_history = await contract.get_user_listings_history(address);
+        const structured: Listing[] = listing_history.map((listing: any) => {
+          const user = listing.owner_details.Some;
+
+          const user_construct = formatUser(user);
+
+          return {
+            id: Number(listing.id),
+            owner: toHex(listing.owner),
+            price: Number(listing.price),
+            tag: (listing?.tag as any)?.variant?.Sold ? "Sold" : "ForSale",
+            details: byteArrayToString(listing.details),
+            owner_details: user_construct,
+          };
+        });
+
+        setListingHistory(structured);
+
+
+
+      } catch (error) {
+        console.error(error)
+      }
+    }())
+  }, [credential])
 
   useEffect(() => {
     if (credential) {
@@ -379,7 +415,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
                 ))
-              ) : agentListings.length === 0 ? (
+              ) : ([...listingHistory, ...agentListings]).length === 0 ? (
                 <div className="col-span-3 flex aspect-[2.2] items-center justify-center">
                   <p className="text-base font-medium text-muted-foreground">
                     {address
@@ -388,7 +424,7 @@ export default function ProfilePage() {
                   </p>
                 </div>
               ) : (
-                agentListings.map((listing: Listing) => {
+                ([...listingHistory, ...agentListings]).map((listing: Listing) => {
                   return <ListingCard key={listing.id} listing={listing} />;
                 })
               )}
