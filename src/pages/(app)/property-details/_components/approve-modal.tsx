@@ -59,7 +59,7 @@ export const ApproveModal: React.FC<ApproveModalProps> = ({
           // contractAddress: approve_call.contractAddress,
           entrypoint: approve_call.entrypoint,
           calldata: approve_call.calldata,
-          contract: contract_,
+          contract: erc721,
         });
 
         if (!result?.isSuccess()) return;
