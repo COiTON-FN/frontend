@@ -119,6 +119,7 @@ export const contract = {
           name: "user",
           type: "core::option::Option::<coiton::mods::types::User>",
         },
+        { name: "status", type: "core::integer::u8" },
       ],
     },
     {
@@ -238,6 +239,20 @@ export const contract = {
           ],
           outputs: [],
           state_mutability: "external",
+        },
+        {
+          type: "function",
+          name: "get_user_listings_history",
+          inputs: [
+            {
+              name: "address",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+          outputs: [
+            { type: "core::array::Array::<coiton::mods::types::Listing>" },
+          ],
+          state_mutability: "view",
         },
         {
           type: "function",
