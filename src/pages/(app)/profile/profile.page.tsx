@@ -78,13 +78,12 @@ export default function ProfilePage() {
   useEffect(() => {
     (async function () {
       try {
-        console.log("initialized here=============>>>>")
-        // if (!credential) return;
-        if (!address) return;
+        const targetAddress = address || connectedAddress;
+        if (!targetAddress) return;
         // if (credential?.user_type === "Individual") return;
         const contract = getContractInstance();
         if (!contract) throw new Error("Contract not available");
-        const listing_history = await contract.get_user_listings_history(address);
+        const listing_history = await contract.get_user_listings_history(targetAddress);
         const structured: Listing[] = listing_history.map((listing: any) => {
           const user = listing.owner_details.Some;
 
